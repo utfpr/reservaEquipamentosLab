@@ -11,7 +11,7 @@ function resolve (dir) {
 
 module.exports = {
   entry: {
-    app: './src/main.js'
+    app: ['./src/main.js', './src/firebase-controller.js']
   },
   output: {
     path: config.build.assetsRoot,
