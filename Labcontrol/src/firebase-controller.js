@@ -1,7 +1,7 @@
 import firebase from 'firebase'
 
 // Initialize Firebase
-var config = {
+const config = {
   apiKey: 'AIzaSyANGX03FDeQ7X3dzsh_U3AzH6FS_teHZ6o',
   authDomain: 'reservaequipamentoslab.firebaseapp.com',
   databaseURL: 'https://reservaequipamentoslab.firebaseio.com',
