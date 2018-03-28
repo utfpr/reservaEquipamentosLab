@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/utfpr/reservaEquipamentosLab.svg?branch=master)](https://travis-ci.org/utfpr/reservaEquipamentosLab)
+
 [![Waffle.io - Columns and their card count](https://badge.waffle.io/utfpr/reservaEquipamentosLab.png?columns=all)](https://waffle.io/utfpr/reservaEquipamentosLab?utm_source=badge)
 
 # LabControl
