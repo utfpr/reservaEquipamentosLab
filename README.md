@@ -12,12 +12,12 @@ Sistema para gerenciamento de reservas de laboratórios e equipamentos laborator
 - [Firebase](https://firebase.google.com/)
 
 
-## Como usar
+## Configurações
 - #### Requisitos
   - NodeJS >= 6.6.0
   - Firebase Project
 
-- #### 
+- #### Como usar
 ```
  $ git clone https://github.com/utfpr/reservaEquipamentosLab.git
 ```
