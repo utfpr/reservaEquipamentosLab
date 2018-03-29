@@ -11,3 +11,7 @@ export default {
   name: 'app'
 }
 </script>
+
+<style lang="css" scoped>
+   @import '../node_modules/bootstrap/dist/css/bootstrap.css'
+</style>
