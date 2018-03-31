@@ -7,14 +7,14 @@
 						Identifique-se, por favor
 					</div>
 					<div class="card-body">
-						<form>
+						<form id="login">
 							<div class="form-group">
 								<label class="sr-only" for="email">E-mail</label>
 								<div class="input-group ">
 								  <div class="input-group-prepend">
 								    <div class="input-group-text d-xs-none d-md-flex"><i class="fas fa-envelope"></i></div>
 								  </div>
-								<input type="text" class="form-control" id="email" placeholder="E-mail">
+								<input type="email" class="form-control" id="email" placeholder="E-mail" @focus="focusForm('email')" @blur="blurForm()" >
 								</div>
 							</div>
 						     <div class="form-group">
@@ -23,7 +23,7 @@
 							       <div class="input-group-prepend">
 							         <div class="input-group-text d-xs-none d-md-flex"><i class="fas fa-lock"></i></div>
 							       </div>
-							       <input type="text" class="form-control" id="senha" placeholder="Senha">
+							       <input type="password" class="form-control" id="senha" placeholder="Senha">
 							     </div>
 						     </div>
 						     <button type="submit" class="btn btn-primary">Login</button>
@@ -51,7 +51,14 @@ export default {
   data () {
     return {}
   },
-  methods: {}
+  methods: {
+    focusForm (id) {
+      let el = document.getElementById(id)
+      el.classList.add('focused')
+    },
+    blurForm () {
+    }
+  }
 }
 </script>
 
@@ -62,9 +69,7 @@ export default {
   transform: translateY(-50%);
 }
 
-@media (min-width: 0px){
-	.d-xs-none{
-		display: none;
-	}
+.focused{
+     border-bottom-color: red;
 }
 </style>

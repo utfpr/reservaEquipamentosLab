@@ -4,6 +4,7 @@ import Vue from 'vue'
 import VueResource from 'vue-resource'
 import App from './App'
 import router from './router'
+import PulseLoader from 'vue-spinner/src/PulseLoader.vue'
 import 'bootstrap'
 
 Vue.use(VueResource)
@@ -16,4 +17,11 @@ new Vue({
   router,
   template: '<App/>',
   components: { App }
+})
+
+new Vue({
+  el: '#loading',
+  components: {
+    PulseLoader
+  }
 })

@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <header>
-      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+      <nav class="navbar navbar-expand-lg navbar-dark fixed-top nav-bg-gradient">
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
         </button>
@@ -24,14 +24,19 @@
       <div class="row justify-content-center">
         <div class="col-sm-auto">
           <!-- <img src="./assets/logo_UTFPR.png" style="width:150px; margin:10%"> -->
-          <p class="text-center" style="font-size:1.2em; margin: 15px 0 15px 0">CAMPUS CAMPO MOURÃO - VIA ROSALINA MARIA DOS SANTOS, 1233 CEP 87301-899 Caixa Postal: 271 Campo Mourão - PR - Brasil<br>Telefone Geral +55 (44) 3518-1400</p>
+          <small><p class="d-xs-none d-sm-flex text-center" style="margin: 15px 0 15px 0">UTFPR Campus Campo Mourão - Via Rosalina Maria dos Santos, 1233 CEP 87301-899 Caixa Postal: 271 Campo Mourão - PR - Brasil<br>Telefone Geral +55 (44) 3518-1400</p></small>
         </div>
       </div>
           </div>
           <div class="copyright" style="background-color:#C9CBD0;">
               <div class="container">
                   <div class="row">
-        <small>&copy; Copyright 2018 <a href="http://portal.utfpr.edu.br/campus/campomourao" target="_blank" class="text-dark">DACOM UTFPR-CM</a> </small>
+                    <div class="col-sm-6 text-left">
+
+                    </div>
+                    <div class="col-md-6 text-right">
+                      <small>&copy; Copyright 2018 <a href="http://portal.utfpr.edu.br/campus/campomourao" target="_blank" class="text-dark">DACOM UTFPR-CM</a></small>
+                    </div>
                   </div>
               </div>
           </div>
@@ -46,16 +51,49 @@ export default {
 </script>
 
 <style lang="css">
-   @import '../node_modules/bootstrap/dist/css/bootstrap.css';
+  @import '../node_modules/bootstrap/dist/css/bootstrap.css';
 
-   #app {
-     display: flex;
-     min-height: 100vh;
-     flex-direction: column;
-   }
+  #app {
+    display: flex;
+    min-height: 100vh;
+    flex-direction: column;
+  }
 
-   main {
-     flex: 1 1 auto;
-   }
+  body {
+  }
+
+  main {
+    flex: 1 1 auto;
+    margin-top: 60px;
+  }
+
+  .nav-bg-gradient {
+    background: linear-gradient(135deg, black 70%, gold 30%);
+  }
+
+  @media (min-width: 0px){
+    .d-xs-none{
+      display: none;
+    }
+  }
+
+  ::-webkit-scrollbar {
+    width: 5px;
+    background-color:rgba(0, 0, 0, 0);
+  }
+
+  ::-webkit-scrollbar-track {
+    background-color:rgba(0, 0, 0, 0);
+  }
+
+
+  ::-webkit-scrollbar-thumb {
+    background: rgb(136, 136, 136, 1);
+    border-radius: 25px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgb(85, 85, 85, 1);
+  }
 
 </style>

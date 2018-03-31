@@ -7,8 +7,6 @@
 
     <title>LabControl</title>
 
-    <!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous"> -->
-
     <link rel="icon" type="image/png" sizes="32x32" href="<%= htmlWebpackPlugin.files.publicPath %>static/img/icons/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="<%= htmlWebpackPlugin.files.publicPath %>static/img/icons/favicon-16x16.png">
     <!--[if IE]><link rel="shortcut icon" href="/static/img/icons/favicon.ico"><![endif]-->
@@ -33,29 +31,13 @@
   <body class="d-flex flex-column">
 
 	  <noscript>
-		  <p class="alert"> Erro ao carregar componentes do site, tente atualizar a página ou entre com contato com o administrador do sistema </p>
+		  <p class="alert-warning"> Erro ao carregar componentes do site, tente atualizar a página ou entre com contato com o administrador do sistema </p>
 	  </noscript>
 	  <div id="app"></div>
 	  <!-- Todo: only include in production -->
 	  <%= htmlWebpackPlugin.options.serviceWorkerLoader %>
 	  <!-- built files will be auto injected -->
 
-	  <!-- <footer class="footer fixed-bottom" style="background-color: #DDDFE4;">
-		  <div class="container">
-			  <div class="row">
-				  <div class="col-sm-auto">
-            <img src="../assets/logo_UTFPR.png" alt="" style="width:20%">
-				  </div>
-			  </div>
-            </div>
-            <div class="copyright" style="background-color:#C9CBD0;">
-                <div class="container">
-                    <div class="row">
-					<small>&copy; Copyright 2018 <a href="http://portal.utfpr.edu.br/campus/campomourao" target="_blank" class="text-dark">DACOM UTFPR-CM</a> </small>
-                    </div>
-                </div>
-            </div>
-	  </footer> -->
 
 	  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
 	  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
