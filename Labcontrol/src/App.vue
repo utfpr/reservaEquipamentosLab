@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <header>
-      <nav class="navbar navbar-expand-lg navbar-dark fixed-top nav-bg-gradient">
+      <nav name="hideOnLogin" class="navbar navbar-expand-lg navbar-dark fixed-top nav-bg-gradient">
         <a class="navbar-brand text-justify" href="#">LabControl</a>
 
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -27,7 +27,7 @@
     <router-view></router-view>
      <vue-progress-bar></vue-progress-bar>
   </main>
-  <footer id="footer" class="footer" style="background-color: #DDDFE4;">
+  <footer id="footer" name="hideOnLogin" class="footer" style="background-color: #DDDFE4;">
     <div class="container">
       <div class="row justify-content-center">
         <div class="col-sm-12 text-center">
@@ -90,14 +90,19 @@ export default {
 
   main {
     flex: 1 1 auto;
-    margin-top: 60px;
+    margin-top: 55px;
   }
 
   .vertical-center {
     position: absolute;
     top: 50%;
+    transform: translateY(-50%);
+  }
+
+  .horizontal-center {
+    position: absolute;
     right: 50%;
-    transform: translateY(-50%) translateX(50%);
+    transform: translateX(50%);
   }
 
   .nav-bg-gradient {
