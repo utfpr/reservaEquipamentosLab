@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import Router from 'vue-router'
+import firebase from 'firebase'
 import Home from '@/components/Home'
 import Login from '@/components/Login'
 import p404 from '@/components/p404'
@@ -16,7 +17,10 @@ const router = new Router({
     {
       path: '/home',
       name: 'Home',
-      component: Home
+      component: Home,
+      meta: {
+        requiresAuth: true
+      }
     },
     {
       path: '/login',
@@ -43,12 +47,13 @@ const router = new Router({
   ]
 })
 
-// router.beforeEach((to, from, next) => {
-//   next()
-// })
-//
-// router.afterEach((to, from, next) => {
-//   next()
-// })
+router.beforeEach((to, from, next) => {
+  let currentUser = firebase.auth().currentUser
+  let requiresAuth = to.matched.some(record => record.meta.requiresAuth)
+
+  if (requiresAuth && !currentUser) next('login')
+  else if (currentUser && !requiresAuth) next('home')
+  else next()
+})
 
 export default router
