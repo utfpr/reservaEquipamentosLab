@@ -11,3 +11,15 @@ const config = {
 }
 
 firebase.initializeApp(config)
+
+let firebaseReady
+
+firebase.auth().onAuthStateChanged(function (user) {
+  if (user) {
+    firebaseReady = true
+  } else {
+    firebaseReady = false
+  }
+})
+
+export default firebaseReady

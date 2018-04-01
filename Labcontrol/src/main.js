@@ -2,18 +2,40 @@
 // (runtime-only or standalone) has been set in webpack.base.conf with an alias.
 import Vue from 'vue'
 import VueResource from 'vue-resource'
-import App from './App'
 import router from './router'
+import App from './App'
+import VueProgressBar from 'vue-progressbar'
+import firebaseReady from './firebase-controller.js'
 import 'bootstrap'
 
 Vue.use(VueResource)
-
 Vue.config.productionTip = false
 
-/* eslint-disable no-new */
-new Vue({
-  el: '#app',
-  router,
-  template: '<App/>',
-  components: { App }
-})
+let app
+
+const options = {
+  color: '#0042b1',
+  failedColor: '#BA2121',
+  thickness: '7px',
+  transition: {
+    speed: '0.2s',
+    opacity: '0.6s',
+    termination: 300
+  },
+  autoRevert: true,
+  location: 'top',
+  inverse: false
+}
+
+Vue.use(VueProgressBar, options)
+
+if (!firebaseReady) {
+  app = new Vue({
+    el: '#app',
+    router,
+    template: '<App/>',
+    components: { App }
+  })
+} else {
+  console.log(app)
+}
