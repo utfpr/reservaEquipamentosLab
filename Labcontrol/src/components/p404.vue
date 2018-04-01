@@ -1,7 +1,7 @@
 <template>
   <div class="p404">
     <div class="container">
-      <h2>CONTEÚDO AQUI</h2>
+      <h2>404 AQUI</h2>
     </div>
   </div>
 </template>
