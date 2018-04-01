@@ -19,9 +19,6 @@ Sistema para gerenciamento de reservas de laboratórios e equipamentos laborator
 
 - #### Como usar
 ```
- $ git clone https://github.com/utfpr/reservaEquipamentosLab.git
-```
-```
  $ cd reservaEquipamentosLab/LabControl   # Acessar a pasta LabControl
 ```
    Altere a variável `config` em `src/firebase-controller.js` para as credencias de acesso de seu projeto Firebase
