@@ -1,0 +1,50 @@
+{
+	 "$schema": "http://json-schema.org/draft-04/schema#",
+	 "description": "Comment describing your JSON Schema",
+	 "type": "object",
+	 "properties": {
+		 "codigo": {
+			 "type": "string"
+		},
+		 "nome": {
+			 "type": "string"
+		},
+		 "equipamentos": {
+			 "$ref": "#/definitions/Equipamento"
+		}
+	},
+	 "additionalProperties": false,
+	 "definitions": {
+		 "Equipamento": {
+			 "type": "array",
+			 "items": {
+				 "type": "object",
+				 "properties": {
+					 "patrimonio": {
+						 "type": "integer"
+					},
+					 "nome": {
+						 "type": "string"
+					},
+					 "especificacao": {
+						 "type": "string"
+					},
+					 "marca": {
+						 "type": "string"
+					},
+					 "curso": {
+						 "type": "string"
+					},
+					 "status": {
+						 "type": "string",
+						 "enum": [
+							"normal",
+							"conserto"
+						]
+					}
+				},
+				 "additionalProperties": false
+			}
+		}
+	}
+}
