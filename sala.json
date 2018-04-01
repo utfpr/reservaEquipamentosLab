@@ -1,0 +1,30 @@
+{
+	"codigo": "C105",
+	"nome": "Ambiental",
+	"equipamentos": [
+		{
+			"patrimonio": 347181,
+			"nome": "Mufla",
+			"especificacao": "",
+			"marca": "FORNITEC",
+			"curso": "Ambiental",
+			"status": "normal"
+		},
+		{
+			"patrimonio": 351534,
+			"nome": "Estufa de secagem",
+			"especificacao": "",
+			"marca": "FANEM",
+			"curso": "Ambiental",
+			"status": "normal"
+		},
+		{
+			"patrimonio": 351536,
+			"nome": "Destilador de nitrogênio",
+			"especificacao": "",
+			"marca": "TECNAL",
+			"curso": "Ambiental",
+			"status": "normal"
+		}
+	]
+}
