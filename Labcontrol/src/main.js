@@ -4,8 +4,8 @@ import Vue from 'vue'
 import VueResource from 'vue-resource'
 import router from './router'
 import App from './App'
+import firebase from 'firebase'
 import VueProgressBar from 'vue-progressbar'
-import firebaseReady from './firebase-controller.js'
 import 'bootstrap'
 
 Vue.use(VueResource)
@@ -29,13 +29,13 @@ const options = {
 
 Vue.use(VueProgressBar, options)
 
-if (!firebaseReady) {
-  app = new Vue({
-    el: '#app',
-    router,
-    template: '<App/>',
-    components: { App }
-  })
-} else {
-  console.log(app)
-}
+firebase.auth().onAuthStateChanged(function (user) {
+  if (!app) {
+    app = new Vue({
+      el: '#app',
+      router,
+      template: '<App/>',
+      components: { App }
+    })
+  }
+})
