@@ -5,10 +5,13 @@ import VueResource from 'vue-resource'
 import router from './router'
 import App from './App'
 import VueProgressBar from 'vue-progressbar'
+import firebaseReady from './firebase-controller.js'
 import 'bootstrap'
 
 Vue.use(VueResource)
 Vue.config.productionTip = false
+
+let app
 
 const options = {
   color: '#0042b1',
@@ -17,7 +20,7 @@ const options = {
   transition: {
     speed: '0.2s',
     opacity: '0.6s',
-    termination: 400
+    termination: 300
   },
   autoRevert: true,
   location: 'top',
@@ -26,23 +29,13 @@ const options = {
 
 Vue.use(VueProgressBar, options)
 
-// Vue.mixin({
-//   data () {
-//     return {
-//       loading: false,
-//       color: '#0042b1',
-//       size: '30px'
-//     }
-//   },
-//   mounted: function () {
-//     this.loading = false
-//   }
-// })
-
-/* eslint-disable no-new */
-new Vue({
-  el: '#app',
-  router,
-  template: '<App/>',
-  components: { App }
-})
+if (!firebaseReady) {
+  app = new Vue({
+    el: '#app',
+    router,
+    template: '<App/>',
+    components: { App }
+  })
+} else {
+  console.log(app)
+}
