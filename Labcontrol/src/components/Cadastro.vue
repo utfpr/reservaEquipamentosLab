@@ -7,7 +7,7 @@
 						Cadastro
 					</div>
 					<div class="card-body">
-						<form>
+						<form id="form" class="form-inline" v-on:submit.prevent ="Confirmar">
 							<div class="form-group">
 									<label for="ra">Registro Academico:</label>
 									<div class="input-group ">
@@ -19,6 +19,7 @@
 								    type = "number"
 								    maxlength = "7"
 										class="form-control"
+										v-model = "newUser.ra"
 								 />
 								</div>
 							</div>
@@ -28,7 +29,7 @@
 									<div class="input-group-prepend">
 										<div class="input-group-text d-xs-none d-md-flex"><i class="fas fa-user"></i></div>
 									</div>
-									<input type="text" required="required" class="form-control" id="nome">
+									<input type="text" required="required" class="form-control" id="nome" v-model = "newUser.nome">
 								</div>
 							</div>
 							<div class="form-group">
@@ -37,7 +38,7 @@
 									<div class="input-group-prepend">
 										<div class="input-group-text d-xs-none d-md-flex"><i class="fas fa-envelope"></i></div>
 									</div>
-									<input type="email" required="required" class="form-control" id="email">
+									<input type="email" required="required" class="form-control" id="email" v-model = "newUser.email">
 								</div>
 							</div>
 							<div class="form-group">
@@ -46,7 +47,7 @@
 									<div class="input-group-prepend">
 										<div class="input-group-text d-xs-none d-md-flex"><i class="fas fa-phone"></i></div>
 									</div>
-									<input type="tel" required="required" class="form-control" id="telefone" maxlength="11" >
+									<input type="tel" required="required" class="form-control" id="telefone" maxlength="11" v-model = "newUser.telefone">
 								</div>
 							</div>
 									<div class="form-group">
@@ -72,12 +73,35 @@
 </template>
 
 <script>
+import firebase from 'firebase'
+var db = firebase.database()
+var cadastroRef = db.ref('cadastro')
 export default {
-  name: 'login',
-  data () {
-    return {}
+  name: 'confirmar',
+  firebase: {
+    cadastro: cadastroRef
   },
-  methods: {}
+  data () {
+    return {
+      newUser: {
+        ra: '',
+        nome: '',
+        email: '',
+        telefone: '',
+        curso: ''
+      }
+    }
+  },
+  methods: {
+    submitNewUser () {
+      cadastroRef.push(this.newUser)
+      this.newUser.ra = ''
+      this.newUser.nome = ''
+      this.newUser.email = ''
+      this.newUser.telefone = ''
+      this.newUser.curso = ''
+    }
+  }
 }
 </script>
 
