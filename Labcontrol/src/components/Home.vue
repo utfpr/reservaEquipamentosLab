@@ -1,7 +1,7 @@
 <template>
-  <div class="home">
+  <div id="home">
 	  <div class="container">
-      
+      <h2>CONTEÚDO AQUI</h2>
 	  </div>
   </div>
 </template>
@@ -10,10 +10,7 @@
 export default {
   name: 'home',
   data () {
-    return {}
-  },
-  methods: {
-
+    return { }
   }
 }
 </script>

@@ -17,8 +17,10 @@
     "popper": "^1.0.1",
     "popper.js": "^1.14.1",
     "vue": "^2.5.2",
+    "vue-progressbar": "^0.7.4",
     "vue-resource": "^1.5.0",
     "vue-router": "^3.0.1",
+    "vue-spinner": "^1.0.3",
     "vuefire": "^1.4.5"
   },
   "devDependencies": {
