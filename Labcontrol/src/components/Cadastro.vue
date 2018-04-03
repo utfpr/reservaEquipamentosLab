@@ -1,5 +1,4 @@
 <template>
-<<<<<<< HEAD
 	<div class="container">
 		<div class="row justify-content-center">
 			<div class="col-sm-12 col-md-8 col-lg-4 vertical-center">
@@ -53,79 +52,24 @@
 							</div>
 									<div class="form-group">
 										<label for="curso">Curso:</label>
-											<select class="form-control" id="curso">
+											<select class="form-control" id="curso" v-model = "newUser.curso">
 												<option>Engenharia Ambiental</option>
 												<option>Engenharia de Alimentos</option>
 												<option>Quimica</option>
 											</select>
-=======
-  <div id="cadastro">
-    <div class="container">
-      <div class="row justify-content-center">
-        <div class="col-sm-12 col-md-8 col-lg-4 vertical-center">
-          <div class="card text-center" style="">
-            <div class="card-header">
-              Cadastro
-            </div>
-            <div class="card-body">
-              <form>
-                <div class="form-group">
-                  <label for="ra">Registro Academico:</label>
-                  <div class="input-group ">
-                    <div class="input-group-prepend">
-                      <div class="input-group-text d-xs-none d-md-flex"><i class="fas fa-graduation-cap"></i></div>
-                    </div>
-                    <input id="ra"
-                    oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" type = "number" min="1" maxlength = "7" class="form-control"
-                    />
-                  </div>
-                </div>
-                <div class="form-group">
-                  <label for="nome">Nome:</label>
-                  <div class="input-group ">
-                    <div class="input-group-prepend">
-                      <div class="input-group-text d-xs-none d-md-flex"><i class="fas fa-user"></i></div>
-                    </div>
-                    <input type="text" required="required" class="form-control" id="nome">
-                  </div>
-                </div>
-                <div class="form-group">
-                  <label for="email">E-mail:</label>
-                  <div class="input-group ">
-                    <div class="input-group-prepend">
-                      <div class="input-group-text d-xs-none d-md-flex"><i class="fas fa-envelope"></i></div>
-                    </div>
-                    <input type="email" required="required" class="form-control" id="email">
-                  </div>
-                </div>
-                <div class="form-group">
-                  <label for="telefone">Telefone:</label>
-                  <div class="input-group ">
-                    <div class="input-group-prepend">
-                      <div class="input-group-text d-xs-none d-md-flex"><i class="fas fa-phone"></i></div>
-                    </div>
-                    <input type="tel" required="required" class="form-control" id="telefone" maxlength="11" >
-                  </div>
-                </div>
-                <div class="form-group">
-                  <label for="curso">Curso:</label>
-                  <select class="form-control" id="curso">
-                    <option>Engenharia Ambiental</option>
-                    <option>Engenharia de Alimentos</option>
-                    <option>Quimica</option>
-                  </select>
-                </div>
-                </form>
->>>>>>> Labcontrol/master
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </template>
-
-<<<<<<< HEAD
+									</div>
+									<div>
+										<button v-on:click="submitNewUser">Enviar</button>
+									</div>
+									</form>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</template>
+				
 <script>
 import firebase from 'firebase'
 var db = firebase.database()
@@ -147,7 +91,7 @@ export default {
     }
   },
   methods: {
-    submitNewUser () {
+    submitNewUser: function () {
       cadastroRef.push(this.newUser)
       this.newUser.ra = ''
       this.newUser.nome = ''
@@ -158,18 +102,7 @@ export default {
   }
 }
 </script>
-=======
-  <script>
-  export default {
-    name: 'cadastro',
-    data () {
-      return {}
-    },
-    methods: {}
-  }
-  </script>
->>>>>>> Labcontrol/master
-
+	
   <style>
     input[type=number]::-webkit-inner-spin-button {
       -webkit-appearance: none;
