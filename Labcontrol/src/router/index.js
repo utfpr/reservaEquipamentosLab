@@ -5,6 +5,8 @@ import Home from '@/components/Home'
 import Login from '@/components/Login'
 import p404 from '@/components/p404'
 import Cadastro from '@/components/Cadastro'
+import Equipamento from '@/components/Equipamento'
+import Local from '@/components/Local'
 
 Vue.use(Router)
 
@@ -31,6 +33,22 @@ const router = new Router({
       path: '/cadastro',
       name: 'Cadastro',
       component: Cadastro,
+      meta: {
+        requiresAuth: true
+      }
+    },
+    {
+      path: '/equipamento',
+      name: 'Equipamento',
+      component: Equipamento,
+      meta: {
+        requiresAuth: true
+      }
+    },
+    {
+      path: '/local',
+      name: 'Local',
+      component: Local,
       meta: {
         requiresAuth: true
       }
