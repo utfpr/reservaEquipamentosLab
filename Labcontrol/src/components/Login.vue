@@ -1,8 +1,8 @@
 <template>
   <div id="login">
       <div class="row justify-content-end">
-        <div class="d-xs-none d-md-flex col-md-12 col-lg-8 justify-content-center">
-          <div class="login-center">
+        <div class="d-xs-none d-sm-flex col-sm-12 col-lg-8 justify-content-center">
+          <div class="login-center mt-sm-5 mt-lg-0">
             <h1 class="text-white display-1"> <b>LabControl</b> </h1>
           </div>
         </div>
@@ -29,10 +29,10 @@
             <button class="btn btn-primary btn-block" v-on:click="login">Login</button>
           </form>
           <div class="row">
-            <div class="col-sm-6 text-left">
+            <div class="col-sm-12 col-md-6 text-left">
               <a href="#" class="text-link">Fazer cadastro</a>
             </div>
-            <div class="col-sm-6 text-right">
+            <div class="col-sm-12 col-md-6 text-right">
               <a href="#" class="text-link">Esqueci minha senha</a>
             </div>
           </div>
@@ -53,20 +53,20 @@ export default {
     }
   },
   mounted: function () {
-    let elements = document.getElementsByName('hideOnLogin')
+    let elements = document.getElementsByName('hideOn')
 
     for (let i = 0; i < elements.length; i++) {
-      elements[i].classList.add('login')
+      elements[i].classList.add('hideOn')
     }
 
     let main = document.getElementsByTagName('main')
     main[0].setAttribute('style', 'margin-top: 0px!important;')
   },
   destroyed: function () {
-    let elements = document.getElementsByName('hideOnLogin')
+    let elements = document.getElementsByName('hideOn')
 
     for (let i = 0; i < elements.length; i++) {
-      elements[i].classList.remove('login')
+      elements[i].classList.remove('hideOn')
     }
 
     let main = document.getElementsByTagName('main')
@@ -103,12 +103,24 @@ export default {
     padding-left: 15%;
     padding-top: 15%;
   }
+  .text-left {
+    text-align: center!important;
+  }
+  .text-right {
+    text-align: center!important;
+  }
 }
 
 @media (min-width: 768px) {
   .login-form {
     padding-right: 5%;
     padding-left: 5%;
+  }
+  .text-left {
+    text-align: left!important;
+  }
+  .text-right {
+    text-align: right!important;
   }
 
 }
@@ -117,10 +129,6 @@ export default {
   .login-center{
     padding-top: 42vh;
   }
-}
-
-.login {
-  display: none!important;
 }
 
 .text-link {
@@ -144,7 +152,7 @@ a:hover {
 
   display: block;
   background-position: center;
-  background-image: url('../assets/lab_01.jpg');
+  background-image: url('../assets/img/lab_01.jpg');
   background-size:cover;
   width: 100%;
   height: 100%;
