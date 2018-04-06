@@ -1,10 +1,13 @@
 <template>
   <div id="login">
       <div class="row justify-content-end">
-        <div class="d-xs-none d-sm-flex col-sm-12 col-lg-8 justify-content-center">
-          <div class="login-center mt-sm-5 mt-lg-0">
-            <h1 class="text-white display-1"> <b>LabControl</b> </h1>
-          </div>
+        <div class="d-xs-none d-sm-flex col-sm-12 col-lg-8 justify-content-center text-center">
+            <div class="login-center mt-sm-5 mt-lg-0">
+                <h1 class="text-white display-1"> <b>LabControl</b></h1>
+                <div class="d-xs-none d-sm-flex text-white">
+                  <p class="login-description">Sistema para reservas de laboratórios e equipamentos laboratoriais da UTFPR-CM</p>
+                </div>
+            </div>
         </div>
         <div class="col-sm-12 col-md-12 col-lg-4 justify-content-center login-form login-center login-divider">
           <form id="singIn">
@@ -12,21 +15,21 @@
               <label class="sr-only" for="email">E-mail</label>
               <div class="input-group ">
                 <div class="input-group-prepend">
-                  <div class="input-group-text d-xs-none d-md-flex"><i class="fas fa-envelope"></i></div>
+                  <div class="input-group-text input-group-text-login d-xs-none d-md-flex"><i class="fas fa-envelope"></i></div>
                 </div>
-                <input type="email" v-model="email" class="form-control" id="email" placeholder="E-mail">
+                <input type="email" v-model="email" class="form-control form-control-login" id="email" placeholder="E-mail">
               </div>
             </div>
             <div class="form-group">
               <label class="sr-only" for="password">Senha</label>
               <div class="input-group">
                 <div class="input-group-prepend">
-                  <div class="input-group-text d-xs-none d-md-flex"><i class="fas fa-lock"></i></div>
+                  <div class="input-group-text input-group-text-login d-xs-none d-md-flex"><i class="fas fa-lock"></i></div>
                 </div>
-                <input type="password" v-model="password" class="form-control" id="password" placeholder="Senha">
+                <input type="password" v-model="password" class="form-control form-control-login" id="password" placeholder="Senha">
               </div>
             </div>
-            <button class="btn btn-primary btn-block" v-on:click="login">Login</button>
+            <button class="btn btn-primary-login btn-block" v-on:click="login">Login</button>
           </form>
           <div class="row">
             <div class="col-sm-12 col-md-6 text-left">
@@ -164,7 +167,11 @@ a:hover {
   filter: blur(0.65em);
 }
 
-.input-group-text {
+.login-description {
+  max-width: 50vw;
+}
+
+.input-group-text-login {
   color: #fff;
   background-color: transparent;
   border: 0px;
@@ -172,7 +179,7 @@ a:hover {
   border-radius: 0rem;
 }
 
-.form-control {
+.form-control-login {
   color: #fff;
   border: 0px;
   background-color: transparent;
@@ -181,7 +188,7 @@ a:hover {
   border-radius: 0rem;
 }
 
-.form-control:focus {
+.form-control-login:focus {
   color: #fff;
   background-color: rgba(0, 0, 0, 0);
   border: 0px;
@@ -190,45 +197,45 @@ a:hover {
   box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
 }
 
-.form-control::-webkit-input-placeholder {
+.form-control-login::-webkit-input-placeholder {
   color: #fff;
   opacity: 1;
 }
 
-.form-control::-moz-placeholder {
+.form-control-login::-moz-placeholder {
   color: #fff;
   opacity: 1;
 }
 
-.form-control:-ms-input-placeholder {
+.form-control-login:-ms-input-placeholder {
   color: #fff;
   opacity: 1;
 }
 
-.form-control::-ms-input-placeholder {
+.form-control-login::-ms-input-placeholder {
   color: #fff;
   opacity: 1;
 }
 
-.form-control::placeholder {
+.form-control-login::placeholder {
   color: #fff;
   opacity: 1;
 }
 
-.btn-primary {
+.btn-primary-login {
   color: #fff;
   background-color: rgba(44, 102, 206, 0.45);
   border-color: rgba(0, 0, 0, 0);
   border-radius: 0;
 }
 
-.btn-primary:hover {
+.btn-primary-login:hover {
   color: #fff;
   background-color: rgba(44, 102, 206, 0.75);
   border-color: rgba(44, 102, 206, 0)
 }
 
-.btn-primary:focus, .btn-primary.focus {
+.btn-primary-login:focus, .btn-primary.focus {
   color: #fff;
   background-color: rgba(44, 102, 206, 0.75);
   border-color: rgba(44, 102, 206, 0.75);
