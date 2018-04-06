@@ -20,10 +20,16 @@ export default {
   mounted: function () {
     let elements = document.getElementsByTagName('footer')
     elements[0].classList.add('hideOn')
+
+    let main = document.getElementsByTagName('main')
+    main[0].setAttribute('style', 'margin-top: 55px!important;')
   },
   destroyed: function () {
     let elements = document.getElementsByTagName('footer')
     elements[0].classList.remove('hideOn')
+
+    let main = document.getElementsByTagName('main')
+    main[0].setAttribute('style', '')
   },
   methods: {}
 }
