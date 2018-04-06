@@ -90,7 +90,7 @@ export default {
 
   main {
     flex: 1 1 auto;
-    margin-top: 55px;
+    margin-top: 100px;
   }
 
   .vertical-center {
