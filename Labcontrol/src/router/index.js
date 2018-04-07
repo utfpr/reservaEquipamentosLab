@@ -21,20 +21,23 @@ const router = new Router({
       name: 'Home',
       component: Home,
       meta: {
-        requiresAuth: true
+        requiresAuth: false
       }
     },
     {
       path: '/login',
       name: 'Login',
-      component: Login
+      component: Login,
+      meta: {
+        login: true
+      }
     },
     {
       path: '/cadastro',
       name: 'Cadastro',
       component: Cadastro,
       meta: {
-        requiresAuth: true
+        requiresAuth: false
       }
     },
     {
@@ -68,9 +71,10 @@ const router = new Router({
 router.beforeEach((to, from, next) => {
   let currentUser = firebase.auth().currentUser
   let requiresAuth = to.matched.some(record => record.meta.requiresAuth)
+  let login = to.matched.some(record => record.meta.login)
 
   if (requiresAuth && !currentUser) next('login')
-  else if (currentUser && !requiresAuth) next('home')
+  else if (currentUser && !requiresAuth && !login) next()
   else next()
 })
 
