@@ -4,10 +4,12 @@ import Vue from 'vue'
 import VueResource from 'vue-resource'
 import router from './router'
 import App from './App'
-import firebase from 'firebase'
 import VueProgressBar from 'vue-progressbar'
+import Notifications from 'vue-notification'
+import firebase from 'firebase'
 import 'bootstrap'
 
+Vue.use(Notifications)
 Vue.use(VueResource)
 Vue.config.productionTip = false
 
