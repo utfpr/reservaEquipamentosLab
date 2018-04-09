@@ -149,4 +149,21 @@ main {
 .hideOn {
   display: none!important;
 }
+
+input[type=number]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  display: none;
+  cursor:pointer;
+  display:block;
+  width:8px;
+  color: #333;
+  text-align:center;
+  position:relative;
+}
+input[type=number] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+  margin: 0;
+}
+
 </style>

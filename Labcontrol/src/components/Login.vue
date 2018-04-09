@@ -33,7 +33,7 @@
           </form>
           <div class="row">
             <div class="col-sm-12 col-md-6 text-left">
-              <a href="#" class="text-link">Fazer cadastro</a>
+              <router-link to="/cadastro" class="text-link">Fazer cadastro</router-link>
             </div>
             <div class="col-sm-12 col-md-6 text-right">
               <a href="#" class="text-link">Esqueci minha senha</a>

@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <div class="row justify-content-center text-center">
-        <h2>Bem vindo ao LabControl! <br> Cadastro </h2>
+        <h2> Crie sua conta no LabControl! </h2>
     </div>
     <hr />
     <div class="row justify-content-center">
@@ -136,21 +136,5 @@ export default {
 
 #cadastroForm {
   width: 100vw;
-}
-
-input[type=number]::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  display: none;
-  cursor:pointer;
-  display:block;
-  width:8px;
-  color: #333;
-  text-align:center;
-  position:relative;
-}
-input[type=number] {
-  -moz-appearance: textfield;
-  appearance: textfield;
-  margin: 0;
 }
 </style>
