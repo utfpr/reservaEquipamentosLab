@@ -83,6 +83,14 @@ devMiddleware.waitUntilValid(() => {
 
 const server = app.listen(port)
 
+// const https = require('https');
+// const fs = require('fs');
+// const options = {
+//   key: fs.readFileSync('build/cert/server.key'),
+//   cert: fs.readFileSync('build/cert/server.crt')
+// };
+// const server = https.createServer(options, app).listen(port);
+
 module.exports = {
   ready: readyPromise,
   close: () => {
