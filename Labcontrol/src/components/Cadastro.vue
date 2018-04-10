@@ -84,14 +84,10 @@
 </template>
 
 <script>
-import firebase from 'firebase'
-var db = firebase.database()
-var cadastroRef = db.ref('cadastro')
+import firebaseApp from '../firebase-controller.js'
+const db = firebaseApp.database()
 export default {
-  name: 'confirmar',
-  firebase: {
-    cadastro: cadastroRef
-  },
+  name: 'cadastro',
   data () {
     return {
       newUser: {
@@ -103,15 +99,18 @@ export default {
       }
     }
   },
+  firebase: {
+    cadastroRef: db.ref('cadastro')
+  },
   methods: {
     submitNewUser () {
-      cadastroRef.push(this.newUser)
+      this.$firebaseRefs.cadastroRef.push(this.newUser)
       this.newUser.ra = ''
       this.newUser.nome = ''
       this.newUser.email = ''
       this.newUser.telefone = ''
       this.newUser.curso = ''
-      this.$router.push({name: '/', params: 'teste'})
+      this.$router.push({name: '/', params: 'success'})
     },
     validate: function () {
       let _this = this
