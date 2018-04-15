@@ -4,11 +4,16 @@ import Vue from 'vue'
 import VueResource from 'vue-resource'
 import router from './router'
 import App from './App'
-import firebase from 'firebase'
 import VueProgressBar from 'vue-progressbar'
+import Notifications from 'vue-notification'
+import VueFire from 'vuefire'
+import firebaseApp from './firebase-controller.js'
 import 'bootstrap'
 
+Vue.use(Notifications)
+Vue.use(VueFire)
 Vue.use(VueResource)
+
 Vue.config.productionTip = false
 
 let app
@@ -29,7 +34,7 @@ const options = {
 
 Vue.use(VueProgressBar, options)
 
-firebase.auth().onAuthStateChanged(function (user) {
+firebaseApp.auth().onAuthStateChanged(function (user) {
   if (!app) {
     app = new Vue({
       el: '#app',

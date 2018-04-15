@@ -1,5 +1,5 @@
 <template>
-  <div id="cadastro">
+  <div id="cadastroLocais">
     <div class="container">
       <div class="row justify-content-center">
         <div class="col-sm-12 col-md-8 col-lg-4 vertical-center">
@@ -55,19 +55,4 @@
   </script>
 
   <style>
-    input[type=number]::-webkit-inner-spin-button {
-      -webkit-appearance: none;
-      display: none;
-      cursor:pointer;
-      display:block;
-      width:8px;
-      color: #333;
-      text-align:center;
-      position:relative;
-    }
-    input[type=number] {
-      -moz-appearance: textfield;
-      appearance: textfield;
-      margin: 0;
-    }
   </style>

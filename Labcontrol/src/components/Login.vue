@@ -4,20 +4,20 @@
         <div class="d-xs-none d-sm-flex col-sm-12 col-lg-8 justify-content-center text-center">
             <div class="login-center mt-sm-5 mt-lg-0">
                 <h1 class="text-white display-1"> <b>LabControl</b></h1>
-                <div class="d-xs-none d-sm-flex text-white">
-                  <p class="login-description">Sistema para reservas de laboratórios e equipamentos laboratoriais da UTFPR-CM</p>
+                <div class="d-xs-none d-lg-flex text-white">
+                  <p class="login-description">Reserve equipamentos e espaços para as suas atividades com muito mais praticidade!</p>
                 </div>
             </div>
         </div>
         <div class="col-sm-12 col-md-12 col-lg-4 justify-content-center login-form login-center login-divider">
-          <form id="singIn">
+          <form id="singIn" v-on:submit="login">
             <div class="form-group">
               <label class="sr-only" for="email">E-mail</label>
               <div class="input-group ">
                 <div class="input-group-prepend">
                   <div class="input-group-text input-group-text-login d-xs-none d-md-flex"><i class="fas fa-envelope"></i></div>
                 </div>
-                <input type="email" v-model="email" class="form-control form-control-login" id="email" placeholder="E-mail">
+                <input type="email" v-model="email" class="form-control form-control-login" id="email" placeholder="E-mail" >
               </div>
             </div>
             <div class="form-group">
@@ -26,17 +26,17 @@
                 <div class="input-group-prepend">
                   <div class="input-group-text input-group-text-login d-xs-none d-md-flex"><i class="fas fa-lock"></i></div>
                 </div>
-                <input type="password" v-model="password" class="form-control form-control-login" id="password" placeholder="Senha">
+                <input type="password" v-model="password" class="form-control form-control-login" id="password" placeholder="Senha" >
               </div>
             </div>
-            <button class="btn btn-primary-login btn-block" v-on:click="login">Login</button>
+            <button type="submit" class="btn btn-primary-login btn-block">Login</button>
           </form>
           <div class="row">
             <div class="col-sm-12 col-md-6 text-left">
-              <a href="#" class="text-link">Fazer cadastro</a>
+              <router-link to="/cadastro" class="text-link">Fazer cadastro</router-link>
             </div>
             <div class="col-sm-12 col-md-6 text-right">
-              <a href="#" class="text-link">Esqueci minha senha</a>
+              <router-link to="/RecuperarSenha" class="text-link">Esqueci minha senha</router-link>
             </div>
           </div>
         </div>
@@ -45,7 +45,8 @@
 </template>
 
 <script>
-import firebase from 'firebase'
+import firebaseApp from '../firebase-controller.js'
+const auth = firebaseApp.auth()
 
 export default {
   name: 'login',
@@ -77,14 +78,41 @@ export default {
   },
   methods: {
     login: function () {
-      firebase.auth().signInWithEmailAndPassword(this.email, this.password).then(
-        (user) => {
-          this.$router.replace('/home')
-        },
-        (err) => {
-          alert('Oops ' + err.message)
+      let _this = this
+      auth.signInWithEmailAndPassword(this.email, this.password).then(function (user) {
+        _this.$router.replace('/verificar-email')
+      }).catch((err) => {
+        switch (err.message) {
+          case 'The email address is badly formatted.': {
+            this.$notify({
+              group: 'notify',
+              type: 'error',
+              title: 'Oops!',
+              text: 'Endereço de E-mail inválido'
+            })
+            break
+          }
+          case 'The password is invalid or the user does not have a password.' || 'There is no user record corresponding to this identifier. The user may have been deleted.': {
+            this.$notify({
+              group: 'notify',
+              type: 'error',
+              title: 'Oops!',
+              text: 'E-mail não cadastrado ou senha inválida'
+            })
+            break
+          }
+          default: {
+            this.$notify({
+              group: 'notify',
+              type: 'error',
+              title: 'Oops!',
+              text: 'Parece que algo deu errado.<br>Por favor, tente novamente'
+            })
+            break
+          }
         }
-      )
+        console.log('Falha ao logar: ' + err.message)
+      })
     }
   }
 }
@@ -93,7 +121,7 @@ export default {
 <style>
 /* local styles */
 
-.login-divider {
+#login .login-divider {
   height: 96vh;
   margin-top: 2vh;
   margin-bottom: 2vh;
@@ -101,40 +129,40 @@ export default {
 }
 
 @media (min-width: 0px) {
-  .login-form {
+  #login .login-form {
     padding-right: 15%;
     padding-left: 15%;
     padding-top: 15%;
   }
-  .text-left {
+  #login .text-left {
     text-align: center!important;
   }
-  .text-right {
+  #login .text-right {
     text-align: center!important;
   }
 }
 
 @media (min-width: 768px) {
-  .login-form {
+  #login .login-form {
     padding-right: 5%;
     padding-left: 5%;
   }
-  .text-left {
+  #login .text-left {
     text-align: left!important;
   }
-  .text-right {
+  #login .text-right {
     text-align: right!important;
   }
 
 }
 
 @media (min-width: 992px) {
-  .login-center{
+  #login .login-center{
     padding-top: 42vh;
   }
 }
 
-.text-link {
+#login .text-link {
   color: rgba(255, 255, 255, 0.5);
 }
 
@@ -167,11 +195,11 @@ a:hover {
   filter: blur(0.65em);
 }
 
-.login-description {
+#login .login-description {
   max-width: 50vw;
 }
 
-.input-group-text-login {
+#login .input-group-text-login {
   color: #fff;
   background-color: transparent;
   border: 0px;
@@ -179,7 +207,7 @@ a:hover {
   border-radius: 0rem;
 }
 
-.form-control-login {
+#login .form-control-login {
   color: #fff;
   border: 0px;
   background-color: transparent;
@@ -188,7 +216,7 @@ a:hover {
   border-radius: 0rem;
 }
 
-.form-control-login:focus {
+#login .form-control-login:focus {
   color: #fff;
   background-color: rgba(0, 0, 0, 0);
   border: 0px;
@@ -197,45 +225,45 @@ a:hover {
   box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
 }
 
-.form-control-login::-webkit-input-placeholder {
+#login .form-control-login::-webkit-input-placeholder {
   color: #fff;
   opacity: 1;
 }
 
-.form-control-login::-moz-placeholder {
+#login .form-control-login::-moz-placeholder {
   color: #fff;
   opacity: 1;
 }
 
-.form-control-login:-ms-input-placeholder {
+#login .form-control-login:-ms-input-placeholder {
   color: #fff;
   opacity: 1;
 }
 
-.form-control-login::-ms-input-placeholder {
+#login .form-control-login::-ms-input-placeholder {
   color: #fff;
   opacity: 1;
 }
 
-.form-control-login::placeholder {
+#login .form-control-login::placeholder {
   color: #fff;
   opacity: 1;
 }
 
-.btn-primary-login {
+#login .btn-primary-login {
   color: #fff;
   background-color: rgba(44, 102, 206, 0.45);
   border-color: rgba(0, 0, 0, 0);
   border-radius: 0;
 }
 
-.btn-primary-login:hover {
+#login .btn-primary-login:hover {
   color: #fff;
   background-color: rgba(44, 102, 206, 0.75);
   border-color: rgba(44, 102, 206, 0)
 }
 
-.btn-primary-login:focus, .btn-primary.focus {
+#login .btn-primary-login:focus, #login .btn-primary.focus {
   color: #fff;
   background-color: rgba(44, 102, 206, 0.75);
   border-color: rgba(44, 102, 206, 0.75);

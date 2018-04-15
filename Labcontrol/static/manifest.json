@@ -1,6 +1,7 @@
 {
   "name": "lab-control",
   "short_name": "LabControl",
+  "gcm_sender_id": "103953800507",
   "icons": [
     {
       "src": "/static/img/icons/android-chrome-192x192.png",
