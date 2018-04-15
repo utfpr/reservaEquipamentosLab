@@ -1,7 +1,7 @@
 <template>
-  <div id="app">
+  <div id="root">
     <header>
-      <nav name="hideOn" class="navbar navbar-expand-lg navbar-dark fixed-top nav-bg-gradient">
+      <nav name="hideOn" class="navbar navbar-expand-lg navbar-dark fixed-top nav-bg-gradient justify-content-between">
         <a class="navbar-brand text-justify" href="#">LabControl</a>
 
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -20,6 +20,13 @@
               <router-link to="/cadastro" class="nav-link">Cadastro</router-link>
             </li>
           </ul>
+        </div>
+
+        <div class="userLogout">
+          <div class="text-white">
+            <span v-if="username">Olá, {{ username }}</span>
+            <a v-if="isUser" href="#" v-on:click="logout" class="btn btn-dark btn-sm">Sair</a>
+          </div>
         </div>
       </nav>
     </header>
@@ -54,11 +61,15 @@
 </template>
 
 <script>
-
+import firebaseApp from './firebase-controller.js'
+const auth = firebaseApp.auth()
 export default {
   name: 'app',
   data () {
-    return { }
+    return {
+      username: null,
+      isUser: null
+    }
   },
   mounted () {
     this.$Progress.finish()
@@ -70,8 +81,22 @@ export default {
       next()
     })
     this.$router.afterEach((to, from) => {
+      this.isUser = auth.currentUser
+      if (auth.currentUser) {
+        this.username = auth.currentUser.displayName
+        if (!auth.currentUser.emailVerified) {
+          this.$router.replace('/verificar-email')
+        }
+      }
       this.$Progress.finish()
     })
+  },
+  methods: {
+    logout: function () {
+      auth.signOut()
+      this.$router.replace('/login')
+      location.reload()
+    }
   }
 }
 </script>
@@ -79,7 +104,7 @@ export default {
 <style lang="css">
 @import '../node_modules/bootstrap/dist/css/bootstrap.css';
 
-#app {
+#root {
   display: flex;
   min-height: 100vh;
   flex-direction: column;
@@ -107,7 +132,7 @@ main {
 }
 
 .nav-bg-gradient {
-  background-image: linear-gradient(135deg, #343a40 50%, rgba(52, 115, 228, 0.9294117647058824) 100%);
+  background-image: linear-gradient(135deg, #343a40 50%, #007bff 100%);
 }
 
 .navbar-toggler-icon-personalized {

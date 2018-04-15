@@ -17,7 +17,7 @@
                 <div class="input-group-prepend">
                   <div class="input-group-text input-group-text-login d-xs-none d-md-flex"><i class="fas fa-envelope"></i></div>
                 </div>
-                <input type="email" v-model="email" class="form-control form-control-login" id="email" placeholder="E-mail" required>
+                <input type="email" v-model="email" class="form-control form-control-login" id="email" placeholder="E-mail" >
               </div>
             </div>
             <div class="form-group">
@@ -26,7 +26,7 @@
                 <div class="input-group-prepend">
                   <div class="input-group-text input-group-text-login d-xs-none d-md-flex"><i class="fas fa-lock"></i></div>
                 </div>
-                <input type="password" v-model="password" class="form-control form-control-login" id="password" placeholder="Senha" required>
+                <input type="password" v-model="password" class="form-control form-control-login" id="password" placeholder="Senha" >
               </div>
             </div>
             <button type="submit" class="btn btn-primary-login btn-block">Login</button>
@@ -36,7 +36,7 @@
               <router-link to="/cadastro" class="text-link">Fazer cadastro</router-link>
             </div>
             <div class="col-sm-12 col-md-6 text-right">
-              <a href="#" class="text-link">Esqueci minha senha</a>
+              <router-link to="/RecuperarSenha" class="text-link">Esqueci minha senha</router-link>
             </div>
           </div>
         </div>
@@ -45,7 +45,8 @@
 </template>
 
 <script>
-import firebase from 'firebase'
+import firebaseApp from '../firebase-controller.js'
+const auth = firebaseApp.auth()
 
 export default {
   name: 'login',
@@ -77,42 +78,41 @@ export default {
   },
   methods: {
     login: function () {
-      firebase.auth().signInWithEmailAndPassword(this.email, this.password).then(
-        (user) => {
-          this.$router.replace('/home')
-        },
-        (err) => {
-          switch (err.message) {
-            case 'The email address is badly formatted.': {
-              this.$notify({
-                group: 'notify',
-                type: 'error',
-                title: 'Oops!',
-                text: 'Endereço de E-mail inválido'
-              })
-              break
-            }
-            case 'The password is invalid or the user does not have a password.' || 'There is no user record corresponding to this identifier. The user may have been deleted.': {
-              this.$notify({
-                group: 'notify',
-                type: 'error',
-                title: 'Oops!',
-                text: 'E-mail não cadastrado ou senha inválida'
-              })
-              break
-            }
-            default: {
-              this.$notify({
-                group: 'notify',
-                type: 'error',
-                title: 'Oops!',
-                text: 'Parece que algo deu errado.<br>Por favor, tente novamente'
-              })
-              break
-            }
+      let _this = this
+      auth.signInWithEmailAndPassword(this.email, this.password).then(function (user) {
+        _this.$router.replace('/verificar-email')
+      }).catch((err) => {
+        switch (err.message) {
+          case 'The email address is badly formatted.': {
+            this.$notify({
+              group: 'notify',
+              type: 'error',
+              title: 'Oops!',
+              text: 'Endereço de E-mail inválido'
+            })
+            break
+          }
+          case 'The password is invalid or the user does not have a password.' || 'There is no user record corresponding to this identifier. The user may have been deleted.': {
+            this.$notify({
+              group: 'notify',
+              type: 'error',
+              title: 'Oops!',
+              text: 'E-mail não cadastrado ou senha inválida'
+            })
+            break
+          }
+          default: {
+            this.$notify({
+              group: 'notify',
+              type: 'error',
+              title: 'Oops!',
+              text: 'Parece que algo deu errado.<br>Por favor, tente novamente'
+            })
+            break
           }
         }
-      )
+        console.log('Falha ao logar: ' + err.message)
+      })
     }
   }
 }
