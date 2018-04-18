@@ -17,7 +17,7 @@
                 <div class="input-group-prepend">
                   <div class="input-group-text input-group-text-login d-xs-none d-md-flex"><i class="fas fa-envelope"></i></div>
                 </div>
-                <input type="email" v-model="email" class="form-control form-control-login" id="email" placeholder="E-mail" >
+                <input type="email" v-model="email" class="form-control form-control-login" id="email" placeholder="E-mail" autocomplete="off" >
               </div>
             </div>
             <div class="form-group">
@@ -26,7 +26,7 @@
                 <div class="input-group-prepend">
                   <div class="input-group-text input-group-text-login d-xs-none d-md-flex"><i class="fas fa-lock"></i></div>
                 </div>
-                <input type="password" v-model="password" class="form-control form-control-login" id="password" placeholder="Senha" >
+                <input type="password" v-model="password" class="form-control form-control-login" id="password" placeholder="Senha" autocomplete="current-password">
               </div>
             </div>
             <button type="submit" class="btn btn-primary-login btn-block">Login</button>

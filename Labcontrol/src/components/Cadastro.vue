@@ -11,6 +11,41 @@
       <form id="cadastroForm" class="needs-validation" v-on:submit.prevent novalidate>
         <div class="form-row">
           <div class="col-md-6 mb-3">
+            <label for="nome">Nome</label>
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <span class="input-group-text" id="nomePrepend"><i class="fas fa-user"></i></span>
+              </div>
+              <input id="nome" type="text" class="form-control" placeholder="Digite seu nome" autocomplete="given-name" aria-describedby="nomePrepend" v-model = "newUser.firstName" required>
+              <div class="invalid-feedback">
+                Por favor informe seu nome.
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label for="sobrenome">Sobrenome</label>
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <span class="input-group-text" id="sobrenomePrepend"><i class="fas fa-user"></i></span>
+              </div>
+              <input id="sobrenome" type="text" class="form-control" placeholder="Digite seu sobrenome" autocomplete="family-name" aria-describedby="sobrenomePrepend" v-model = "newUser.lastName" required>
+              <div class="invalid-feedback">
+                Por favor informe seu sobrenome.
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="form-row">
+          <!-- <div class="col-md-6 mb-3">
+            <label for="telefone">Telefone</label>
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <span class="input-group-text" id="telefonePrepend"><i class="fas fa-phone"></i></span>
+              </div>
+              <input id="telefone" type="tel" class="form-control" placeholder="Digite seu telefone com DDD (opcional)" autocomplete="tel-national" aria-describedby="telefonePrepend" v-mask="['(##) ####-####', '(##) #####-####']" v-model = "newUser.telefone">
+            </div>
+          </div> -->
+          <div class="col-md-6 mb-3">
             <label for="ra">Registro Academico</label>
             <div class="input-group">
               <div class="input-group-prepend">
@@ -40,41 +75,6 @@
             </div>
           </div>
         </div>
-        <div class="form-row">
-          <!-- <div class="col-md-6 mb-3">
-            <label for="telefone">Telefone</label>
-            <div class="input-group">
-              <div class="input-group-prepend">
-                <span class="input-group-text" id="telefonePrepend"><i class="fas fa-phone"></i></span>
-              </div>
-              <input id="telefone" type="tel" class="form-control" placeholder="Digite seu telefone com DDD (opcional)" autocomplete="tel-national" aria-describedby="telefonePrepend" v-mask="['(##) ####-####', '(##) #####-####']" v-model = "newUser.telefone">
-            </div>
-          </div> -->
-          <div class="col-md-6 mb-3">
-            <label for="nome">Nome</label>
-            <div class="input-group">
-              <div class="input-group-prepend">
-                <span class="input-group-text" id="nomePrepend"><i class="fas fa-user"></i></span>
-              </div>
-              <input id="nome" type="text" class="form-control" placeholder="Digite seu nome" autocomplete="given-name" aria-describedby="nomePrepend" v-model = "newUser.firstName" required>
-              <div class="invalid-feedback">
-                Por favor informe seu nome.
-              </div>
-            </div>
-          </div>
-          <div class="col-md-6 mb-3">
-            <label for="sobrenome">Sobrenome</label>
-            <div class="input-group">
-              <div class="input-group-prepend">
-                <span class="input-group-text" id="sobrenomePrepend"><i class="fas fa-user"></i></span>
-              </div>
-              <input id="sobrenome" type="text" class="form-control" placeholder="Digite seu sobrenome" autocomplete="family-name" aria-describedby="sobrenomePrepend" v-model = "newUser.lastName" required>
-              <div class="invalid-feedback">
-                Por favor informe seu sobrenome.
-              </div>
-            </div>
-          </div>
-        </div>
         <hr />
         <div class="form-row">
           <div class="col-md-12 mb-3">
@@ -95,9 +95,21 @@
               <div class="input-group-prepend">
                 <span class="input-group-text" id="senhaPrepend"><i class="fas fa-lock"></i></span>
               </div>
-              <input id="senha" type="password" class="form-control" autocomplete="current-password" placeholder="Digite sua senha (Min. 6 caracteres)" aria-describedby="senhaPrepend" minlength=6 v-model = "newUser.password" required>
+              <input id="senha" v-on:keyup="validatePassword" type="password" class="form-control" autocomplete="new-password" placeholder="Digite sua senha (Min. 6 caracteres)" aria-describedby="senhaPrepend" minlength=6 v-model = "password" required>
               <div class="invalid-feedback">
                 Por favor informe uma senha válida (Mínimo de 6 caracteres).
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label for="senhaConfirma">Confirme sua senha</label>
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <span class="input-group-text" id="senhaConfirmaPrepend"><i class="fas fa-lock"></i></span>
+              </div>
+              <input id="senhaConfirma" v-on:keyup="validatePassword" type="password" class="form-control" autocomplete="new-password" placeholder="Digite sua senha novamente" aria-describedby="senhaConfirmaPrepend" v-model = "reenteredPassword" required>
+              <div class="invalid-feedback">
+                As senhas diferem.
               </div>
             </div>
           </div>
@@ -130,6 +142,8 @@ export default {
         // telefone: '',
         curso: ''
       },
+      password: '',
+      reenteredPassword: '',
       loader: {
         loading: false,
         color: '#007bff',
@@ -154,6 +168,18 @@ export default {
     Alert,
     RingLoader
   },
+  computed: {
+    matchPassword: function () {
+      return this.password === this.reenteredPassword
+    }
+  },
+  validator: {
+    validates: {
+      match: function (v, result) {
+        return result
+      }
+    }
+  },
   methods: {
     submitNewUser () {
       let form = document.getElementById('cadastroForm')
@@ -161,7 +187,7 @@ export default {
       this.loader.loading = true
       this.alert.showAlert = false
       let _this = this
-      auth.createUserWithEmailAndPassword(this.newUser.email, this.newUser.password).then(function () {
+      auth.createUserWithEmailAndPassword(this.newUser.email, this.password).then(function () {
         form.classList.add('hideOn')
         _this.$firebaseRefs.cadastroRef.push(_this.newUser)
         auth.currentUser.updateProfile({
@@ -238,6 +264,14 @@ export default {
           form.classList.add('was-validated')
         }, false)
       })
+    },
+    validatePassword: function () {
+      var confirmPassword = document.getElementById('senhaConfirma')
+      if (this.password === this.reenteredPassword) {
+        confirmPassword.setCustomValidity('')
+      } else {
+        confirmPassword.setCustomValidity('As senhas diferem')
+      }
     }
   }
 }

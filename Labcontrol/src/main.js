@@ -7,12 +7,16 @@ import App from './App'
 import VueProgressBar from 'vue-progressbar'
 import Notifications from 'vue-notification'
 import VueFire from 'vuefire'
+import VueValidator from 'vue-validator'
+import Validate from 'v-validate'
 import firebaseApp from './firebase-controller.js'
 import 'bootstrap'
 
 Vue.use(Notifications)
 Vue.use(VueFire)
 Vue.use(VueResource)
+Vue.use(VueValidator)
+Vue.use(Validate)
 
 Vue.config.productionTip = false
 
