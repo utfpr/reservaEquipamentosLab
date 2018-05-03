@@ -2,45 +2,59 @@
   <div id="root">
     <header>
       <nav name="hideOn" class="navbar navbar-expand-lg navbar-dark fixed-top nav-bg-gradient justify-content-between">
-        <a class="navbar-brand text-justify" href="#">LabControl</a>
 
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
+        <button class="navbar-toggler d-flex" type="button" v-on:click="toggle" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon-personalized"></span>
         </button>
 
-        <div class="collapse navbar-collapse"  id="navbar">
-          <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
-            <li class="nav-item">
-              <router-link to="/home" class="nav-link">Home</router-link>
-            </li>
-            <li class="nav-item">
-              <router-link to="/login" class="nav-link">Login</router-link>
-            </li>
-            <li class="nav-item">
-              <router-link to="/cadastro" class="nav-link">Cadastro</router-link>
-            </li>
-          </ul>
-        </div>
+        <a class="navbar-brand text-justify" href="#">LabControl</a>
 
-        <div class="userLogout">
-          <div class="text-white">
-            <span v-if="username">Olá, {{ username }}</span>
-            <a v-if="isUser" href="#" v-on:click="logout" class="btn btn-dark btn-sm">Sair</a>
-          </div>
-        </div>
       </nav>
     </header>
     <main>
-      <router-view></router-view>
-      <notifications group="notify" />
-      <vue-progress-bar></vue-progress-bar>
+
+      <div id="wrapper" class="">
+
+       <!-- Sidebar -->
+       <div id="sidebar-wrapper">
+         <ul class="sidebar-nav">
+           <li class="nav-item dropdown">
+             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+               <span v-if="username">Olá, {{ username }}</span>
+             </a>
+             <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+               <a v-if="isUser" href="#" v-on:click="logout" class="dropdown-item">Sair</a>
+               <a class="dropdown-item" href="#">Action</a>
+               <a class="dropdown-item" href="#">Another action</a>
+               <a class="dropdown-item" href="#">Something else here</a>
+             </div>
+           </li>
+           <li class="nav-item">
+             <router-link to="/home" class="nav-link">Home</router-link>
+           </li>
+           <li class="nav-item">
+             <router-link to="/login" class="nav-link">Login</router-link>
+           </li>
+           <li class="nav-item">
+             <router-link to="/cadastro" class="nav-link">Cadastro</router-link>
+           </li>
+         </ul>
+       </div>
+       <!-- End sidebar -->
+
+      <div id="page-content-wrapper">
+        <router-view></router-view>
+        <notifications group="notify" />
+        <vue-progress-bar></vue-progress-bar>
+      </div>
+    </div>
     </main>
-    <footer id="footer" name="hideOn" class="footer" style="background-color: #DDDFE4;">
+    <!-- <footer id="footer" name="hideOn" class="footer" style="background-color: #DDDFE4;">
       <div class="container">
         <div class="row justify-content-center">
-          <div class="col-sm-12 text-center">
+          <div class="col-sm-12 text-center"> -->
             <!-- <img src="./assets/logo_UTFPR.png" style="width:150px; margin:10%"> -->
-            <small><p class="d-xs-none d-sm-flex" style="margin: 15px 0 15px 0">UTFPR Campus Campo Mourão - Via Rosalina Maria dos Santos, 1233 CEP 87301-899 Caixa Postal: 271 Campo Mourão - PR - Brasil<br>Telefone Geral +55 (44) 3518-1400</p></small>
+            <!-- <small><p class="d-xs-none d-sm-flex" style="margin: 15px 0 15px 0">UTFPR Campus Campo Mourão - Via Rosalina Maria dos Santos, 1233 CEP 87301-899 Caixa Postal: 271 Campo Mourão - PR - Brasil<br>Telefone Geral +55 (44) 3518-1400</p></small>
           </div>
         </div>
       </div>
@@ -56,7 +70,7 @@
           </div>
         </div>
       </div>
-    </footer>
+    </footer> -->
   </div>
 </template>
 
@@ -93,9 +107,21 @@ export default {
   },
   methods: {
     logout: function () {
+      if (this.$root.toggled) {
+        this.toggle()
+      }
       auth.signOut()
       this.$router.replace('/login')
       location.reload()
+    },
+    toggle: function () {
+      let wrapper = document.getElementById('wrapper')
+      if (this.$root.toggled) {
+        wrapper.classList.remove('toggled')
+      } else {
+        wrapper.classList.add('toggled')
+      }
+      this.$root.toggled = !this.$root.toggled
     }
   }
 }
@@ -116,7 +142,7 @@ body {
 
 main {
   flex: 1 1 auto;
-  margin-top: 100px;
+  margin-top: 70px;
 }
 
 .vertical-center {
@@ -189,6 +215,119 @@ input[type=number] {
   -moz-appearance: textfield;
   appearance: textfield;
   margin: 0;
+}
+
+#wrapper {
+  padding-left: 0;
+  -webkit-transition: all 0.5s ease;
+  -moz-transition: all 0.5s ease;
+  -o-transition: all 0.5s ease;
+  transition: all 0.5s ease;
+}
+
+#wrapper.toggled {
+  padding-left: 250px;
+}
+
+#sidebar-wrapper {
+  z-index: 1000;
+  position: fixed;
+  left: 250px;
+  width: 0;
+  height: 100%;
+  margin-left: -250px;
+  overflow-y: auto;
+  background: #000;
+  -webkit-transition: all 0.5s ease;
+  -moz-transition: all 0.5s ease;
+  -o-transition: all 0.5s ease;
+  transition: all 0.5s ease;
+}
+
+#wrapper.toggled #sidebar-wrapper {
+  width: 250px;
+}
+
+/* #page-content-wrapper {
+  width: 100%;
+  position: absolute;
+  padding: 15px;
+}
+
+#wrapper.toggled #page-content-wrapper {
+  position: absolute;
+  margin-right: -250px;
+} */
+
+
+/* Sidebar Styles */
+
+#wrapper .sidebar-nav {
+  position: absolute;
+  top: 0;
+  width: 250px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+#wrapper .sidebar-nav li {
+  text-indent: 20px;
+  line-height: 40px;
+}
+
+#wrapper .sidebar-nav li a {
+  display: block;
+  text-decoration: none;
+  color: #999999;
+}
+
+#wrapper .sidebar-nav li a:hover {
+  text-decoration: none;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+#wrapper .sidebar-nav li a:active, .sidebar-nav li a:focus {
+  text-decoration: none;
+}
+
+#wrapper .sidebar-nav>.sidebar-brand {
+  height: 65px;
+  font-size: 18px;
+  line-height: 60px;
+}
+
+#wrapper .sidebar-nav>.sidebar-brand a {
+  color: #999999;
+}
+
+#wrapper .sidebar-nav>.sidebar-brand a:hover {
+  color: #fff;
+  background: none;
+}
+
+@media(min-width:768px) {
+  #wrapper {
+    padding-left: 0;
+  }
+  #wrapper.toggled {
+    padding-left: 250px;
+  }
+  #sidebar-wrapper {
+    width: 0;
+  }
+  #wrapper.toggled #sidebar-wrapper {
+    width: 250px;
+  }
+  /* #page-content-wrapper {
+    padding: 20px;
+    position: relative;
+  }
+  #wrapper.toggled #page-content-wrapper {
+    position: relative;
+    margin-right: 0;
+  } */
 }
 
 </style>

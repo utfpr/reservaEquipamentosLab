@@ -40,7 +40,7 @@ const router = new Router({
       name: 'Equipamento',
       component: Equipamento,
       meta: {
-        requiresAuth: false
+        requiresAuth: true
       }
     },
     {

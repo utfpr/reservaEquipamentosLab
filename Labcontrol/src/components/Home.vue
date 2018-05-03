@@ -11,6 +11,11 @@ export default {
   name: 'home',
   data () {
     return { }
+  },
+  created: function () {
+    let wrapper = document.getElementById('wrapper')
+    wrapper.classList.add('toggled')
+    this.$root.toggled = true
   }
 }
 </script>
