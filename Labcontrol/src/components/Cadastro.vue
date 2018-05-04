@@ -1,6 +1,6 @@
 <template>
 <div id="cadastroUser">
-  <div class="container">
+  <div class="container-fluid">
     <div class="row justify-content-center text-center">
       <h2> Crie sua conta no LabControl! </h2>
     </div>
