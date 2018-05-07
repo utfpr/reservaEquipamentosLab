@@ -5,7 +5,7 @@
         <div class="row">
           <div class="col-sm-12">
             <div class="card border-light mb-3">
-              <div class="card-header text-center">Resumo do dia:</div>
+              <div class="card-header text-center"><h3>Resumo do dia:</h3></div>
               <div class="card-body  justify-content-center">
                 <div class="row" style="min-height: 8rem;">
                   <div class="col-sm-12 col-md-6 d-flex justify-content-center justify-content-sm-center justify-content-md-end">
