@@ -95,7 +95,7 @@
           </div>
         </div>
         <div>
-          <button type="submit" class="btn btn-primary btn-block" v-on:click="validate">Confirmar</button>
+          <button type="submit" class="btn btn-primary btn-block" v-on:click="this.$root.validate">Confirmar</button>
         </div>
       </form>
     </div>
