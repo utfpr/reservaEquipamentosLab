@@ -7,6 +7,7 @@
           <span class="navbar-toggler-icon-personalized"></span>
         </button>
 
+
         <a class="navbar-brand text-justify" href="#">LabControl</a>
 
       </nav>
@@ -17,26 +18,51 @@
 
        <!-- Sidebar -->
        <div id="sidebar-wrapper">
-         <ul class="sidebar-nav">
+         <ul v-if="isUser" class="sidebar-nav">
            <li class="nav-item dropdown">
-             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+             <a class="nav-link" href="#userMenu" data-toggle="collapse" aria-haspopup="true" aria-expanded="false" aria-controls="userMenu" role="button">
                <span v-if="username">Olá, {{ username }}</span>
+               <span class="collapseArrow"></span>
              </a>
-             <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-               <a v-if="isUser" href="#" v-on:click="logout" class="dropdown-item">Sair</a>
-               <a class="dropdown-item" href="#">Action</a>
-               <a class="dropdown-item" href="#">Another action</a>
-               <a class="dropdown-item" href="#">Something else here</a>
+             <div id="userMenu" class="collapse multi-collapse text-right">
+               <a class="nav-link" href="#">Perfil</a>
+               <a href="#" v-on:click="logout" class="nav-link">Sair</a>
              </div>
            </li>
            <li class="nav-item">
              <router-link to="/home" class="nav-link">Home</router-link>
            </li>
-           <li class="nav-item">
-             <router-link to="/login" class="nav-link">Login</router-link>
+           <li class="nav-item dropdown">
+             <router-link to="/home" class="nav-link" href="#reservasMenu" data-toggle="collapse" aria-haspopup="true" aria-expanded="false" aria-controls="reservasMenu" role="button">
+               <span>Reservas</span>
+               <span class="collapseArrow"></span>
+             </router-link>
+             <div id="reservasMenu" class="collapse multi-collapse text-right" >
+               <a class="nav-link" href="#">Nova Reserva</a>
+               <a class="nav-link" href="#">Confirmadas</a>
+               <a class="nav-link" href="#">Pendentes</a>
+             </div>
            </li>
            <li class="nav-item">
-             <router-link to="/cadastro" class="nav-link">Cadastro</router-link>
+             <li class="nav-item dropdown">
+               <router-link to="/equipamento" class="nav-link" href="#equipamentosMenu" data-toggle="collapse" aria-haspopup="true" aria-expanded="false" aria-controls="equipamentosMenu" role="button">
+                 <span>Equipamentos</span>
+                 <span class="collapseArrow"></span>
+               </router-link>
+               <div id="equipamentosMenu" class="collapse multi-collapse text-right" >
+                 <a class="nav-link" href="#">Novo Equipamento</a>
+                 <a class="nav-link" href="#">Em Manutenção</a>
+                 <a class="nav-link" href="#">Quebrados</a>
+               </div>
+             </li>
+           </li>
+           <li class="nav-item">
+             <router-link to="/local" class="nav-link">Locais</router-link>
+           </li>
+         </ul>
+         <ul v-else class="sidebar-nav">
+           <li class="nav-item">
+             <router-link to="/login" class="nav-link">Login</router-link>
            </li>
          </ul>
        </div>
@@ -148,12 +174,16 @@ main {
 .vertical-center {
   position: absolute;
   top: 50%;
+  -ms-transform: translateY(-50%);
+  -webkit-transform: translateY(-50%);
   transform: translateY(-50%);
 }
 
 .horizontal-center {
   position: absolute;
   right: 50%;
+  -ms-transform: translateX(50%);
+  -webkit-transform: translateX(50%);
   transform: translateX(50%);
 }
 
@@ -169,7 +199,33 @@ main {
   content: "";
   background: no-repeat center center;
   background-size: 100% 100%;
-  background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='rgba(0, 0, 0, 0.5)' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='rgba(255, 255, 255, 0.5)' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
+}
+
+.navbar-dark .navbar-toggler {
+  border: 0;
+}
+
+.dropdown-menu {
+  background-color: #2a2c2f;
+}
+
+.collapseArrow {
+  display: inline-block;
+  width: 0;
+  height: 0;
+  margin-left: 0.255em;
+  vertical-align: 0.255em;
+  border-top: 0.3em solid;
+  border-right: 0.3em solid transparent;
+  border-bottom: 0;
+  border-left: 0.3em solid transparent;
+}
+
+[aria-expanded="true"] .collapseArrow {
+  -ms-transform: rotate(180deg);
+  -webkit-transform: rotate(180deg);
+  transform: rotate(180deg);
 }
 
 @media (min-width: 0px){
@@ -226,29 +282,33 @@ input[type=number] {
 }
 
 #wrapper.toggled {
-  padding-left: 250px;
+  padding-left: 280px;
 }
 
 #sidebar-wrapper {
   z-index: 1000;
   position: fixed;
-  left: 250px;
+  left: 280px;
   width: 0;
   height: 100%;
-  margin-left: -250px;
+  margin-left: -280px;
   overflow-y: auto;
-  background: #000;
+  background: #343a40;
   -webkit-transition: all 0.5s ease;
   -moz-transition: all 0.5s ease;
   -o-transition: all 0.5s ease;
   transition: all 0.5s ease;
 }
 
-#wrapper.toggled #sidebar-wrapper {
-  width: 250px;
+#sidebar-wrapper .collapse, #sidebar-wrapper .collapsing {
+  background: #222629;
 }
 
-/* #page-content-wrapper {
+#wrapper.toggled #sidebar-wrapper {
+  width: 280px;
+}
+
+#page-content-wrapper {
   width: 100%;
   position: absolute;
   padding: 15px;
@@ -256,8 +316,8 @@ input[type=number] {
 
 #wrapper.toggled #page-content-wrapper {
   position: absolute;
-  margin-right: -250px;
-} */
+  margin-right: -280px;
+}
 
 
 /* Sidebar Styles */
@@ -265,7 +325,7 @@ input[type=number] {
 #wrapper .sidebar-nav {
   position: absolute;
   top: 0;
-  width: 250px;
+  width: 280px;
   margin: 0;
   padding: 0;
   list-style: none;
@@ -312,22 +372,22 @@ input[type=number] {
     padding-left: 0;
   }
   #wrapper.toggled {
-    padding-left: 250px;
+    padding-left: 280px;
   }
   #sidebar-wrapper {
     width: 0;
   }
   #wrapper.toggled #sidebar-wrapper {
-    width: 250px;
+    width: 280px;
   }
-  /* #page-content-wrapper {
+  #page-content-wrapper {
     padding: 20px;
     position: relative;
   }
   #wrapper.toggled #page-content-wrapper {
     position: relative;
     margin-right: 0;
-  } */
+  }
 }
 
 </style>
