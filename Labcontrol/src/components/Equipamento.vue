@@ -95,7 +95,7 @@
           </div>
         </div>
         <div>
-          <button type="submit" class="btn btn-primary btn-block" v-on:click="this.$root.validate">Confirmar</button>
+          <button type="submit" class="btn btn-primary btn-block" v-on:click="validate">Confirmar</button>
         </div>
       </form>
     </div>
@@ -105,7 +105,23 @@
 
 <script>
 import {mask} from 'vue-the-mask'
-import RingLoader from 'vue-spinner/src/RingLoader.vue'
+import RingLoader from 'vue-spinner/src/RingLoader.vue',
+methods: {
+  validate: function () {
+    let _this = this
+    var forms = document.getElementsByClassName('needs-validation')
+    Array.prototype.filter.call(forms, function (form) {
+      form.addEventListener('submit', function (event) {
+        if (form.checkValidity() === false) {
+          event.preventDefault()
+          event.stopPropagation()
+        } else {
+          _this.submitNewUser()
+        }
+        form.classList.add('was-validated')
+      }, false)
+    })
+  }
 import Alert from './Alert.vue'
 import firebaseApp from '../firebase-controller.js'
 const db = firebaseApp.database()
@@ -144,7 +160,27 @@ export default {
   components: {
     Alert,
     RingLoader
-  }
+  },
+  methods: {
+    submitNewEquip () {
+      // TODO: Cadastro de equipamentos
+      console.log('Equipamento cadastrado')
+    },
+    validate: function () {
+      let _this = this
+      var forms = document.getElementsByClassName('needs-validation')
+      Array.prototype.filter.call(forms, function (form) {
+        form.addEventListener('submit', function (event) {
+          if (form.checkValidity() === false) {
+            event.preventDefault()
+            event.stopPropagation()
+          } else {
+            _this.submitNewEquip()
+          }
+          form.classList.add('was-validated')
+        }, false)
+      })
+    }
 }
 </script>
 

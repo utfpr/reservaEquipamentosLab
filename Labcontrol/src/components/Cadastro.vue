@@ -115,7 +115,7 @@
           </div>
         </div>
         <div>
-          <button type="submit" class="btn btn-primary btn-block" v-on:click="this.$root.validate">Me cadastrar</button>
+          <button type="submit" class="btn btn-primary btn-block" v-on:click="validate">Me cadastrar</button>
         </div>
       </form>
     </div>
@@ -248,6 +248,21 @@ export default {
           form.classList.remove('hideOn')
         }, 5000)
         console.log('Falha ao criar usuário: ' + err)
+      })
+    },
+    validate: function () {
+      let _this = this
+      var forms = document.getElementsByClassName('needs-validation')
+      Array.prototype.filter.call(forms, function (form) {
+        form.addEventListener('submit', function (event) {
+          if (form.checkValidity() === false) {
+            event.preventDefault()
+            event.stopPropagation()
+          } else {
+            _this.submitNewUser()
+          }
+          form.classList.add('was-validated')
+        }, false)
       })
     },
     validatePassword: function () {

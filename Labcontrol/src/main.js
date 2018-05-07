@@ -45,23 +45,6 @@ firebaseApp.auth().onAuthStateChanged(function (user) {
       router,
       data: {toggled: false},
       template: '<App/>',
-      methods: {
-        validate: function () {
-          let _this = this
-          var forms = document.getElementsByClassName('needs-validation')
-          Array.prototype.filter.call(forms, function (form) {
-            form.addEventListener('submit', function (event) {
-              if (form.checkValidity() === false) {
-                event.preventDefault()
-                event.stopPropagation()
-              } else {
-                _this.submitNewUser()
-              }
-              form.classList.add('was-validated')
-            }, false)
-          })
-        }
-      },
       components: { App }
     })
   }
