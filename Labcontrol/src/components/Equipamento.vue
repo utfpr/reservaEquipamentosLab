@@ -1,6 +1,6 @@
 <template>
 <div id="cadastroEquipment">
-  <div class="container">
+  <div class="container-fluid">
     <div class="row justify-content-center text-center">
       <h2> Cadastro de equipamento </h2>
     </div>
@@ -10,7 +10,7 @@
       <alert :showAlert="alert.showAlert" :dismissible="alert.dismissible" :type="alert.type" :title="alert.title" :msg="alert.msg"></alert>
       <form id="cadastroFormEquipment" class="needs-validation" v-on:submit.prevent novalidate>
         <div class="form-row">
-          <div class="col-md-6 mb-3">
+          <div class="col-lg-6 mb-3">
             <label for="nome">Nome</label>
             <div class="input-group">
               <div class="input-group-prepend">
@@ -22,7 +22,7 @@
               </div>
             </div>
           </div>
-          <div class="col-md-6 mb-3">
+          <div class="col-lg-6 mb-3">
             <label for="patrimonio">Numero de patrimonio</label>
             <div class="input-group">
               <div class="input-group-prepend">
@@ -36,7 +36,7 @@
           </div>
         </div>
         <div class="form-row">
-          <div class="col-md-6 mb-3">
+          <div class="col-lg-6 mb-3">
             <label for="nome">Especificação</label>
             <div class="input-group">
               <div class="input-group-prepend">
@@ -45,7 +45,7 @@
               <input id="esp" type="text" class="form-control" placeholder="Digite a especificação de uso" autocomplete="especificação" aria-describedby="espPrepend" v-model = "newEquipment.esp">
             </div>
           </div>
-        <div class="col-md-6 mb-3">
+        <div class="col-lg-6 mb-3">
           <label for="cursoequipamento">Curso</label>
           <div class="input-group">
             <div class="input-group-prepend">
@@ -65,7 +65,7 @@
         </div>
       </div>
         <div class="form-row">
-        <div class="col-md-6 mb-3">
+        <div class="col-lg-6 mb-3">
           <label for="status">Status</label>
           <div class="input-group">
             <div class="input-group-prepend">
@@ -81,7 +81,7 @@
             </div>
           </div>
         </div>
-          <div class="col-md-6 mb-3">
+          <div class="col-lg-6 mb-3">
             <label for="marca">Marca</label>
             <div class="input-group">
               <div class="input-group-prepend">
@@ -95,7 +95,7 @@
           </div>
         </div>
         <div>
-          <button type="submit" class="btn btn-primary btn-block" v-on:click="validate">Confirmar</button>
+          <button type="submit" class="btn btn-primary btn-block" v-on:click="this.$root.validate">Confirmar</button>
         </div>
       </form>
     </div>

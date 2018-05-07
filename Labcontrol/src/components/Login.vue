@@ -65,6 +65,13 @@ export default {
 
     let main = document.getElementsByTagName('main')
     main[0].setAttribute('style', 'margin-top: 0px!important;')
+
+    let wrapper = document.getElementById('wrapper')
+    wrapper.classList.remove('toggled')
+    this.$root.toggled = false
+
+    let contentWrapper = document.getElementById('page-content-wrapper')
+    contentWrapper.setAttribute('style', 'padding: 0px!important;')
   },
   destroyed: function () {
     let elements = document.getElementsByName('hideOn')
@@ -75,6 +82,9 @@ export default {
 
     let main = document.getElementsByTagName('main')
     main[0].setAttribute('style', '')
+
+    let contentWrapper = document.getElementById('page-content-wrapper')
+    contentWrapper.setAttribute('style', '')
   },
   methods: {
     login: function () {
