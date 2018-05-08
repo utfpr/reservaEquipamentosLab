@@ -147,8 +147,13 @@ export default {
   },
   methods: {
     submitNewEquip () {
-      // TODO: Cadastro de equipamentos
-      console.log('Equipamento cadastrado')
+      let form = document.getElementById('cadastroFormEquipment')
+      form.classList.add('hideOn')
+      this.loader.loading = true
+      this.alert.showAlert = false
+      let _this = this
+      _this.$firebaseRefs.cadastroRef.push(_this.newEquipment)
+      console.log('completo')
     },
     validate: function () {
       let _this = this
