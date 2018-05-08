@@ -2,10 +2,10 @@
   <div class="verificarEmail">
     <div class="container">
       <div class="row justify-content-center">
+        <ring-loader :loading="loader.loading" :color="loader.color" :size="loader.size"></ring-loader>
         <div class="col-sm-12">
-          <ring-loader :loading="loader.loading" :color="loader.color" :size="loader.size"></ring-loader>
           <alert :showAlert="alert.showAlert" :dismissible="alert.dismissible" :type="alert.type" :title="alert.title" :msg="alert.msg"></alert>
-
+          
           <hr />
 
           <button name="resendEmail" type="button" class="btn btn-primary btn-block" v-on:click="resendEmail">Reenviar E-mail</button>
@@ -78,6 +78,7 @@ export default {
       }
 
       this.loader.loading = true
+      this.alert.showAlert = false
 
       let _this = this
       auth.currentUser.sendEmailVerification().then(function () {
