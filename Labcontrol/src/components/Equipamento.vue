@@ -94,8 +94,13 @@
             </div>
           </div>
         </div>
-        <div>
+        <div class="form-row">
+        <div class="col-sm-6 justify-content-right">
+          <button type="reset" class="btn btn-danger btn-block" v-on:click="validate">Cancelar</button>
+        </div>
+        <div class="col-sm-6 justify-content-left">
           <button type="submit" class="btn btn-primary btn-block" v-on:click="validate">Confirmar</button>
+        </div>
         </div>
       </form>
     </div>
@@ -152,6 +157,10 @@ export default {
       this.loader.loading = true
       this.alert.showAlert = false
       let _this = this
+<<<<<<< HEAD
+      _this.$firebaseRefs.cadastroRef.push(_this.newEquipment)
+      console.log('completo')
+=======
       this.$firebaseRefs.cadastroRef.push(this.newEquipment).then(function () {
         _this.alert.type = 'alert-success'
         _this.alert.dismissible = true
@@ -177,6 +186,7 @@ export default {
         form.classList.remove('hideOn')
         console.log('Erro: ' + err)
       })
+>>>>>>> Labcontrol/master
     },
     validate: function () {
       let _this = this
