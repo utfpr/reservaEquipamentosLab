@@ -157,10 +157,6 @@ export default {
       this.loader.loading = true
       this.alert.showAlert = false
       let _this = this
-<<<<<<< HEAD
-      _this.$firebaseRefs.cadastroRef.push(_this.newEquipment)
-      console.log('completo')
-=======
       this.$firebaseRefs.cadastroRef.push(this.newEquipment).then(function () {
         _this.alert.type = 'alert-success'
         _this.alert.dismissible = true
@@ -186,7 +182,6 @@ export default {
         form.classList.remove('hideOn')
         console.log('Erro: ' + err)
       })
->>>>>>> Labcontrol/master
     },
     validate: function () {
       let _this = this
