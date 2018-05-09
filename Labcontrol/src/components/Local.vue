@@ -1,6 +1,6 @@
 <template>
 <div id="cadastroLocal">
-  <div class="container">
+  <div class="container-fluid">
     <div class="row justify-content-center text-center">
       <h2> Cadastro de laboratorio </h2>
     </div>
@@ -10,7 +10,7 @@
       <alert :showAlert="alert.showAlert" :dismissible="alert.dismissible" :type="alert.type" :title="alert.title" :msg="alert.msg"></alert>
       <form id="cadastroFormLocal" class="needs-validation" v-on:submit.prevent novalidate>
         <div class="form-row">
-          <div class="col-md-6 mb-3">
+          <div class="col-lg-6 mb-3">
             <label for="sala">Sala</label>
             <div class="input-group">
               <div class="input-group-prepend">
@@ -22,7 +22,7 @@
               </div>
             </div>
           </div>
-          <div class="col-md-6 mb-3">
+          <div class="col-lg-6 mb-3">
             <label for="supervisor">Supervisor</label>
             <div class="input-group">
               <div class="input-group-prepend">
@@ -41,7 +41,7 @@
           </div>
         </div>
         <div class="form-row">
-          <div class="col-md-12 mb-3">
+          <div class="col-lg-6 mb-3">
             <label for="desc">Descrição</label>
             <div class="input-group">
               <div class="input-group-prepend">
@@ -50,9 +50,32 @@
               <input id="desc" type="text" class="form-control" placeholder="Digite uma descrição sobre o laboratorio" autocomplete="given-name" aria-describedby="descPrepend" v-model = "newLocal.descrip">
             </div>
           </div>
+        <div class="col-lg-6 mb-3">
+          <label for="cursolocal">Curso</label>
+          <div class="input-group">
+            <div class="input-group-prepend">
+              <span class="input-group-text" id="cursoPrepend"><i class="fas fa-graduation-cap"></i></span>
+            </div>
+            <select id="cursolocal" class="form-control" aria-describedby="cursolocalPrepend" v-model = "newLocal.curso" required>
+              <option value="" disabled selected>Selecione o curso de utilização</option>''
+              <option>Todos</option>
+              <option>Engenharia Ambiental</option>
+              <option>Engenharia de Alimentos</option>
+              <option>Quimica</option>
+            </select>
+            <div class="invalid-feedback">
+              Por favor selecione um curso.
+            </div>
+          </div>
         </div>
-        <div>
+      </div>
+        <div class="form-row">
+        <div class="col-sm-6 justify-content-right">
+          <button type="reset" class="btn btn-danger btn-block" v-on:click="validate">Cancelar</button>
+        </div>
+        <div class="col-sm-6 justify-content-left">
           <button type="submit" class="btn btn-primary btn-block" v-on:click="validate">Confirmar</button>
+        </div>
         </div>
       </form>
       </div>
@@ -76,7 +99,8 @@
         newLocal: {
           class: '',
           descrip: '',
-          supervisor: ''
+          supervisor: '',
+          curso: ''
         },
         loader: {
           loading: false,
