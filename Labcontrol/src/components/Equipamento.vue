@@ -1,6 +1,6 @@
 <template>
 <div id="cadastroEquipment">
-  <div class="container">
+  <div class="container-fluid">
     <div class="row justify-content-center text-center">
       <h2> Cadastro de equipamento </h2>
     </div>
@@ -10,7 +10,7 @@
       <alert :showAlert="alert.showAlert" :dismissible="alert.dismissible" :type="alert.type" :title="alert.title" :msg="alert.msg"></alert>
       <form id="cadastroFormEquipment" class="needs-validation" v-on:submit.prevent novalidate>
         <div class="form-row">
-          <div class="col-md-6 mb-3">
+          <div class="col-lg-6 mb-3">
             <label for="nome">Nome</label>
             <div class="input-group">
               <div class="input-group-prepend">
@@ -22,7 +22,7 @@
               </div>
             </div>
           </div>
-          <div class="col-md-6 mb-3">
+          <div class="col-lg-6 mb-3">
             <label for="patrimonio">Numero de patrimonio</label>
             <div class="input-group">
               <div class="input-group-prepend">
@@ -36,7 +36,7 @@
           </div>
         </div>
         <div class="form-row">
-          <div class="col-md-6 mb-3">
+          <div class="col-lg-6 mb-3">
             <label for="nome">Especificação</label>
             <div class="input-group">
               <div class="input-group-prepend">
@@ -45,7 +45,7 @@
               <input id="esp" type="text" class="form-control" placeholder="Digite a especificação de uso" autocomplete="especificação" aria-describedby="espPrepend" v-model = "newEquipment.esp">
             </div>
           </div>
-        <div class="col-md-6 mb-3">
+        <div class="col-lg-6 mb-3">
           <label for="cursoequipamento">Curso</label>
           <div class="input-group">
             <div class="input-group-prepend">
@@ -65,7 +65,7 @@
         </div>
       </div>
         <div class="form-row">
-        <div class="col-md-6 mb-3">
+        <div class="col-lg-6 mb-3">
           <label for="status">Status</label>
           <div class="input-group">
             <div class="input-group-prepend">
@@ -81,7 +81,7 @@
             </div>
           </div>
         </div>
-          <div class="col-md-6 mb-3">
+          <div class="col-lg-6 mb-3">
             <label for="marca">Marca</label>
             <div class="input-group">
               <div class="input-group-prepend">
@@ -94,8 +94,13 @@
             </div>
           </div>
         </div>
-        <div>
+        <div class="form-row">
+        <div class="col-sm-6 justify-content-right">
+          <button type="reset" class="btn btn-danger btn-block" v-on:click="validate">Cancelar</button>
+        </div>
+        <div class="col-sm-6 justify-content-left">
           <button type="submit" class="btn btn-primary btn-block" v-on:click="validate">Confirmar</button>
+        </div>
         </div>
       </form>
     </div>
@@ -144,6 +149,32 @@ export default {
   components: {
     Alert,
     RingLoader
+  },
+  methods: {
+    submitNewEquip () {
+      let form = document.getElementById('cadastroFormEquipment')
+      form.classList.add('hideOn')
+      this.loader.loading = true
+      this.alert.showAlert = false
+      let _this = this
+      _this.$firebaseRefs.cadastroRef.push(_this.newEquipment)
+      console.log('completo')
+    },
+    validate: function () {
+      let _this = this
+      var forms = document.getElementsByClassName('needs-validation')
+      Array.prototype.filter.call(forms, function (form) {
+        form.addEventListener('submit', function (event) {
+          if (form.checkValidity() === false) {
+            event.preventDefault()
+            event.stopPropagation()
+          } else {
+            _this.submitNewEquip()
+          }
+          form.classList.add('was-validated')
+        }, false)
+      })
+    }
   }
 }
 </script>
