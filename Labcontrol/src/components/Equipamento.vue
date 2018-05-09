@@ -157,8 +157,36 @@ export default {
       this.loader.loading = true
       this.alert.showAlert = false
       let _this = this
+<<<<<<< HEAD
       _this.$firebaseRefs.cadastroRef.push(_this.newEquipment)
       console.log('completo')
+=======
+      this.$firebaseRefs.cadastroRef.push(this.newEquipment).then(function () {
+        _this.alert.type = 'alert-success'
+        _this.alert.dismissible = true
+        _this.alert.title = 'Yey!'
+        _this.alert.msg = 'O equipamento ' + _this.newEquipment.name + ', com patrimônio ' + _this.newEquipment.name + ', foi cadastrado com sucesso!'
+        _this.loader.loading = false
+        _this.alert.showAlert = true
+        _this.newEquipment.name = ''
+        _this.newEquipment.patri = ''
+        _this.newEquipment.esp = ''
+        _this.newEquipment.curso = ''
+        _this.newEquipment.status = ''
+        _this.newEquipment.marca = ''
+        form.classList.remove('hideOn')
+        console.log('completo')
+      }).catch((err) => {
+        _this.alert.type = 'alert-danger'
+        _this.alert.dismissible = true
+        _this.alert.title = 'Oops!'
+        _this.alert.msg = 'O equipamento ' + _this.newEquipment.name + ', com patrimônio ' + _this.newEquipment.name + ', não foi cadastrado devido ao Erro: ' + err
+        _this.loader.loading = false
+        _this.alert.showAlert = true
+        form.classList.remove('hideOn')
+        console.log('Erro: ' + err)
+      })
+>>>>>>> Labcontrol/master
     },
     validate: function () {
       let _this = this

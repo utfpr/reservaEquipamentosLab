@@ -40,7 +40,7 @@ const router = new Router({
       name: 'Equipamento',
       component: Equipamento,
       meta: {
-        requiresAuth: false
+        requiresAuth: true
       }
     },
     {
@@ -104,7 +104,7 @@ router.beforeEach((to, from, next) => {
   firebaseApp.auth().onAuthStateChanged(function (user) {
     if (user) {
       if (!user.emailVerified && cadastro) next('verificar-email')
-      else if (!requiresAuth && login) next('home')
+      else if ((!requiresAuth && login) || (!requiresAuth && cadastro)) next('home')
       else if (!requiresAuth && !login) next()
       else next()
     } else {

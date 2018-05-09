@@ -1,0 +1,11 @@
+D:\VSProjects\labCSVparser\labCSVparser\bin\Debug\netcoreapp2.0\labCSVparser.deps.json
+D:\VSProjects\labCSVparser\labCSVparser\bin\Debug\netcoreapp2.0\labCSVparser.runtimeconfig.json
+D:\VSProjects\labCSVparser\labCSVparser\bin\Debug\netcoreapp2.0\labCSVparser.runtimeconfig.dev.json
+D:\VSProjects\labCSVparser\labCSVparser\bin\Debug\netcoreapp2.0\labCSVparser.dll
+D:\VSProjects\labCSVparser\labCSVparser\obj\Debug\netcoreapp2.0\labCSVparser.csprojResolveAssemblyReference.cache
+D:\VSProjects\labCSVparser\labCSVparser\obj\Debug\netcoreapp2.0\labCSVparser.csproj.CoreCompileInputs.cache
+D:\VSProjects\labCSVparser\labCSVparser\obj\Debug\netcoreapp2.0\labCSVparser.AssemblyInfoInputs.cache
+D:\VSProjects\labCSVparser\labCSVparser\obj\Debug\netcoreapp2.0\labCSVparser.AssemblyInfo.cs
+D:\VSProjects\labCSVparser\labCSVparser\bin\Debug\netcoreapp2.0\labCSVparser.pdb
+D:\VSProjects\labCSVparser\labCSVparser\obj\Debug\netcoreapp2.0\labCSVparser.dll
+D:\VSProjects\labCSVparser\labCSVparser\obj\Debug\netcoreapp2.0\labCSVparser.pdb
