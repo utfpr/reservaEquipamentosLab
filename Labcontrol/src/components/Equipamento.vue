@@ -96,10 +96,10 @@
         </div>
         <div class="form-row">
         <div class="col-sm-6 justify-content-right">
-          <button type="reset" class="btn btn-danger btn-block" v-on:click="validate">Cancelar</button>
+          <button type="submit" class="btn btn-primary btn-block" v-on:click="validate">Confirmar</button>
         </div>
         <div class="col-sm-6 justify-content-left">
-          <button type="submit" class="btn btn-primary btn-block" v-on:click="validate">Confirmar</button>
+          <button type="reset" class="btn btn-danger btn-block" v-on:click="validate">Cancelar</button>
         </div>
         </div>
       </form>
@@ -164,12 +164,7 @@ export default {
         _this.alert.msg = 'O equipamento ' + _this.newEquipment.name + ', com patrimônio ' + _this.newEquipment.name + ', foi cadastrado com sucesso!'
         _this.loader.loading = false
         _this.alert.showAlert = true
-        _this.newEquipment.name = ''
-        _this.newEquipment.patri = ''
-        _this.newEquipment.esp = ''
-        _this.newEquipment.curso = ''
-        _this.newEquipment.status = ''
-        _this.newEquipment.marca = ''
+        location.reload()
         form.classList.remove('hideOn')
         console.log('completo')
       }).catch((err) => {

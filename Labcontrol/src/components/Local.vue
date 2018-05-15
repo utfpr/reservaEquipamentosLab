@@ -71,10 +71,10 @@
       </div>
         <div class="form-row">
         <div class="col-sm-6 justify-content-right">
-          <button type="reset" class="btn btn-danger btn-block" v-on:click="validate">Cancelar</button>
+          <button type="submit" class="btn btn-primary btn-block" v-on:click="validate">Confirmar</button>
         </div>
         <div class="col-sm-6 justify-content-left">
-          <button type="submit" class="btn btn-primary btn-block" v-on:click="validate">Confirmar</button>
+          <button type="reset" class="btn btn-danger btn-block" v-on:click="validate">Cancelar</button>
         </div>
         </div>
       </form>
@@ -125,6 +125,50 @@
     components: {
       Alert,
       RingLoader
+    },
+    methods: {
+      submitNewPlace () {
+        let form = document.getElementById('cadastroFormLocal')
+        form.classList.add('hideOn')
+        this.loader.loading = true
+        this.alert.showAlert = false
+        let _this = this
+        this.$firebaseRefs.cadastroRef.push(this.newLocal).then(function () {
+          _this.alert.type = 'alert-success'
+          _this.alert.dismissible = true
+          _this.alert.title = 'Yey!'
+          _this.alert.msg = 'O local ' + _this.newLocal.class + ', com código ' + _this.newLocal.class + ', foi cadastrado com sucesso!'
+          _this.loader.loading = false
+          _this.alert.showAlert = true
+          location.reload()
+          form.classList.remove('hideOn')
+          console.log('completo')
+        }).catch((err) => {
+          _this.alert.type = 'alert-danger'
+          _this.alert.dismissible = true
+          _this.alert.title = 'Oops!'
+          _this.alert.msg = 'O local ' + _this.newLocal.class + ', com código ' + _this.newLocal.class + ', não foi cadastrado devido ao Erro: ' + err
+          _this.loader.loading = false
+          _this.alert.showAlert = true
+          form.classList.remove('hideOn')
+          console.log('Erro: ' + err)
+        })
+      },
+      validate: function () {
+        let _this = this
+        var forms = document.getElementsByClassName('needs-validation')
+        Array.prototype.filter.call(forms, function (form) {
+          form.addEventListener('submit', function (event) {
+            if (form.checkValidity() === false) {
+              event.preventDefault()
+              event.stopPropagation()
+            } else {
+              _this.submitNewPlace()
+            }
+            form.classList.add('was-validated')
+          }, false)
+        })
+      }
     }
   }
   </script>
