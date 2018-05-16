@@ -8,7 +8,7 @@
     <div class="row justify-content-center">
       <ring-loader :loading="loader.loading" :color="loader.color" :size="loader.size"></ring-loader>
       <alert :showAlert="alert.showAlert" :dismissible="alert.dismissible" :type="alert.type" :title="alert.title" :msg="alert.msg"></alert>
-      <form id="cadastroFormEquipment" class="needs-validation" v-on:submit.prevent novalidate>
+      <form id="cadastroFormEquipment" class="needs-validation" novalidate>
         <div class="form-row">
           <div class="col-lg-6 mb-3">
             <label for="nome">Nome</label>
@@ -96,7 +96,7 @@
         </div>
         <div class="form-row">
         <div class="col-sm-6 justify-content-right">
-          <button type="submit" class="btn btn-primary btn-block" v-on:click="validate">Confirmar</button>
+          <button type="submit" class="btn btn-primary btn-block" >Confirmar</button>
         </div>
         <div class="col-sm-6 justify-content-left">
           <button type="reset" class="btn btn-danger btn-block" v-on:click="validate">Cancelar</button>
@@ -149,6 +149,9 @@ export default {
   components: {
     Alert,
     RingLoader
+  },
+  mounted: function () {
+    this.validate()
   },
   methods: {
     submitNewEquip () {
