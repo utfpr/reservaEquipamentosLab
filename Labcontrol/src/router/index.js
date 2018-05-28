@@ -9,6 +9,7 @@ import EquipamentoCadastro from '@/components/EquipamentoCadastro'
 import EquipamentoDetails from '@/components/EquipamentoDetails'
 import Locais from '@/components/Locais'
 import LocalCadastro from '@/components/LocalCadastro'
+import LocalDetails from '@/components/LocalDetails'
 import Cadastro from '@/components/Cadastro'
 import VerificarEmail from '@/components/VerificarEmail'
 import ResetarSenha from '@/components/ResetarSenha'
@@ -109,6 +110,14 @@ const router = new Router({
       component: LocalCadastro,
       meta: {
         requiresAuth: false
+      }
+    },
+    {
+      path: '/locais/:key/:action',
+      name: 'LocalDetails',
+      component: LocalDetails,
+      meta: {
+        requiresAuth: true
       }
     },
     {
