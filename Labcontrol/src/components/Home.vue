@@ -108,12 +108,6 @@ export default {
 
     setInterval(this.updateTime, 1000)
   },
-  created: function () {
-    let wrapper = document.getElementById('wrapper')
-    wrapper.classList.add('toggled')
-    this.$root.toggled = true
-    this.updateTime()
-  },
   methods: {
     zeroPattern (n) {
       return (parseInt(n, 10) >= 10 ? '' : '0') + n
