@@ -24,6 +24,9 @@
           <div class="col-sm-12 col-md-4">
             <p><strong>Status</strong><br />{{equipamento.Status}}</p>
           </div>
+          <div class="col-sm-12 col-md-4">
+            <p><strong>Curso</strong><br />{{equipamento.Curso}}</p>
+          </div>
           <div class="col-12">
             <p><strong>Especificação</strong><br />{{equipamento.Especificacao}}</p>
           </div>

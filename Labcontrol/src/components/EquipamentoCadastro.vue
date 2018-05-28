@@ -16,7 +16,7 @@
               <div class="input-group-prepend">
                 <span class="input-group-text" id="patrimonioPrepend"><i class="fas fa-list-ol"></i></span>
               </div>
-              <input id="patrimonio" type="number" class="form-control" placeholder="Digite o numero de patrimonio" autocomplete="patrimonio" aria-describedby="patrimonioPrepend" min="0" v-model = "newEquipment.patri" required>
+              <input id="patrimonio" type="number" class="form-control" placeholder="Digite o numero de patrimonio" autocomplete="patrimonio" aria-describedby="patrimonioPrepend" min="0" v-model = "newEquipment.Patrimonio" required>
               <div class="invalid-feedback">
                 Por favor informe um numero de patrimonio.
               </div>
@@ -28,7 +28,7 @@
               <div class="input-group-prepend">
                 <span class="input-group-text" id="equipamentoPrepend"><i class="fas fa-flask"></i></span>
               </div>
-              <input id="equipamento" type="text" class="form-control" placeholder="Digite o nome do equipamento" autocomplete="given-name" aria-describedby="equipamentoPrepend" v-model = "newEquipment.name" required>
+              <input id="equipamento" type="text" class="form-control" placeholder="Digite o nome do equipamento" autocomplete="given-name" aria-describedby="equipamentoPrepend" v-model = "newEquipment.Nome" required>
               <div class="invalid-feedback">
                 Por favor informe o nome do equipamento a ser registrado
               </div>
@@ -37,12 +37,12 @@
         </div>
         <div class="form-row">
           <div class="col-lg-6 mb-3">
-            <label for="nome">Especificação</label>
+            <label for="local">Local</label>
             <div class="input-group">
               <div class="input-group-prepend">
-                <span class="input-group-text" id="espPrepend"><i class="fas fa-book"></i></span>
+                <span class="input-group-text" id="localPrepend"><i class="fas fa-map-marker"></i></span>
               </div>
-              <input id="esp" type="text" class="form-control" placeholder="Digite a especificação de uso" autocomplete="especificação" aria-describedby="espPrepend" v-model = "newEquipment.esp">
+              <input id="local" type="text" class="form-control" placeholder="Local do equipamento" autocomplete="local" aria-describedby="localPrepend" v-model = "newEquipment.Local">
             </div>
           </div>
         <div class="col-lg-6 mb-3">
@@ -51,7 +51,7 @@
             <div class="input-group-prepend">
               <span class="input-group-text" id="cursoPrepend"><i class="fas fa-graduation-cap"></i></span>
             </div>
-            <select id="cursoequipamento" class="form-control" aria-describedby="cursoequipamentoPrepend" v-model = "newEquipment.curso" required>
+            <select id="cursoequipamento" class="form-control" aria-describedby="cursoequipamentoPrepend" v-model = "newEquipment.Curso" required>
               <option value="" disabled selected>Selecione o curso de utilização</option>''
               <option>Todos</option>
               <option>Engenharia Ambiental</option>
@@ -71,7 +71,7 @@
             <div class="input-group-prepend">
               <span class="input-group-text" id="statusPrepend"><i class="fas fa-check-square"></i></span>
             </div>
-            <select id="status" class="form-control" aria-describedby="statusPrepend" v-model = "newEquipment.status" required>
+            <select id="status" class="form-control" aria-describedby="statusPrepend" v-model = "newEquipment.Status" required>
               <option value="" disabled selected>Selecione o status do equipamento</option>''
               <option>Normal</option>
               <option>Conserto</option>
@@ -87,10 +87,21 @@
               <div class="input-group-prepend">
                 <span class="input-group-text" id="marcaPrepend"><i class="fas fa-bookmark"></i></span>
               </div>
-              <input id="marca" type="text" class="form-control" placeholder="Digite a marca do equipamento" autocomplete="given-name" aria-describedby="equipamentoPrepend" v-model = "newEquipment.marca" required>
+              <input id="marca" type="text" class="form-control" placeholder="Digite a marca do equipamento" autocomplete="given-name" aria-describedby="equipamentoPrepend" v-model = "newEquipment.Marca" required>
               <div class="invalid-feedback">
                 Por favor informe a marca do equipamento
               </div>
+            </div>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="col-12 mb-3">
+            <label for="esp">Especificação</label>
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <span class="input-group-text" id="espPrepend"><i class="fas fa-book"></i></span>
+              </div>
+              <textarea id="esp" type="text" class="form-control" placeholder="Digite a especificação de uso" autocomplete="especificação" aria-describedby="espPrepend" v-model = "newEquipment.Especificacao"></textarea>
             </div>
           </div>
         </div>
@@ -119,13 +130,13 @@ export default {
   data () {
     return {
       newEquipment: {
-        name: '',
-        patri: '',
-        esp: '',
-        curso: '',
-        status: '',
-        marca: '',
-        sala: ''
+        Nome: '',
+        Patrimonio: '',
+        Especificacao: '',
+        Curso: '',
+        Status: '',
+        Marca: '',
+        Local: ''
       },
       loader: {
         loading: false,
@@ -165,7 +176,7 @@ export default {
         _this.alert.type = 'alert-success'
         _this.alert.dismissible = true
         _this.alert.title = 'Yey!'
-        _this.alert.msg = 'O equipamento ' + _this.newEquipment.name + ', com patrimônio ' + _this.newEquipment.name + ', foi cadastrado com sucesso!'
+        _this.alert.msg = 'O equipamento ' + _this.newEquipment.Nome + ', com patrimônio ' + _this.newEquipment.Patrimonio + ', foi cadastrado com sucesso!'
         _this.loader.loading = false
         _this.alert.showAlert = true
         location.reload()
@@ -175,7 +186,7 @@ export default {
         _this.alert.type = 'alert-danger'
         _this.alert.dismissible = true
         _this.alert.title = 'Oops!'
-        _this.alert.msg = 'O equipamento ' + _this.newEquipment.name + ', com patrimônio ' + _this.newEquipment.name + ', não foi cadastrado devido ao Erro: ' + err
+        _this.alert.msg = 'O equipamento ' + _this.newEquipment.Nome + ', com patrimônio ' + _this.newEquipment.Patrimonio + ', não foi cadastrado devido ao Erro: ' + err
         _this.loader.loading = false
         _this.alert.showAlert = true
         form.classList.remove('hideOn')
