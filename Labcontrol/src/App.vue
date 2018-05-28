@@ -13,94 +13,80 @@
       </nav>
     </header>
     <main>
-
       <div id="wrapper" class="">
 
-       <!-- Sidebar -->
-       <div id="sidebar-wrapper">
-         <ul v-if="isUser" class="sidebar-nav">
-           <li class="nav-item dropdown">
-             <a class="nav-link" href="#userMenu" data-toggle="collapse" aria-haspopup="true" aria-expanded="false" aria-controls="userMenu" role="button">
-               <span v-if="username">Olá, {{ username }}</span>
-               <span class="collapseArrow"></span>
-             </a>
-             <div id="userMenu" class="collapse multi-collapse text-right">
-               <a class="nav-link" href="#">Perfil</a>
-               <a href="#" v-on:click="logout" class="nav-link">Sair</a>
-             </div>
-           </li>
-           <li class="nav-item">
-             <router-link to="/home" class="nav-link">Home</router-link>
-           </li>
-           <li class="nav-item dropdown">
-             <router-link to="/home" class="nav-link" href="#reservasMenu" data-toggle="collapse" aria-haspopup="true" aria-expanded="false" aria-controls="reservasMenu" role="button">
-               <span>Reservas</span>
-               <span class="collapseArrow"></span>
-             </router-link>
-             <div id="reservasMenu" class="collapse multi-collapse text-right" >
-               <a class="nav-link" href="#">Nova Reserva</a>
-               <a class="nav-link" href="#">Confirmadas</a>
-               <a class="nav-link" href="#">Pendentes</a>
-             </div>
-           </li>
-           <li class="nav-item">
-             <li class="nav-item dropdown">
-               <router-link to="/equipamento" class="nav-link" href="#equipamentosMenu" data-toggle="collapse" aria-haspopup="true" aria-expanded="false" aria-controls="equipamentosMenu" role="button">
-                 <span>Equipamentos</span>
-                 <span class="collapseArrow"></span>
-               </router-link>
-               <div id="equipamentosMenu" class="collapse multi-collapse text-right" >
-                 <a class="nav-link" href="#">Novo Equipamento</a>
-                 <a class="nav-link" href="#">Em Manutenção</a>
-                 <a class="nav-link" href="#">Quebrados</a>
-               </div>
-             </li>
-           </li>
-           <li class="nav-item">
-             <router-link to="/local" class="nav-link">Locais</router-link>
-           </li>
-         </ul>
-         <ul v-else class="sidebar-nav">
-           <li class="nav-item">
-             <router-link to="/login" class="nav-link">Login</router-link>
-           </li>
-         </ul>
-       </div>
-       <!-- End sidebar -->
+        <!-- Sidebar -->
+        <div id="sidebar-wrapper">
+          <ul v-if="isUser" class="sidebar-nav">
+            <li class="nav-item dropdown">
+              <a class="nav-link" href="#userMenu" data-toggle="collapse" aria-haspopup="true" aria-expanded="false" aria-controls="userMenu" role="button">
+                Olá<span v-if="username">, {{ username }}</span>
+                <span class="collapseArrow"></span>
+              </a>
+              <div id="userMenu" class="collapse multi-collapse text-right">
+                <a class="nav-link" href="#">Perfil</a>
+                <a href="#" v-on:click="logout" class="nav-link">Sair</a>
+              </div>
+            </li>
+            <li class="nav-item">
+              <router-link to="/home" class="nav-link">Home</router-link>
+            </li>
+            <li class="nav-item dropdown">
+              <router-link to="/home" class="nav-link" href="#reservasMenu" data-toggle="collapse" aria-haspopup="true" aria-expanded="false" aria-controls="reservasMenu" role="button">
+                <span>Reservas</span>
+                <span class="collapseArrow"></span>
+              </router-link>
+              <div id="reservasMenu" class="collapse multi-collapse text-right" >
+                <a class="nav-link" href="#">Nova Reserva</a>
+                <a class="nav-link" href="#">Confirmadas</a>
+                <a class="nav-link" href="#">Pendentes</a>
+              </div>
+            </li>
+            <li class="nav-item">
+              <li class="nav-item dropdown">
+                <router-link to="/equipamentos" class="nav-link" href="#equipamentosMenu" data-toggle="collapse" aria-haspopup="true" aria-expanded="false" aria-controls="equipamentosMenu" role="button">
+                  <span>Equipamentos</span>
+                  <span class="collapseArrow"></span>
+                </router-link>
+                <div id="equipamentosMenu" class="collapse multi-collapse text-right" >
+                  <router-link to="/equipamentos/cadastro" class="nav-link">Novo Equipamento</router-link>
+                  <a class="nav-link" href="#">Em Manutenção</a>
+                  <a class="nav-link" href="#">Quebrados</a>
+                </div>
+              </li>
+            </li>
+            <li class="nav-item">
+              <li class="nav-item dropdown">
+                <router-link to="/locais" class="nav-link" href="#locaisMenu" data-toggle="collapse" aria-haspopup="true" aria-expanded="false" aria-controls="locaisMenu" role="button">
+                  <span>Locais</span>
+                  <span class="collapseArrow"></span>
+                </router-link>
+                <div id="locaisMenu" class="collapse multi-collapse text-right" >
+                  <router-link to="/locais/cadastro" class="nav-link">Novo Local</router-link>
+                </div>
+              </li>
+            </li>
+          </ul>
+          <ul v-else class="sidebar-nav">
+            <li class="nav-item">
+              <router-link to="/login" class="nav-link">Login</router-link>
+            </li>
+          </ul>
+        </div>
+        <!-- End sidebar -->
 
-      <div id="page-content-wrapper">
-        <router-view></router-view>
-        <notifications group="notify" />
-        <vue-progress-bar></vue-progress-bar>
+        <div id="page-content-wrapper">
+          <router-view></router-view>
+          <notifications group="notify" />
+          <vue-progress-bar></vue-progress-bar>
+        </div>
       </div>
-    </div>
     </main>
-    <!-- <footer id="footer" name="hideOn" class="footer" style="background-color: #DDDFE4;">
-      <div class="container">
-        <div class="row justify-content-center">
-          <div class="col-sm-12 text-center"> -->
-            <!-- <img src="./assets/logo_UTFPR.png" style="width:150px; margin:10%"> -->
-            <!-- <small><p class="d-xs-none d-sm-flex" style="margin: 15px 0 15px 0">UTFPR Campus Campo Mourão - Via Rosalina Maria dos Santos, 1233 CEP 87301-899 Caixa Postal: 271 Campo Mourão - PR - Brasil<br>Telefone Geral +55 (44) 3518-1400</p></small>
-          </div>
-        </div>
-      </div>
-      <div class="copyright" style="background-color:#C9CBD0;">
-        <div class="container">
-          <div class="row">
-            <div class="col-sm-6 text-left">
-
-            </div>
-            <div class="col-md-6 text-right">
-              <small>&copy; Copyright 2018 <a href="http://portal.utfpr.edu.br/campus/campomourao" target="_blank" class="text-dark">DACOM UTFPR-CM</a></small>
-            </div>
-          </div>
-        </div>
-      </div>
-    </footer> -->
   </div>
 </template>
 
 <script>
+import { Modal, ImageModal, CardModal } from 'vue-bulma-modal'
 import firebaseApp from './firebase-controller.js'
 const auth = firebaseApp.auth()
 export default {
@@ -130,6 +116,11 @@ export default {
       }
       this.$Progress.finish()
     })
+  },
+  components: {
+    Modal,
+    ImageModal,
+    CardModal
   },
   methods: {
     logout: function () {
