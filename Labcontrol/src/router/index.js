@@ -4,8 +4,11 @@ import firebaseApp from '../firebase-controller.js'
 import Home from '@/components/Home'
 import Login from '@/components/Login'
 import p404 from '@/components/p404'
-import Equipamento from '@/components/Equipamento'
-import Local from '@/components/Local'
+import Equipamentos from '@/components/Equipamentos'
+import EquipamentoCadastro from '@/components/EquipamentoCadastro'
+import EquipamentoDetails from '@/components/EquipamentoDetails'
+import Locais from '@/components/Locais'
+import LocalCadastro from '@/components/LocalCadastro'
 import Cadastro from '@/components/Cadastro'
 import VerificarEmail from '@/components/VerificarEmail'
 import ResetarSenha from '@/components/ResetarSenha'
@@ -36,9 +39,25 @@ const router = new Router({
       }
     },
     {
-      path: '/equipamento',
-      name: 'Equipamento',
-      component: Equipamento,
+      path: '/equipamentos',
+      name: 'Equipamentos',
+      component: Equipamentos,
+      meta: {
+        requiresAuth: true
+      }
+    },
+    {
+      path: '/equipamentos/cadastro',
+      name: 'EquipamentoCadastro',
+      component: EquipamentoCadastro,
+      meta: {
+        requiresAuth: true
+      }
+    },
+    {
+      path: '/equipamentos/:key/:action',
+      name: 'EquipamentoDetails',
+      component: EquipamentoDetails,
       meta: {
         requiresAuth: true
       }
@@ -77,9 +96,17 @@ const router = new Router({
       }
     },
     {
-      path: '/local',
-      name: 'Local',
-      component: Local,
+      path: '/locais',
+      name: 'Locais',
+      component: Locais,
+      meta: {
+        requiresAuth: false
+      }
+    },
+    {
+      path: '/locais/cadastro',
+      name: 'LocalCadastro',
+      component: LocalCadastro,
       meta: {
         requiresAuth: false
       }
