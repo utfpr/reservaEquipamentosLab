@@ -11,6 +11,18 @@
       <form id="cadastroFormEquipment" class="needs-validation" novalidate>
         <div class="form-row">
           <div class="col-lg-6 mb-3">
+            <label for="patrimonio">Numero de patrimônio</label>
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <span class="input-group-text" id="patrimonioPrepend"><i class="fas fa-list-ol"></i></span>
+              </div>
+              <input id="patrimonio" type="number" class="form-control" placeholder="Digite o numero de patrimonio" autocomplete="patrimonio" aria-describedby="patrimonioPrepend" min="0" v-model = "newEquipment.patri" required>
+              <div class="invalid-feedback">
+                Por favor informe um numero de patrimonio.
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-6 mb-3">
             <label for="nome">Nome</label>
             <div class="input-group">
               <div class="input-group-prepend">
@@ -19,18 +31,6 @@
               <input id="equipamento" type="text" class="form-control" placeholder="Digite o nome do equipamento" autocomplete="given-name" aria-describedby="equipamentoPrepend" v-model = "newEquipment.name" required>
               <div class="invalid-feedback">
                 Por favor informe o nome do equipamento a ser registrado
-              </div>
-            </div>
-          </div>
-          <div class="col-lg-6 mb-3">
-            <label for="patrimonio">Numero de patrimonio</label>
-            <div class="input-group">
-              <div class="input-group-prepend">
-                <span class="input-group-text" id="patrimonioPrepend"><i class="fas fa-list-ol"></i></span>
-              </div>
-              <input id="patrimonio" type="number" class="form-control" placeholder="Digite o numero de patrimonio" autocomplete="patrimonio" aria-describedby="patrimonioPrepend" min="0" v-model = "newEquipment.patri" required>
-              <div class="invalid-feedback">
-                Por favor informe um numero de patrimonio.
               </div>
             </div>
           </div>
@@ -124,7 +124,8 @@ export default {
         esp: '',
         curso: '',
         status: '',
-        marca: ''
+        marca: '',
+        sala: ''
       },
       loader: {
         loading: false,
@@ -141,7 +142,7 @@ export default {
     }
   },
   firebase: {
-    cadastroRef: db.ref('equipamento')
+    cadastroRef: db.ref('Equipamentos')
   },
   directives: {
     mask
