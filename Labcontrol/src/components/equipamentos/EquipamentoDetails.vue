@@ -153,9 +153,9 @@
 </template>
 
 <script>
-import Alert from './Alert.vue'
+import Alert from '../Alert.vue'
 import RingLoader from 'vue-spinner/src/RingLoader.vue'
-import firebaseApp from '../firebase-controller.js'
+import firebaseApp from '../../firebase-controller.js'
 const db = firebaseApp.database()
 export default {
   name: 'EquipamentoDetails',

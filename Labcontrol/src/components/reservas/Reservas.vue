@@ -1,5 +1,5 @@
 <template>
-  <div id="Equipamentos">
+  <div id="Reservas">
     <div class="container-fluid">
       <div v-if="loader.loading" class="row justify-content-center">
         <ring-loader :loading="loader.loading" :color="loader.color" :size="loader.size"></ring-loader>
@@ -23,29 +23,34 @@
           <table class="table table-responsive-md table-hover text-center">
             <thead>
               <tr>
-                <th scope="col">Nome</th>
-                <th scope="col">Descrição</th>
-                <th scope="col">Curso</th>
-                <th scope="col">Supervisor</th>
+                <th scope="col">Data</th>
+                <th scope="col">Periodo</th>
+                <th scope="col">Equipamento - Local</th>
+                <th scope="col">Aluno</th>
+                <th scope="col">Status</th>
                 <th scope="col">Ações</th>
               </tr>
             </thead>
             <tbody>
-              <tr v-for="local in locais">
-                <th scope="row">{{local[1].Nome}}</th>
-                <td>{{local[1].Descricao}}</td>
-                <td>{{local[1].Curso}}</td>
-                <td>{{local[1].Supervisor}}</td>
+              <tr v-for="reserva in reservas">
+                <th scope="row">{{reserva[1].Data}}</th>
+                <td>{{reserva[1].PeriodoInicio}} - {{reserva[1].PeriodoFim}}</td>
+                <td>{{reserva[1].Equipamento}} - {{reserva[1].Local}}</td>
+                <td>{{reserva[1].Aluno}} - {{reserva[1].Aluno}}</td>
+                <td>{{reserva[1].Status}}</td>
                 <td>
                   <ul class="list-inline d-inline-flex">
                     <li>
-                      <router-link :to="{ name: 'LocalDetails', params: {key: local[0], action: 'view'}}" class="mr-2 list-inline-item btn btn-primary btn-sm">Vizualizar</router-link>
+                      <router-link :to="{ name: 'EquipamentoDetails', params: {key: reserva[0], action: 'view'}}" class="mr-2 list-inline-item btn btn-primary btn-sm">Vizualizar</router-link>
                     </li>
                     <li>
-                      <router-link :to="{ name: 'LocalDetails', params: {key: local[0], action: 'edit'}}" class="mr-2 list-inline-item btn btn-primary btn-sm">Editar</router-link>
+                      <router-link :to="{ name: 'EquipamentoDetails', params: {key: reserva[0], action: 'edit'}}" class="mr-2 list-inline-item btn btn-primary btn-sm">Editar</router-link>
                     </li>
                     <li>
-                      <a href="#"  class="list-inline-item btn btn-primary btn-sm">Deletar</a>
+                      <a href="#"  class="mr-2 list-inline-item btn btn-primary btn-sm">Confirmar</a>
+                    </li>
+                    <li>
+                      <a href="#"  class="list-inline-item btn btn-danger btn-sm">Cancelar</a>
                     </li>
                   </ul>
                 </td>
@@ -60,13 +65,13 @@
 
 <script>
 import RingLoader from 'vue-spinner/src/RingLoader.vue'
-import firebaseApp from '../firebase-controller.js'
+import firebaseApp from '../../firebase-controller.js'
 const db = firebaseApp.database()
 export default {
-  name: 'locais',
+  name: 'reservas',
   data () {
     return {
-      locais: [],
+      reservas: [],
       loader: {
         loading: true,
         color: '#007bff',
@@ -80,9 +85,9 @@ export default {
   mounted: function () {
     let _this = this
     _this.loader.loading = true
-    db.ref('Locais').on('value', function (snapshot) {
+    db.ref('Reservas').on('value', function (snapshot) {
       snapshot.forEach(function (childSnapshot) {
-        _this.locais.push([childSnapshot.key, childSnapshot.val()])
+        _this.reservas.push([childSnapshot.key, childSnapshot.val()])
         _this.loader.loading = false
       })
     })

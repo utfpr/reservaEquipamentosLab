@@ -122,8 +122,8 @@
 <script>
 import {mask} from 'vue-the-mask'
 import RingLoader from 'vue-spinner/src/RingLoader.vue'
-import Alert from './Alert.vue'
-import firebaseApp from '../firebase-controller.js'
+import Alert from '../Alert.vue'
+import firebaseApp from '../../firebase-controller.js'
 const db = firebaseApp.database()
 export default {
   name: 'equipamento',
