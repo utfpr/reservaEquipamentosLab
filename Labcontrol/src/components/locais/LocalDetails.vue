@@ -30,10 +30,10 @@
                 <router-link :to="{ name: 'Locais', params: {}}" class="mr-2 list-inline-item btn btn-primary btn-sm">Voltar</router-link>
               </li>
               <li>
-                <a href="#"  class=" mr-2 list-inline-item btn btn-primary btn-sm"> TESTE</a>
+                <router-link :to="{ name: 'LocalDetails', params: {key: this.$route.params.key, action: 'edit'}}" class="mr-2 list-inline-item btn btn-primary btn-sm">Editar</router-link>
               </li>
               <li>
-                <a href="#"  class="list-inline-item btn btn-primary btn-sm"> TESTE</a>
+                <a href="#"  class="list-inline-item btn btn-danger btn-sm">Deletar</a>
               </li>
             </ul>
           </div>
@@ -119,9 +119,9 @@
 </template>
 
 <script>
-import Alert from './Alert.vue'
+import Alert from '../Alert.vue'
 import RingLoader from 'vue-spinner/src/RingLoader.vue'
-import firebaseApp from '../firebase-controller.js'
+import firebaseApp from '../../firebase-controller.js'
 const db = firebaseApp.database()
 export default {
   name: 'EquipamentoDetails',
@@ -221,7 +221,7 @@ export default {
 </script>
 
 <style>
-#cadastroFormEquipment {
+#cadastroFormLocal {
   width: 100vw;
 }
 </style>

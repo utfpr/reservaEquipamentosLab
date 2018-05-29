@@ -4,12 +4,13 @@ import firebaseApp from '../firebase-controller.js'
 import Home from '@/components/Home'
 import Login from '@/components/Login'
 import p404 from '@/components/p404'
-import Equipamentos from '@/components/Equipamentos'
-import EquipamentoCadastro from '@/components/EquipamentoCadastro'
-import EquipamentoDetails from '@/components/EquipamentoDetails'
-import Locais from '@/components/Locais'
-import LocalCadastro from '@/components/LocalCadastro'
-import LocalDetails from '@/components/LocalDetails'
+import Equipamentos from '@/components/equipamentos/Equipamentos'
+import EquipamentoCadastro from '@/components/equipamentos/EquipamentoCadastro'
+import EquipamentoDetails from '@/components/equipamentos/EquipamentoDetails'
+import Locais from '@/components/locais/Locais'
+import LocalCadastro from '@/components/locais/LocalCadastro'
+import LocalDetails from '@/components/locais/LocalDetails'
+import Reservas from '@/components/reservas/Reservas'
 import Cadastro from '@/components/Cadastro'
 import VerificarEmail from '@/components/VerificarEmail'
 import ResetarSenha from '@/components/ResetarSenha'
@@ -101,7 +102,7 @@ const router = new Router({
       name: 'Locais',
       component: Locais,
       meta: {
-        requiresAuth: false
+        requiresAuth: true
       }
     },
     {
@@ -109,13 +110,21 @@ const router = new Router({
       name: 'LocalCadastro',
       component: LocalCadastro,
       meta: {
-        requiresAuth: false
+        requiresAuth: true
       }
     },
     {
       path: '/locais/:key/:action',
       name: 'LocalDetails',
       component: LocalDetails,
+      meta: {
+        requiresAuth: true
+      }
+    },
+    {
+      path: '/reservas',
+      name: 'Reservas',
+      component: Reservas,
       meta: {
         requiresAuth: true
       }
