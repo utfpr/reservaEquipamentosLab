@@ -19,8 +19,10 @@
         </div>
       </div>
       <div v-if="!loader.loading" class="row">
-        <div class="col-12">
-          <table class="table table-responsive-md table-hover text-center">
+        <v-dialog/>
+        <div class="col-12 justify-content-center">
+          <h4 v-if="locais.length === 0" class=" text-center mt-5"> Nenhum local encontrado </h4>
+          <table v-else class="table table-responsive-md table-hover text-center">
             <thead>
               <tr>
                 <th scope="col">Nome</th>
@@ -42,10 +44,10 @@
                       <router-link :to="{ name: 'LocalDetails', params: {key: local[0], action: 'view'}}" class="mr-2 list-inline-item btn btn-primary btn-sm">Vizualizar</router-link>
                     </li>
                     <li>
-                      <router-link :to="{ name: 'LocalDetails', params: {key: local[0], action: 'edit'}}" class="mr-2 list-inline-item btn btn-warning btn-sm">Editar</router-link>
+                      <router-link :to="{ name: 'LocalDetails', params: {key: local[0], action: 'edit'}}" class="mr-2 list-inline-item btn btn-primary btn-sm">Editar</router-link>
                     </li>
                     <li>
-                      <a href="#"  class="list-inline-item btn btn-danger btn-sm">Deletar</a>
+                      <span v-on:click="confirmarDelete(local[0], local[1].Nome)" class="list-inline-item btn btn-danger btn-sm">Deletar</span>
                     </li>
                   </ul>
                 </td>
@@ -79,13 +81,51 @@ export default {
   },
   mounted: function () {
     let _this = this
-    _this.loader.loading = true
     db.ref('Locais').on('value', function (snapshot) {
+      _this.loader.loading = true
+      _this.locais = []
       snapshot.forEach(function (childSnapshot) {
         _this.locais.push([childSnapshot.key, childSnapshot.val()])
-        _this.loader.loading = false
       })
+      _this.loader.loading = false
     })
+  },
+  methods: {
+    confirmarDelete (key, nome) {
+      this.$modal.show('dialog', {
+        title: 'Cuidado!',
+        text: 'Realmente deseja deletar o Local ' + nome + '? <br> Essa ação não pode ser desfeita',
+        buttons: [
+          {
+            title: 'Deletar',
+            handler: () => {
+              let _this = this
+              db.ref('Locais').child(key).remove().then(function () {
+                _this.$notify({
+                  group: 'notify',
+                  type: 'success',
+                  title: 'Yey!',
+                  text: 'Local ' + nome + 'deletado com sucesso'
+                })
+              }).catch((err) => {
+                _this.$notify({
+                  group: 'notify',
+                  type: 'error',
+                  title: 'Yey!',
+                  text: 'Falha ao deletar Local ' + nome
+                })
+                console.log('Erro: ' + err)
+              })
+              this.$modal.hide('dialog')
+            }
+          },
+          {
+            title: 'Cancelar',
+            default: true
+          }
+        ]
+      })
+    }
   }
 }
 </script>
