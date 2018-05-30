@@ -32,7 +32,7 @@
               <router-link to="/home" class="nav-link">Home</router-link>
             </li>
             <li class="nav-item dropdown">
-              <router-link to="/home" class="nav-link" href="#reservasMenu" data-toggle="collapse" aria-haspopup="true" aria-expanded="false" aria-controls="reservasMenu" role="button">
+              <router-link to="/reservas" class="nav-link" href="#reservasMenu" data-toggle="collapse" aria-haspopup="true" aria-expanded="false" aria-controls="reservasMenu" role="button">
                 <span>Reservas</span>
                 <span class="collapseArrow"></span>
               </router-link>
@@ -154,7 +154,7 @@ export default {
 }
 
 body {
-  overflow-x: hidden;
+  /* overflow-x: hidden; */
 }
 
 main {
