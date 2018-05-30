@@ -20,7 +20,8 @@
       </div>
       <div v-if="!loader.loading" class="row">
         <div class="col-12">
-          <table class="table table-responsive-md table-hover text-center">
+          <h4 v-if="reservas.length === 0" class=" text-center mt-5"> Nenhuma reserva encontrada </h4>
+          <table v-else class="table table-responsive-md table-hover text-center">
             <thead>
               <tr>
                 <th scope="col">Data</th>
@@ -84,12 +85,13 @@ export default {
   },
   mounted: function () {
     let _this = this
-    _this.loader.loading = true
     db.ref('Reservas').on('value', function (snapshot) {
+      _this.loader.loading = true
+      _this.reservas = []
       snapshot.forEach(function (childSnapshot) {
         _this.reservas.push([childSnapshot.key, childSnapshot.val()])
-        _this.loader.loading = false
       })
+      _this.loader.loading = false
     })
   }
 }
