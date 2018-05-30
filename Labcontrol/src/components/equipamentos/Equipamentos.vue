@@ -19,12 +19,10 @@
         </div>
       </div>
       <div v-if="!loader.loading" class="row">
-        <modal name="hello-world">
-          hello, world!
-        </modal>
         <v-dialog/>
         <div class="col-12">
-          <table class="table table-responsive-md table-hover text-center">
+          <h4 v-if="equipamentos.length === 0" class=" text-center mt-5"> Nenhum Equipamento encontrado </h4>
+          <table v-else class="table table-responsive-md table-hover text-center">
             <thead>
               <tr>
                 <th scope="col">Patrimônio</th>
@@ -83,19 +81,20 @@ export default {
   },
   mounted: function () {
     let _this = this
-    _this.loader.loading = true
     db.ref('Equipamentos').on('value', function (snapshot) {
+      _this.loader.loading = true
+      _this.equipamentos = []
       snapshot.forEach(function (childSnapshot) {
         _this.equipamentos.push([childSnapshot.key, childSnapshot.val()])
-        _this.loader.loading = false
       })
+      _this.loader.loading = false
     })
   },
   methods: {
     confirmarDelete (key, patrimonio) {
       this.$modal.show('dialog', {
         title: 'Cuidado!',
-        text: 'Realmente deseja deletar o Equipamento ' + patrimonio + '? <br> Esta ação não pode ser desfeita',
+        text: 'Realmente deseja deletar o Equipamento ' + patrimonio + '? <br> Essa ação não pode ser desfeita',
         buttons: [
           {
             title: 'Deletar',
@@ -125,9 +124,6 @@ export default {
           }
         ]
       })
-    },
-    hide () {
-      this.$modal.hide('hello-world')
     }
   }
 }
