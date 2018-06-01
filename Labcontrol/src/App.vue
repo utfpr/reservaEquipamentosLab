@@ -1,15 +1,12 @@
 <template>
   <div id="root">
     <header>
-      <nav name="hideOn" class="navbar navbar-expand-lg navbar-dark fixed-top nav-bg-gradient justify-content-between">
+      <nav class="navbar navbar-expand-lg navbar-dark fixed-top nav-bg-gradient justify-content-between" style="min-height: 70px;">
 
-        <button class="navbar-toggler d-flex" type="button" v-on:click="toggle" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
+        <button id="toggler-menu-button" class="navbar-toggler d-flex" type="button" v-on:click="toggle" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon-personalized"></span>
         </button>
-
-
         <a class="navbar-brand text-justify" href="#">LabControl</a>
-
       </nav>
     </header>
     <main>
@@ -86,7 +83,6 @@
 </template>
 
 <script>
-import { Modal, ImageModal, CardModal } from 'vue-bulma-modal'
 import firebaseApp from './firebase-controller.js'
 const auth = firebaseApp.auth()
 export default {
@@ -117,11 +113,6 @@ export default {
       this.$Progress.finish()
     })
   },
-  components: {
-    Modal,
-    ImageModal,
-    CardModal
-  },
   methods: {
     logout: function () {
       if (this.$root.toggled) {
@@ -148,9 +139,14 @@ export default {
 @import '../node_modules/bootstrap/dist/css/bootstrap.css';
 
 #root {
+  display: -webkit-box;
+  display: -ms-flexbox;
   display: flex;
   min-height: 100vh;
-  flex-direction: column;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
 }
 
 body {
@@ -158,14 +154,15 @@ body {
 }
 
 main {
-  flex: 1 1 auto;
+  -webkit-box-flex: 1;
+      -ms-flex: 1 1 auto;
+          flex: 1 1 auto;
   margin-top: 70px;
 }
 
 .vertical-center {
   position: absolute;
   top: 50%;
-  -ms-transform: translateY(-50%);
   -webkit-transform: translateY(-50%);
   transform: translateY(-50%);
 }
@@ -173,7 +170,6 @@ main {
 .horizontal-center {
   position: absolute;
   right: 50%;
-  -ms-transform: translateX(50%);
   -webkit-transform: translateX(50%);
   transform: translateX(50%);
 }
@@ -214,7 +210,6 @@ main {
 }
 
 [aria-expanded="true"] .collapseArrow {
-  -ms-transform: rotate(180deg);
   -webkit-transform: rotate(180deg);
   transform: rotate(180deg);
 }
@@ -259,6 +254,7 @@ input[type=number]::-webkit-inner-spin-button {
   position:relative;
 }
 input[type=number] {
+  -webkit-appearance: textfield;
   -moz-appearance: textfield;
   appearance: textfield;
   margin: 0;
@@ -267,8 +263,6 @@ input[type=number] {
 #wrapper {
   padding-left: 0;
   -webkit-transition: all 0.5s ease;
-  -moz-transition: all 0.5s ease;
-  -o-transition: all 0.5s ease;
   transition: all 0.5s ease;
 }
 
@@ -286,8 +280,6 @@ input[type=number] {
   overflow-y: auto;
   background: #343a40;
   -webkit-transition: all 0.5s ease;
-  -moz-transition: all 0.5s ease;
-  -o-transition: all 0.5s ease;
   transition: all 0.5s ease;
 }
 
@@ -380,5 +372,27 @@ input[type=number] {
     margin-right: 0;
   }
 }
+
+.autocomplete {
+    position: absolute;
+    z-index: 1000;
+    min-width: -webkit-fill-available;
+    margin-top: 50px;
+    display: flex;
+}
+
+/*
+.v-autocomplete {
+  position:relative
+}
+.v-autocomplete .v-autocomplete-list {
+  position:absolute
+}
+.v-autocomplete .v-autocomplete-list .v-autocomplete-list-item {
+  cursor:pointer
+}
+.v-autocomplete .v-autocomplete-list .v-autocomplete-list-item .v-autocomplete-item-active {
+  background-color:#f3f6fa
+} */
 
 </style>
