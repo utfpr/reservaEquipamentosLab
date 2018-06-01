@@ -1,7 +1,10 @@
 <template>
   <div id="home">
     <div class="container-fluid">
-      <div class="container">
+      <div v-if="loader.loading" class="row justify-content-center">
+        <ring-loader :loading="loader.loading" :color="loader.color" :size="loader.size"></ring-loader>
+      </div>
+      <div v-else class="container">
         <div class="row">
           <div class="col-sm-12">
             <div class="card border-secondary mb-3">
@@ -35,9 +38,9 @@
                 <h3><router-link to="/equipamento" class="text-dark">Reservas</router-link></h3>
               </div>
               <div class="card-body text-primary">
-                <h5 class="card-title">Confirmadas: <span class="text-dark">15</span> </h5>
+                <h5 class="card-title">Confirmadas: <span class="text-dark">{{ reservas.confirmadas.length }}</span> </h5>
                 <br>
-                <h5 class="card-title">Pendentes: <span class="text-dark">5</span></h5>
+                <h5 class="card-title">Pendentes: <span class="text-dark">{{ reservas.pendentes.length }}</span></h5>
               </div>
             </div>
           </div>
@@ -47,9 +50,9 @@
                 <h3><router-link to="/equipamento" class="text-dark">Equipamentos</router-link></h3>
               </div>
               <div class="card-body text-primary">
-                <h5 class="card-title">Quebrados: <span class="text-dark">15</span> </h5>
+                <h5 class="card-title">Quebrados: <span class="text-dark">{{ equipamentos.quebrados.length }}</span></h5>
                 <br>
-                <h5 class="card-title">Em Manutenção: <span class="text-dark">5</span></h5>
+                <h5 class="card-title">Em Manutenção: <span class="text-dark">{{ equipamentos.manutencao.length }}</span></h5>
               </div>
             </div>
           </div>
@@ -60,6 +63,9 @@
 </template>
 
 <script>
+import RingLoader from 'vue-spinner/src/RingLoader.vue'
+import firebaseApp from '../firebase-controller.js'
+const db = firebaseApp.database()
 export default {
   name: 'home',
   data () {
@@ -69,10 +75,27 @@ export default {
       seconds: null,
       time: null,
       month: null,
-      day: null
+      day: null,
+      reservas: {
+        confirmadas: [],
+        pendentes: []
+      },
+      equipamentos: {
+        manutencao: [],
+        quebrados: []
+      },
+      loader: {
+        loading: true,
+        color: '#007bff',
+        size: '100px'
+      }
     }
   },
+  components: {
+    RingLoader
+  },
   mounted: function () {
+    this.loader.loading = true
     let now = new Date()
     this.hours = now.getHours()
     this.minutes = this.zeroPattern(now.getMinutes())
@@ -105,8 +128,41 @@ export default {
     } else if (month === 11) {
       this.month = 'Dez'
     }
-
     setInterval(this.updateTime, 1000)
+
+    let _this = this
+    db.ref('Reservas').orderByChild('Status').equalTo('Pendente').on('value', function (snapshot) {
+      _this.loader.loading = true
+      _this.reservas.pendentes = []
+      snapshot.forEach(function (childSnapshot) {
+        _this.reservas.pendentes.push(childSnapshot.key)
+      })
+      _this.loader.loading = false
+    })
+    db.ref('Reservas').orderByChild('Status').equalTo('Confirmada').on('value', function (snapshot) {
+      _this.loader.loading = true
+      _this.reservas.confirmadas = []
+      snapshot.forEach(function (childSnapshot) {
+        _this.reservas.confirmadas.push(childSnapshot.key)
+      })
+      _this.loader.loading = false
+    })
+    db.ref('Equipamentos').orderByChild('Status').equalTo('Em Manutenção').on('value', function (snapshot) {
+      _this.loader.loading = true
+      _this.equipamentos.manutencao = []
+      snapshot.forEach(function (childSnapshot) {
+        _this.equipamentos.manutencao.push(childSnapshot.key)
+      })
+      _this.loader.loading = false
+    })
+    db.ref('Equipamentos').orderByChild('Status').equalTo('Quebrado').on('value', function (snapshot) {
+      _this.loader.loading = true
+      _this.equipamentos.quebrados = []
+      snapshot.forEach(function (childSnapshot) {
+        _this.equipamentos.quebrados.push(childSnapshot.key)
+      })
+      _this.loader.loading = false
+    })
   },
   methods: {
     zeroPattern (n) {
