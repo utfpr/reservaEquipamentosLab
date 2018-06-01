@@ -7,7 +7,7 @@
       <div v-else-if="action === 'view'" class="container">
         <div class="row">
           <div class="col-sm-12 col-md-6">
-            <h5><strong>Nome</strong>: {{local.Nome}}</h5>
+            <h5><strong>Nome</strong>: {{this.$route.params.key}}</h5>
           </div>
         </div>
         <hr />
@@ -30,10 +30,7 @@
                 <router-link :to="{ name: 'Locais', params: {}}" class="mr-2 list-inline-item btn btn-primary btn-sm">Voltar</router-link>
               </li>
               <li>
-                <router-link :to="{ name: 'LocalDetails', params: {key: this.$route.params.key, action: 'edit'}}" class="mr-2 list-inline-item btn btn-primary btn-sm">Editar</router-link>
-              </li>
-              <li>
-                <a href="#"  class="list-inline-item btn btn-danger btn-sm">Deletar</a>
+                <span v-on:click="confirmarDelete(key)" class="list-inline-item btn btn-danger btn-sm">Deletar</span>
               </li>
             </ul>
           </div>
@@ -50,7 +47,7 @@
                   <div class="input-group-prepend">
                     <span class="input-group-text" id="salaPrepend"><i class="fas fa-map-marker"></i></span>
                   </div>
-                  <input id="sala" type="text" class="form-control" placeholder="Digite o bloco e a sala" autocomplete="given-name" aria-describedby="salaPrepend" maxlength="4" v-model = "local.Nome" required>
+                  <input v-on:change="checkUnique()" id="sala" type="text" class="form-control" placeholder="Digite o bloco e a sala" autocomplete="given-name" aria-describedby="salaPrepend" maxlength="4" v-model = "local.Nome" required>
                   <div class="invalid-feedback">
                     Por favor informe o bloco e a sala (ex: C103)
                   </div>
@@ -108,7 +105,7 @@
               <button type="submit" class="btn btn-primary btn-block" >Confirmar</button>
             </div>
             <div class="col-sm-6 justify-content-left">
-              <router-link :to="{ name: 'Locais', params: {}}" class="btn btn-danger btn-block">Cancelar</router-link>
+              <router-link :to="{ name: 'Locais', params: {}}" class="btn btn-danger btn-block">Voltar</router-link>
             </div>
             </div>
           </form>
@@ -119,7 +116,7 @@
 </template>
 
 <script>
-import Alert from '../Alert.vue'
+import Alert from '../utility/Alert.vue'
 import RingLoader from 'vue-spinner/src/RingLoader.vue'
 import firebaseApp from '../../firebase-controller.js'
 const db = firebaseApp.database()
@@ -127,6 +124,7 @@ export default {
   name: 'EquipamentoDetails',
   data () {
     return {
+      key: this.$route.params.key,
       action: this.$route.params.action,
       localDetails: null,
       loader: {
@@ -156,9 +154,9 @@ export default {
   beforeMount: function () {
     this.loader.loading = true
     let _this = this
-    db.ref('Locais/' + this.$route.params.key).on('value', function (snapshot) {
+    db.ref('Locais/' + this.$route.params.key).once('value', function (snapshot) {
       _this.localDetails = snapshot.val()
-      _this.local.Nome = _this.localDetails.Nome
+      _this.local.Nome = _this.$route.params.key
       _this.local.Descricao = _this.localDetails.Descricao
       _this.local.Supervisor = _this.localDetails.Supervisor
       _this.local.Curso = _this.localDetails.Curso
@@ -175,26 +173,30 @@ export default {
       this.loader.loading = true
       this.alert.showAlert = false
       let _this = this
-      db.ref('Locais/' + this.$route.params.key).update({
-        'Nome': _this.local.Nome,
+      db.ref('Locais').child(this.local.Nome).update({
         'Curso': _this.local.Curso,
         'Descricao': _this.local.Descricao,
         'Supervisor': _this.local.Supervisor
       }).then(function () {
-        _this.alert.type = 'alert-success'
-        _this.alert.dismissible = true
-        _this.alert.title = 'Yey!'
-        _this.alert.msg = 'O local ' + _this.local.Nome + ' foi atualizado com sucesso!'
-        _this.loader.loading = false
-        _this.alert.showAlert = true
-        location.reload()
-        form.classList.remove('hideOn')
-        console.log('completo')
+        if (_this.$route.params.key !== _this.local.Nome) {
+          db.ref('Locais').child(_this.$route.params.key).remove()
+        }
+        _this.$notify({
+          group: 'notify',
+          type: 'success',
+          title: 'Yey!',
+          text: 'Local ' + _this.local.Nome + ' foi atualizado com sucesso!',
+          duration: 10000
+        })
+        _this.$router.replace('/locais/' + _this.local.Nome + '/view')
+        setTimeout(function () {
+          location.reload()
+        }, 2000)
       }).catch((err) => {
         _this.alert.type = 'alert-danger'
         _this.alert.dismissible = true
         _this.alert.title = 'Oops!'
-        _this.alert.msg = 'O equipamento ' + _this.local.Nome + ' não foi atualizado devido ao Erro: ' + err
+        _this.alert.msg = 'O local ' + _this.local.Nome + ' não foi atualizado devido ao Erro: ' + err
         _this.loader.loading = false
         _this.alert.showAlert = true
         form.classList.remove('hideOn')
@@ -214,6 +216,58 @@ export default {
           }
           form.classList.add('was-validated')
         }, false)
+      })
+    },
+    confirmarDelete (nome) {
+      this.$modal.show('dialog', {
+        title: 'Cuidado!',
+        text: 'Realmente deseja deletar o Local ' + nome + '? <br> Essa ação não pode ser desfeita',
+        buttons: [
+          {
+            title: 'Deletar',
+            handler: () => {
+              let _this = this
+              db.ref('Locais').child(nome).remove().then(function () {
+                _this.$notify({
+                  group: 'notify',
+                  type: 'success',
+                  title: 'Yey!',
+                  text: 'Local ' + nome + 'deletado com sucesso'
+                })
+                _this.$router.replace('/locais')
+              }).catch((err) => {
+                _this.$notify({
+                  group: 'notify',
+                  type: 'error',
+                  title: 'Yey!',
+                  text: 'Falha ao deletar Local ' + nome
+                })
+                console.log('Erro: ' + err)
+              })
+              this.$modal.hide('dialog')
+            }
+          },
+          {
+            title: 'Cancelar',
+            default: true
+          }
+        ]
+      })
+    },
+    checkUnique: function () {
+      let _this = this
+      db.ref('Locais/' + this.local.Nome).once('value', function (snapshot) {
+        let local = document.getElementById('sala')
+        if (!snapshot.val()) {
+          local.setCustomValidity('')
+        } else {
+          local.setCustomValidity('Local já está cadastrado')
+          _this.alert.type = 'alert-danger'
+          _this.alert.dismissible = true
+          _this.alert.title = 'Oops!'
+          _this.alert.msg = 'O nome ' + _this.local.Nome + ' já se encontra cadastrado, caso queira alterar este local o procure na lista de Locais e clique em Editar'
+          _this.alert.showAlert = true
+        }
       })
     }
   }
