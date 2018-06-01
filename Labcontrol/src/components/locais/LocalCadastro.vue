@@ -16,7 +16,7 @@
               <div class="input-group-prepend">
                 <span class="input-group-text" id="salaPrepend"><i class="fas fa-map-marker"></i></span>
               </div>
-              <input id="sala" type="text" class="form-control" placeholder="Digite o bloco e a sala" autocomplete="given-name" aria-describedby="salaPrepend" maxlength="4" v-model = "newLocal.Nome" required>
+              <input v-on:change="checkUnique()" id="sala" type="text" class="form-control" placeholder="Digite o bloco e a sala" autocomplete="given-name" aria-describedby="salaPrepend" maxlength="4" v-model = "newLocal.Nome" required>
               <div class="invalid-feedback">
                 Por favor informe o bloco e a sala (ex: C103)
               </div>
@@ -89,7 +89,7 @@
   <script>
   import {mask} from 'vue-the-mask'
   import RingLoader from 'vue-spinner/src/RingLoader.vue'
-  import Alert from '../Alert.vue'
+  import Alert from '../utility/Alert.vue'
   import firebaseApp from '../../firebase-controller.js'
   const db = firebaseApp.database()
   export default {
@@ -136,7 +136,11 @@
         this.loader.loading = true
         this.alert.showAlert = false
         let _this = this
-        this.$firebaseRefs.cadastroRef.push(this.newLocal).then(function () {
+        this.$firebaseRefs.cadastroRef.child(this.newLocal.Nome).update({
+          'Curso': _this.newLocal.Curso,
+          'Descricao': _this.newLocal.Descricao,
+          'Supervisor': _this.newLocal.Supervisor
+        }).then(function () {
           _this.alert.type = 'alert-success'
           _this.alert.dismissible = true
           _this.alert.title = 'Yey!'
@@ -170,6 +174,22 @@
             }
             form.classList.add('was-validated')
           }, false)
+        })
+      },
+      checkUnique: function () {
+        let _this = this
+        db.ref('Locais/' + this.newLocal.Nome).once('value', function (snapshot) {
+          let local = document.getElementById('sala')
+          if (!snapshot.val()) {
+            local.setCustomValidity('')
+          } else {
+            local.setCustomValidity('Local já está cadastrado')
+            _this.alert.type = 'alert-danger'
+            _this.alert.dismissible = true
+            _this.alert.title = 'Oops!'
+            _this.alert.msg = 'O nome ' + _this.newLocal.Nome + ' já se encontra cadastrado, caso queira alterar este local o procure na lista de Locais e clique em Editar'
+            _this.alert.showAlert = true
+          }
         })
       }
     }
