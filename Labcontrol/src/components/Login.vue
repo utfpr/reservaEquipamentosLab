@@ -52,7 +52,7 @@ export default {
   name: 'login',
   data () {
     return {
-      email: '',
+      email: '',;
       password: ''
     }
   },
@@ -232,15 +232,11 @@ a:hover {
   border: 0px;
   border-bottom: 2px solid #fff;
   outline: 0;
-  box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
+  -webkit-box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
+          box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
 }
 
 #login .form-control-login::-webkit-input-placeholder {
-  color: #fff;
-  opacity: 1;
-}
-
-#login .form-control-login::-moz-placeholder {
   color: #fff;
   opacity: 1;
 }
@@ -277,7 +273,8 @@ a:hover {
   color: #fff;
   background-color: rgba(44, 102, 206, 0.75);
   border-color: rgba(44, 102, 206, 0.75);
-  box-shadow: 0 0 0 0.2rem rgba(44, 102, 206, 0.5);
+  -webkit-box-shadow: 0 0 0 0.2rem rgba(44, 102, 206, 0.5);
+          box-shadow: 0 0 0 0.2rem rgba(44, 102, 206, 0.5);
 }
 
 </style>
