@@ -193,10 +193,6 @@ main {
   border: 0;
 }
 
-.dropdown-menu {
-  background-color: #2a2c2f;
-}
-
 .collapseArrow {
   display: inline-block;
   width: 0;
