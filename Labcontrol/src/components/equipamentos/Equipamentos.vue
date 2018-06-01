@@ -34,9 +34,9 @@
             </thead>
             <tbody>
               <tr v-for="equipamento in equipamentos">
-                <th scope="row">{{equipamento[1].Patrimonio}}</th>
+                <th scope="row">{{equipamento[0]}}</th>
                 <td>{{equipamento[1].Nome}}</td>
-                <td>{{equipamento[1].Sala}}</td>
+                <td>{{equipamento[1].Local}}</td>
                 <td>{{equipamento[1].Status}}</td>
                 <td>
                   <ul class="list-inline d-inline-flex">
@@ -47,7 +47,7 @@
                       <router-link :to="{ name: 'EquipamentoDetails', params: {key: equipamento[0], action: 'edit'}}" class="mr-2 list-inline-item btn btn-primary btn-sm">Editar</router-link>
                     </li>
                     <li>
-                      <span v-on:click="confirmarDelete(equipamento[0], equipamento[1].Patrimonio)" class="list-inline-item btn btn-danger btn-sm">Deletar</span>
+                      <span v-on:click="confirmarDelete(equipamento[0])" class="list-inline-item btn btn-danger btn-sm">Deletar</span>
                     </li>
                   </ul>
                 </td>
@@ -91,7 +91,7 @@ export default {
     })
   },
   methods: {
-    confirmarDelete (key, patrimonio) {
+    confirmarDelete (patrimonio) {
       this.$modal.show('dialog', {
         title: 'Cuidado!',
         text: 'Realmente deseja deletar o Equipamento ' + patrimonio + '? <br> Essa ação não pode ser desfeita',
@@ -100,12 +100,12 @@ export default {
             title: 'Deletar',
             handler: () => {
               let _this = this
-              db.ref('Equipamentos').child(key).remove().then(function () {
+              db.ref('Equipamentos').child(patrimonio).remove().then(function () {
                 _this.$notify({
                   group: 'notify',
                   type: 'success',
                   title: 'Yey!',
-                  text: 'Equipamento ' + patrimonio + 'deletado com sucesso'
+                  text: 'Equipamento  <strong>' + patrimonio + '</strong> deletado com sucesso'
                 })
               }).catch((err) => {
                 _this.$notify({
@@ -116,6 +116,7 @@ export default {
                 })
                 console.log('Erro: ' + err)
               })
+              this.$modal.hide('dialog')
             }
           },
           {

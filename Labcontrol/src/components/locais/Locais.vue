@@ -34,7 +34,7 @@
             </thead>
             <tbody>
               <tr v-for="local in locais">
-                <th scope="row">{{local[1].Nome}}</th>
+                <th scope="row">{{local[0]}}</th>
                 <td>{{local[1].Descricao}}</td>
                 <td>{{local[1].Curso}}</td>
                 <td>{{local[1].Supervisor}}</td>
