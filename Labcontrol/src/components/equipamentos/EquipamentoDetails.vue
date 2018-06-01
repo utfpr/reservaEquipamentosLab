@@ -83,7 +83,7 @@
                   <div class="input-group-prepend">
                     <span class="input-group-text" id="localPrepend"><i class="fas fa-map-marker"></i></span>
                   </div>
-                  <input id="local" v-on:focus="autocompleteShow()" v-on:keyup="autocompleteSearch()" type="text" class="form-control" placeholder="Local do equipamento" autocomplete="local" aria-describedby="localPrepend" v-model = "equipment.Local" required>
+                  <input id="local" v-on:focus="autocompleteShow()" v-on:keyup="autocompleteSearch()" v-on:change="autocompleteHide()" type="text" class="form-control" placeholder="Local do equipamento" autocomplete="local" aria-describedby="localPrepend" v-model = "equipment.Local" required>
                   <div id="autocomplete" class="list-group autocomplete hideOn">
                     <span v-for="local in locais" v-on:click="selectLocal(local)" class="list-group-item list-group-item-action">{{local}}</span>
                   </div>
