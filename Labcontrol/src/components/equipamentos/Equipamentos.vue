@@ -5,17 +5,19 @@
         <ring-loader :loading="loader.loading" :color="loader.color" :size="loader.size"></ring-loader>
       </div>
       <div v-if="!loader.loading" class="row">
-        <div class="col d-none d-md-flex justify-content-center">
-          <form>
-            <div class="form-row align-items-center">
-              <div class="col-auto my-1">
-                <input class="form-control mr-sm-2" type="search" placeholder="Realize uma busca" aria-label="Buscar">
-              </div>
-              <div class="col-auto my-1">
-                <button class="btn btn-outline-primary my-2 my-sm-0" type="submit">Buscar</button>
+        <div class="col justify-content-center">
+          <div class="input-group">
+            <input v-on:keyup="search()" id="search" type="text" class="form-control"  aria-label="Campo de pesquisa" placeholder="Buscar...">
+            <div class="input-group-append">
+              <button v-on:click="search()" type="button" class="btn btn-outline-secondary">{{filtroAtivo}}</button>
+              <button type="button" class="btn btn-outline-secondary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <span class="sr-only">Filtro</span>
+              </button>
+              <div class="dropdown-menu">
+                <span v-for="filtro in filtros" v-on:click="selectFilter(filtro)" class="dropdown-item">{{filtro}}</span>
               </div>
             </div>
-          </form>
+          </div>
         </div>
       </div>
       <div v-if="!loader.loading" class="row">
@@ -25,10 +27,10 @@
           <table v-else class="table table-responsive-md table-hover text-center">
             <thead>
               <tr>
-                <th scope="col">Patrimônio</th>
-                <th scope="col">Nome</th>
-                <th scope="col">Local</th>
-                <th scope="col">Estado</th>
+                <th scope="col"> <span v-on:click="orderBy('Patrimonio')">Patrimônio</span> </th>
+                <th scope="col"> <span v-on:click="orderBy('Nome')">Nome</span> </th>
+                <th scope="col"> <span v-on:click="orderBy('Local')">Local</span> </th>
+                <th scope="col"> <span v-on:click="orderBy('Estado')">Estado</span> </th>
                 <th scope="col">Ações</th>
               </tr>
             </thead>
@@ -68,6 +70,8 @@ export default {
   name: 'equipamentos',
   data () {
     return {
+      filtros: ['Patrimônio', 'Nome', 'Local', 'Estado'],
+      filtroAtivo: '',
       equipamentos: [],
       loader: {
         loading: true,
@@ -79,9 +83,12 @@ export default {
   components: {
     RingLoader
   },
+  created: function () {
+    this.filtroAtivo = this.filtros[0]
+  },
   mounted: function () {
     let _this = this
-    db.ref('Equipamentos').on('value', function (snapshot) {
+    db.ref('Equipamentos').orderByKey().on('value', function (snapshot) {
       _this.loader.loading = true
       _this.equipamentos = []
       snapshot.forEach(function (childSnapshot) {
@@ -125,6 +132,86 @@ export default {
           }
         ]
       })
+    },
+    selectFilter (filtro) {
+      this.filtroAtivo = filtro
+    },
+    search () {
+      let pesquisa = document.getElementById('search').value
+      let _this = this
+      if (pesquisa) {
+        if (this.filtroAtivo === 'Patrimônio') {
+          db.ref('Equipamentos').orderByKey().startAt(pesquisa).endAt(pesquisa + '\uffff').on('value', function (snapshot) {
+            _this.loader.loading = true
+            _this.equipamentos = []
+            snapshot.forEach(function (childSnapshot) {
+              _this.equipamentos.push([childSnapshot.key, childSnapshot.val()])
+            })
+            _this.loader.loading = false
+          })
+        } else {
+          db.ref('Equipamentos').orderByChild(this.filtroAtivo).startAt(pesquisa).endAt(pesquisa + '\uffff').on('value', function (snapshot) {
+            _this.loader.loading = true
+            _this.equipamentos = []
+            snapshot.forEach(function (childSnapshot) {
+              _this.equipamentos.push([childSnapshot.key, childSnapshot.val()])
+            })
+            _this.loader.loading = false
+          })
+        }
+      } else {
+        db.ref('Equipamentos').orderByKey().on('value', function (snapshot) {
+          _this.loader.loading = true
+          _this.equipamentos = []
+          snapshot.forEach(function (childSnapshot) {
+            _this.equipamentos.push([childSnapshot.key, childSnapshot.val()])
+          })
+          _this.loader.loading = false
+        })
+      }
+    },
+    orderBy (campo) {
+      if (campo === 'Patrimonio') {
+        this.equipamentos.sort(function (a, b) {
+          if (a[0] > b[0]) {
+            return 1
+          }
+          if (a[0] < b[0]) {
+            return -1
+          }
+          return 0
+        })
+      } else if (campo === 'Nome') {
+        this.equipamentos.sort(function (a, b) {
+          if (a[1].Nome > b[1].Nome) {
+            return 1
+          }
+          if (a[1].Nome < b[1].Nome) {
+            return -1
+          }
+          return 0
+        })
+      } else if (campo === 'Local') {
+        this.equipamentos.sort(function (a, b) {
+          if (a[1].Local > b[1].Local) {
+            return 1
+          }
+          if (a[1].Local < b[1].Local) {
+            return -1
+          }
+          return 0
+        })
+      } else if (campo === 'Estado') {
+        this.equipamentos.sort(function (a, b) {
+          if (a[1].Status > b[1].Status) {
+            return 1
+          }
+          if (a[1].Status < b[1].Status) {
+            return -1
+          }
+          return 0
+        })
+      }
     }
   }
 }
