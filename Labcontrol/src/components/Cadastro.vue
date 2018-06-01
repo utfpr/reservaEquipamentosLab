@@ -126,7 +126,7 @@
 <script>
 import {mask} from 'vue-the-mask'
 import RingLoader from 'vue-spinner/src/RingLoader.vue'
-import Alert from './Alert.vue'
+import Alert from './utility/Alert.vue'
 import firebaseApp from '../firebase-controller.js'
 const db = firebaseApp.database()
 const auth = firebaseApp.auth()
@@ -190,7 +190,7 @@ export default {
           displayName: _this.newUser.firstName
         })
         auth.currentUser.sendEmailVerification().then(function () {
-          db.ref('Usuarios').child(auth.currentUser.uid).set({
+          db.ref('Usuarios').child(auth.currentUser.uid).update({
             'RA': _this.newUser.ra,
             'Nome': _this.newUser.firstName,
             'Sobrenome': _this.newUser.lastName,
