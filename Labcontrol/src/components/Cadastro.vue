@@ -36,91 +36,82 @@
             </div>
           </div>
           <div class="form-row">
-            <!-- <div class="col-md-6 mb-3">
-            <label for="telefone">Telefone</label>
-            <div class="input-group">
-            <div class="input-group-prepend">
-            <span class="input-group-text" id="telefonePrepend"><i class="fas fa-phone"></i></span>
+            <div class="col-md-6 mb-3">
+              <label for="ra">Registro Academico</label>
+              <div class="input-group">
+                <div class="input-group-prepend">
+                  <span class="input-group-text" id="raPrepend"><i class="fas fa-address-card"></i></span>
+                </div>
+                <input v-on:change="checkUnique()" id="ra" type="number" class="form-control" placeholder="Digite seu RA" autocomplete="RA" aria-describedby="raPrepend" min="0" v-model = "newUser.ra" required>
+                <div class="invalid-feedback">
+                  Por favor informe um RA válido.
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="curso">Curso</label>
+              <div class="input-group">
+                <div class="input-group-prepend">
+                  <span class="input-group-text" id="cursoPrepend"><i class="fas fa-graduation-cap"></i></span>
+                </div>
+                <select id="curso" class="form-control" aria-describedby="cursoPrepend" v-model = "newUser.curso" required>
+                  <option value="" disabled selected>Selecione seu curso</option>''
+                  <option>Engenharia Ambiental</option>
+                  <option>Engenharia de Alimentos</option>
+                  <option>Quimica</option>
+                </select>
+                <div class="invalid-feedback">
+                  Por favor selecione um curso.
+                </div>
+              </div>
+            </div>
           </div>
-          <input id="telefone" type="tel" class="form-control" placeholder="Digite seu telefone com DDD (opcional)" autocomplete="tel-national" aria-describedby="telefonePrepend" v-mask="['(##) ####-####', '(##) #####-####']" v-model = "newUser.telefone">
-        </div>
-      </div> -->
-      <div class="col-md-6 mb-3">
-        <label for="ra">Registro Academico</label>
-        <div class="input-group">
-          <div class="input-group-prepend">
-            <span class="input-group-text" id="raPrepend"><i class="fas fa-address-card"></i></span>
+          <hr />
+          <div class="form-row">
+            <div class="col-md-12 mb-3">
+              <label for="email">E-mail</label>
+              <div class="input-group">
+                <div class="input-group-prepend">
+                  <span class="input-group-text" id="emailPrepend"><i class="fas fa-envelope"></i></span>
+                </div>
+                <input id="email" type="email" class="form-control" placeholder="Digite um E-mail válido" autocomplete="email" aria-describedby="emailPrepend" v-model = "newUser.email" required>
+                <div class="invalid-feedback">
+                  Por favor informe um E-mail válido (exemplo@exemplo.com).
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="senha">Senha</label>
+              <div class="input-group">
+                <div class="input-group-prepend">
+                  <span class="input-group-text" id="senhaPrepend"><i class="fas fa-lock"></i></span>
+                </div>
+                <input id="senha" v-on:keyup="validatePassword" type="password" class="form-control" autocomplete="new-password" placeholder="Digite sua senha (Min. 6 caracteres)" aria-describedby="senhaPrepend" minlength=6 v-model = "password" required>
+                <div class="invalid-feedback">
+                  Por favor informe uma senha válida (Mínimo de 6 caracteres).
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="senhaConfirma">Confirme sua senha</label>
+              <div class="input-group">
+                <div class="input-group-prepend">
+                  <span class="input-group-text" id="senhaConfirmaPrepend"><i class="fas fa-lock"></i></span>
+                </div>
+                <input id="senhaConfirma" v-on:keyup="validatePassword" type="password" class="form-control" autocomplete="new-password" placeholder="Digite sua senha novamente" aria-describedby="senhaConfirmaPrepend" v-model = "reenteredPassword" required>
+                <div class="invalid-feedback">
+                  As senhas diferem.
+                </div>
+              </div>
+            </div>
           </div>
-          <input id="ra" type="number" class="form-control" placeholder="Digite seu RA" autocomplete="RA" aria-describedby="raPrepend" min="0" v-model = "newUser.ra" required>
-          <div class="invalid-feedback">
-            Por favor informe um RA.
+          <div>
+            <button type="submit" class="btn btn-primary btn-block" v-on:click="validate">Me cadastrar</button>
           </div>
-        </div>
-      </div>
-      <div class="col-md-6 mb-3">
-        <label for="curso">Curso</label>
-        <div class="input-group">
-          <div class="input-group-prepend">
-            <span class="input-group-text" id="cursoPrepend"><i class="fas fa-graduation-cap"></i></span>
-          </div>
-          <select id="curso" class="form-control" aria-describedby="cursoPrepend" v-model = "newUser.curso" required>
-            <option value="" disabled selected>Selecione seu curso</option>''
-            <option>Engenharia Ambiental</option>
-            <option>Engenharia de Alimentos</option>
-            <option>Quimica</option>
-          </select>
-          <div class="invalid-feedback">
-            Por favor selecione um curso.
-          </div>
-        </div>
-      </div>
-    </div>
-    <hr />
-    <div class="form-row">
-      <div class="col-md-12 mb-3">
-        <label for="email">E-mail</label>
-        <div class="input-group">
-          <div class="input-group-prepend">
-            <span class="input-group-text" id="emailPrepend"><i class="fas fa-envelope"></i></span>
-          </div>
-          <input id="email" type="email" class="form-control" placeholder="Digite um E-mail válido" autocomplete="email" aria-describedby="emailPrepend" v-model = "newUser.email" required>
-          <div class="invalid-feedback">
-            Por favor informe um E-mail válido (exemplo@exemplo.com).
-          </div>
-        </div>
-      </div>
-      <div class="col-md-6 mb-3">
-        <label for="senha">Senha</label>
-        <div class="input-group">
-          <div class="input-group-prepend">
-            <span class="input-group-text" id="senhaPrepend"><i class="fas fa-lock"></i></span>
-          </div>
-          <input id="senha" v-on:keyup="validatePassword" type="password" class="form-control" autocomplete="new-password" placeholder="Digite sua senha (Min. 6 caracteres)" aria-describedby="senhaPrepend" minlength=6 v-model = "password" required>
-          <div class="invalid-feedback">
-            Por favor informe uma senha válida (Mínimo de 6 caracteres).
-          </div>
-        </div>
-      </div>
-      <div class="col-md-6 mb-3">
-        <label for="senhaConfirma">Confirme sua senha</label>
-        <div class="input-group">
-          <div class="input-group-prepend">
-            <span class="input-group-text" id="senhaConfirmaPrepend"><i class="fas fa-lock"></i></span>
-          </div>
-          <input id="senhaConfirma" v-on:keyup="validatePassword" type="password" class="form-control" autocomplete="new-password" placeholder="Digite sua senha novamente" aria-describedby="senhaConfirmaPrepend" v-model = "reenteredPassword" required>
-          <div class="invalid-feedback">
-            As senhas diferem.
-          </div>
-        </div>
+        </form>
       </div>
     </div>
-    <div>
-      <button type="submit" class="btn btn-primary btn-block" v-on:click="validate">Me cadastrar</button>
-    </div>
-  </form>
-</div>
-</div>
-</div>
+  </div>
 </template>
 
 <script>
@@ -237,7 +228,7 @@ export default {
         let erro
         switch (err.code) {
           case 'auth/email-already-in-use': {
-            erro = 'o E-mail ' + _this.newUser.email + ' já está cadastrado em nossa base de dados, se você esqueceu sua senha '
+            erro = 'o E-mail ' + _this.newUser.email + ' já está cadastrado em nossa base de dados, se você esqueceu sua senha utilize o link "Esqueci minha senha" na tela de login'
             break
           }
           case 'auth/invalid-email': {
@@ -284,6 +275,31 @@ export default {
       } else {
         confirmPassword.setCustomValidity('As senhas diferem')
       }
+    },
+    checkUnique: function () {
+      let _this = this
+      var ra
+      var unique = true
+      db.ref('Usuarios').orderByChild('RA').once('value', function (snapshot) {
+        ra = document.getElementById('ra')
+        snapshot.forEach(function (childSnapshot) {
+          if (childSnapshot.val().RA === ra.value) {
+            unique = false
+          }
+          console.log(childSnapshot.val().RA)
+        })
+        if (unique) {
+          ra.setCustomValidity('')
+          _this.alert.showAlert = false
+        } else {
+          ra.setCustomValidity('RA já está cadastrado')
+          _this.alert.type = 'alert-danger'
+          _this.alert.dismissible = true
+          _this.alert.title = 'Oops!'
+          _this.alert.msg = 'O RA ' + _this.newUser.ra + ' já se encontra cadastrado. Caso tenha esquecido sua senha utilize o link "Esqueci minha senha" na tela de login'
+          _this.alert.showAlert = true
+        }
+      })
     }
   }
 }
