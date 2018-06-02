@@ -1,6 +1,6 @@
 <template>
   <div id="login">
-      <div class="row justify-content-end">
+      <div class="row justify-content-end" style="max-width: 100vw;">
         <div class="d-xs-none d-sm-flex col-sm-12 col-lg-8 justify-content-center text-center">
             <div class="login-center mt-sm-5 mt-lg-0">
                 <h1 class="text-white display-1"> <b>LabControl</b></h1>
@@ -57,11 +57,8 @@ export default {
     }
   },
   mounted: function () {
-    let elements = document.getElementsByName('hideOn')
-
-    for (let i = 0; i < elements.length; i++) {
-      elements[i].classList.add('hideOn')
-    }
+    let nav = document.getElementById('navBar')
+    nav.classList.add('hideOn')
 
     let main = document.getElementsByTagName('main')
     main[0].setAttribute('style', 'margin-top: 0px!important;')
@@ -74,11 +71,8 @@ export default {
     contentWrapper.setAttribute('style', 'padding: 0px!important;')
   },
   destroyed: function () {
-    let elements = document.getElementsByName('hideOn')
-
-    for (let i = 0; i < elements.length; i++) {
-      elements[i].classList.remove('hideOn')
-    }
+    let nav = document.getElementById('navBar')
+    nav.classList.remove('hideOn')
 
     let main = document.getElementsByTagName('main')
     main[0].setAttribute('style', '')
