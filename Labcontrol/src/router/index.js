@@ -4,8 +4,14 @@ import firebaseApp from '../firebase-controller.js'
 import Home from '@/components/Home'
 import Login from '@/components/Login'
 import p404 from '@/components/p404'
-import Equipamento from '@/components/Equipamento'
-import Local from '@/components/Local'
+import Perfil from '@/components/perfil/Perfil.vue'
+import Equipamentos from '@/components/equipamentos/Equipamentos'
+import EquipamentoCadastro from '@/components/equipamentos/EquipamentoCadastro'
+import EquipamentoDetails from '@/components/equipamentos/EquipamentoDetails'
+import Locais from '@/components/locais/Locais'
+import LocalCadastro from '@/components/locais/LocalCadastro'
+import LocalDetails from '@/components/locais/LocalDetails'
+import Reservas from '@/components/reservas/Reservas'
 import Cadastro from '@/components/Cadastro'
 import VerificarEmail from '@/components/VerificarEmail'
 import ResetarSenha from '@/components/ResetarSenha'
@@ -36,9 +42,33 @@ const router = new Router({
       }
     },
     {
-      path: '/equipamento',
-      name: 'Equipamento',
-      component: Equipamento,
+      path: '/perfil',
+      name: 'Perfil',
+      component: Perfil,
+      meta: {
+        requiresAuth: true
+      }
+    },
+    {
+      path: '/equipamentos',
+      name: 'Equipamentos',
+      component: Equipamentos,
+      meta: {
+        requiresAuth: true
+      }
+    },
+    {
+      path: '/equipamentos/cadastro',
+      name: 'EquipamentoCadastro',
+      component: EquipamentoCadastro,
+      meta: {
+        requiresAuth: true
+      }
+    },
+    {
+      path: '/equipamentos/:key/:action',
+      name: 'EquipamentoDetails',
+      component: EquipamentoDetails,
       meta: {
         requiresAuth: true
       }
@@ -61,7 +91,7 @@ const router = new Router({
       }
     },
     {
-      path: '/ResetarSenha/:code',
+      path: '/ResetarSenha',
       name: 'ResetarSenha',
       component: ResetarSenha,
       meta: {
@@ -77,11 +107,35 @@ const router = new Router({
       }
     },
     {
-      path: '/local',
-      name: 'Local',
-      component: Local,
+      path: '/locais',
+      name: 'Locais',
+      component: Locais,
       meta: {
-        requiresAuth: false
+        requiresAuth: true
+      }
+    },
+    {
+      path: '/locais/cadastro',
+      name: 'LocalCadastro',
+      component: LocalCadastro,
+      meta: {
+        requiresAuth: true
+      }
+    },
+    {
+      path: '/locais/:key/:action',
+      name: 'LocalDetails',
+      component: LocalDetails,
+      meta: {
+        requiresAuth: true
+      }
+    },
+    {
+      path: '/reservas',
+      name: 'Reservas',
+      component: Reservas,
+      meta: {
+        requiresAuth: true
       }
     },
     {

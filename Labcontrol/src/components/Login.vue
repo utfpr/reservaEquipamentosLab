@@ -1,6 +1,6 @@
 <template>
   <div id="login">
-      <div class="row justify-content-end">
+      <div class="row justify-content-end" style="max-width: 100vw;">
         <div class="d-xs-none d-sm-flex col-sm-12 col-lg-8 justify-content-center text-center">
             <div class="login-center mt-sm-5 mt-lg-0">
                 <h1 class="text-white display-1"> <b>LabControl</b></h1>
@@ -57,11 +57,8 @@ export default {
     }
   },
   mounted: function () {
-    let elements = document.getElementsByName('hideOn')
-
-    for (let i = 0; i < elements.length; i++) {
-      elements[i].classList.add('hideOn')
-    }
+    let nav = document.getElementById('navBar')
+    nav.classList.add('hideOn')
 
     let main = document.getElementsByTagName('main')
     main[0].setAttribute('style', 'margin-top: 0px!important;')
@@ -74,11 +71,8 @@ export default {
     contentWrapper.setAttribute('style', 'padding: 0px!important;')
   },
   destroyed: function () {
-    let elements = document.getElementsByName('hideOn')
-
-    for (let i = 0; i < elements.length; i++) {
-      elements[i].classList.remove('hideOn')
-    }
+    let nav = document.getElementById('navBar')
+    nav.classList.remove('hideOn')
 
     let main = document.getElementsByTagName('main')
     main[0].setAttribute('style', '')
@@ -232,15 +226,11 @@ a:hover {
   border: 0px;
   border-bottom: 2px solid #fff;
   outline: 0;
-  box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
+  -webkit-box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
+          box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
 }
 
 #login .form-control-login::-webkit-input-placeholder {
-  color: #fff;
-  opacity: 1;
-}
-
-#login .form-control-login::-moz-placeholder {
   color: #fff;
   opacity: 1;
 }
@@ -277,7 +267,8 @@ a:hover {
   color: #fff;
   background-color: rgba(44, 102, 206, 0.75);
   border-color: rgba(44, 102, 206, 0.75);
-  box-shadow: 0 0 0 0.2rem rgba(44, 102, 206, 0.5);
+  -webkit-box-shadow: 0 0 0 0.2rem rgba(44, 102, 206, 0.5);
+          box-shadow: 0 0 0 0.2rem rgba(44, 102, 206, 0.5);
 }
 
 </style>

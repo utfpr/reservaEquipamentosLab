@@ -1,102 +1,84 @@
 <template>
   <div id="root">
     <header>
-      <nav name="hideOn" class="navbar navbar-expand-lg navbar-dark fixed-top nav-bg-gradient justify-content-between">
+      <nav id="navBar" class="navbar navbar-expand-lg navbar-dark fixed-top nav-bg-gradient justify-content-between" style="min-height: 70px;">
 
-        <button class="navbar-toggler d-flex" type="button" v-on:click="toggle" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
+        <button id="toggler-menu-button" class="navbar-toggler d-flex" type="button" v-on:click="toggle" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon-personalized"></span>
         </button>
-
-
         <a class="navbar-brand text-justify" href="#">LabControl</a>
-
       </nav>
     </header>
     <main>
-
       <div id="wrapper" class="">
 
-       <!-- Sidebar -->
-       <div id="sidebar-wrapper">
-         <ul v-if="isUser" class="sidebar-nav">
-           <li class="nav-item dropdown">
-             <a class="nav-link" href="#userMenu" data-toggle="collapse" aria-haspopup="true" aria-expanded="false" aria-controls="userMenu" role="button">
-               <span v-if="username">Olá, {{ username }}</span>
-               <span class="collapseArrow"></span>
-             </a>
-             <div id="userMenu" class="collapse multi-collapse text-right">
-               <a class="nav-link" href="#">Perfil</a>
-               <a href="#" v-on:click="logout" class="nav-link">Sair</a>
-             </div>
-           </li>
-           <li class="nav-item">
-             <router-link to="/home" class="nav-link">Home</router-link>
-           </li>
-           <li class="nav-item dropdown">
-             <router-link to="/home" class="nav-link" href="#reservasMenu" data-toggle="collapse" aria-haspopup="true" aria-expanded="false" aria-controls="reservasMenu" role="button">
-               <span>Reservas</span>
-               <span class="collapseArrow"></span>
-             </router-link>
-             <div id="reservasMenu" class="collapse multi-collapse text-right" >
-               <a class="nav-link" href="#">Nova Reserva</a>
-               <a class="nav-link" href="#">Confirmadas</a>
-               <a class="nav-link" href="#">Pendentes</a>
-             </div>
-           </li>
-           <li class="nav-item">
-             <li class="nav-item dropdown">
-               <router-link to="/equipamento" class="nav-link" href="#equipamentosMenu" data-toggle="collapse" aria-haspopup="true" aria-expanded="false" aria-controls="equipamentosMenu" role="button">
-                 <span>Equipamentos</span>
-                 <span class="collapseArrow"></span>
-               </router-link>
-               <div id="equipamentosMenu" class="collapse multi-collapse text-right" >
-                 <a class="nav-link" href="#">Novo Equipamento</a>
-                 <a class="nav-link" href="#">Em Manutenção</a>
-                 <a class="nav-link" href="#">Quebrados</a>
-               </div>
-             </li>
-           </li>
-           <li class="nav-item">
-             <router-link to="/local" class="nav-link">Locais</router-link>
-           </li>
-         </ul>
-         <ul v-else class="sidebar-nav">
-           <li class="nav-item">
-             <router-link to="/login" class="nav-link">Login</router-link>
-           </li>
-         </ul>
-       </div>
-       <!-- End sidebar -->
+        <!-- Sidebar -->
+        <div id="sidebar-wrapper">
+          <ul v-if="isUser" class="sidebar-nav">
+            <li class="nav-item dropdown">
+              <a class="nav-link" href="#userMenu" data-toggle="collapse" aria-haspopup="true" aria-expanded="false" aria-controls="userMenu" role="button">
+                Olá<span v-if="username">, {{ username }}</span>
+                <span class="collapseArrow"></span>
+              </a>
+              <div id="userMenu" class="collapse multi-collapse text-right">
+                <router-link to="/perfil" class="nav-link">Perfil</router-link>
+                <a href="#" v-on:click="logout" class="nav-link">Sair</a>
+              </div>
+            </li>
+            <li class="nav-item">
+              <router-link to="/home" class="nav-link">Home</router-link>
+            </li>
+            <li class="nav-item dropdown">
+              <router-link to="/reservas" class="nav-link" href="#reservasMenu" data-toggle="collapse" aria-haspopup="true" aria-expanded="false" aria-controls="reservasMenu" role="button">
+                <span>Reservas</span>
+                <span class="collapseArrow"></span>
+              </router-link>
+              <div id="reservasMenu" class="collapse multi-collapse text-right" >
+                <a class="nav-link" href="#">Nova Reserva</a>
+                <a class="nav-link" href="#">Confirmadas</a>
+                <a class="nav-link" href="#">Pendentes</a>
+              </div>
+            </li>
+            <li class="nav-item">
+              <li class="nav-item dropdown">
+                <router-link to="/equipamentos" class="nav-link" href="#equipamentosMenu" data-toggle="collapse" aria-haspopup="true" aria-expanded="false" aria-controls="equipamentosMenu" role="button">
+                  <span>Equipamentos</span>
+                  <span class="collapseArrow"></span>
+                </router-link>
+                <div id="equipamentosMenu" class="collapse multi-collapse text-right" >
+                  <router-link to="/equipamentos/cadastro" class="nav-link">Novo Equipamento</router-link>
+                  <a class="nav-link" href="#">Em Manutenção</a>
+                  <a class="nav-link" href="#">Quebrados</a>
+                </div>
+              </li>
+            </li>
+            <li class="nav-item">
+              <li class="nav-item dropdown">
+                <router-link to="/locais" class="nav-link" href="#locaisMenu" data-toggle="collapse" aria-haspopup="true" aria-expanded="false" aria-controls="locaisMenu" role="button">
+                  <span>Locais</span>
+                  <span class="collapseArrow"></span>
+                </router-link>
+                <div id="locaisMenu" class="collapse multi-collapse text-right" >
+                  <router-link to="/locais/cadastro" class="nav-link">Novo Local</router-link>
+                </div>
+              </li>
+            </li>
+          </ul>
+          <ul v-else class="sidebar-nav">
+            <li class="nav-item">
+              <router-link to="/login" class="nav-link">Login</router-link>
+            </li>
+          </ul>
+        </div>
+        <!-- End sidebar -->
 
-      <div id="page-content-wrapper">
-        <router-view></router-view>
-        <notifications group="notify" />
-        <vue-progress-bar></vue-progress-bar>
+        <div id="page-content-wrapper">
+          <router-view></router-view>
+          <notifications group="notify" />
+          <vue-progress-bar></vue-progress-bar>
+        </div>
       </div>
-    </div>
     </main>
-    <!-- <footer id="footer" name="hideOn" class="footer" style="background-color: #DDDFE4;">
-      <div class="container">
-        <div class="row justify-content-center">
-          <div class="col-sm-12 text-center"> -->
-            <!-- <img src="./assets/logo_UTFPR.png" style="width:150px; margin:10%"> -->
-            <!-- <small><p class="d-xs-none d-sm-flex" style="margin: 15px 0 15px 0">UTFPR Campus Campo Mourão - Via Rosalina Maria dos Santos, 1233 CEP 87301-899 Caixa Postal: 271 Campo Mourão - PR - Brasil<br>Telefone Geral +55 (44) 3518-1400</p></small>
-          </div>
-        </div>
-      </div>
-      <div class="copyright" style="background-color:#C9CBD0;">
-        <div class="container">
-          <div class="row">
-            <div class="col-sm-6 text-left">
-
-            </div>
-            <div class="col-md-6 text-right">
-              <small>&copy; Copyright 2018 <a href="http://portal.utfpr.edu.br/campus/campomourao" target="_blank" class="text-dark">DACOM UTFPR-CM</a></small>
-            </div>
-          </div>
-        </div>
-      </div>
-    </footer> -->
   </div>
 </template>
 
@@ -157,24 +139,30 @@ export default {
 @import '../node_modules/bootstrap/dist/css/bootstrap.css';
 
 #root {
+  display: -webkit-box;
+  display: -ms-flexbox;
   display: flex;
   min-height: 100vh;
-  flex-direction: column;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
 }
 
 body {
-  overflow-x: hidden;
+  /* overflow-x: hidden; */
 }
 
 main {
-  flex: 1 1 auto;
+  -webkit-box-flex: 1;
+      -ms-flex: 1 1 auto;
+          flex: 1 1 auto;
   margin-top: 70px;
 }
 
 .vertical-center {
   position: absolute;
   top: 50%;
-  -ms-transform: translateY(-50%);
   -webkit-transform: translateY(-50%);
   transform: translateY(-50%);
 }
@@ -182,7 +170,6 @@ main {
 .horizontal-center {
   position: absolute;
   right: 50%;
-  -ms-transform: translateX(50%);
   -webkit-transform: translateX(50%);
   transform: translateX(50%);
 }
@@ -206,10 +193,6 @@ main {
   border: 0;
 }
 
-.dropdown-menu {
-  background-color: #2a2c2f;
-}
-
 .collapseArrow {
   display: inline-block;
   width: 0;
@@ -223,7 +206,6 @@ main {
 }
 
 [aria-expanded="true"] .collapseArrow {
-  -ms-transform: rotate(180deg);
   -webkit-transform: rotate(180deg);
   transform: rotate(180deg);
 }
@@ -268,6 +250,7 @@ input[type=number]::-webkit-inner-spin-button {
   position:relative;
 }
 input[type=number] {
+  -webkit-appearance: textfield;
   -moz-appearance: textfield;
   appearance: textfield;
   margin: 0;
@@ -276,8 +259,6 @@ input[type=number] {
 #wrapper {
   padding-left: 0;
   -webkit-transition: all 0.5s ease;
-  -moz-transition: all 0.5s ease;
-  -o-transition: all 0.5s ease;
   transition: all 0.5s ease;
 }
 
@@ -295,8 +276,6 @@ input[type=number] {
   overflow-y: auto;
   background: #343a40;
   -webkit-transition: all 0.5s ease;
-  -moz-transition: all 0.5s ease;
-  -o-transition: all 0.5s ease;
   transition: all 0.5s ease;
 }
 
@@ -389,5 +368,27 @@ input[type=number] {
     margin-right: 0;
   }
 }
+
+.autocomplete {
+    position: absolute;
+    z-index: 1000;
+    min-width: -webkit-fill-available;
+    margin-top: 50px;
+    display: flex;
+}
+
+/*
+.v-autocomplete {
+  position:relative
+}
+.v-autocomplete .v-autocomplete-list {
+  position:absolute
+}
+.v-autocomplete .v-autocomplete-list .v-autocomplete-list-item {
+  cursor:pointer
+}
+.v-autocomplete .v-autocomplete-list .v-autocomplete-list-item .v-autocomplete-item-active {
+  background-color:#f3f6fa
+} */
 
 </style>
