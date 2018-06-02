@@ -1,7 +1,7 @@
 <template>
   <div id="root">
     <header>
-      <nav class="navbar navbar-expand-lg navbar-dark fixed-top nav-bg-gradient justify-content-between" style="min-height: 70px;">
+      <nav id="navBar" class="navbar navbar-expand-lg navbar-dark fixed-top nav-bg-gradient justify-content-between" style="min-height: 70px;">
 
         <button id="toggler-menu-button" class="navbar-toggler d-flex" type="button" v-on:click="toggle" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon-personalized"></span>
@@ -21,7 +21,7 @@
                 <span class="collapseArrow"></span>
               </a>
               <div id="userMenu" class="collapse multi-collapse text-right">
-                <a class="nav-link" href="#">Perfil</a>
+                <router-link to="/perfil" class="nav-link">Perfil</router-link>
                 <a href="#" v-on:click="logout" class="nav-link">Sair</a>
               </div>
             </li>
