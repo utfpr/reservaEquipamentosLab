@@ -5,12 +5,12 @@
         <h2> Recupere sua senha </h2>
       </div>
       <hr />
-      <alert :showAlert="alert.showAlert" :dismissible="alert.dismissible" :type="alert.type" :title="alert.title" :msg="alert.msg"></alert>
       <div class="row justify-content-center">
         <ring-loader :loading="loader.loading" :color="loader.color" :size="loader.size"></ring-loader>
+        <alert :showAlert="alert.showAlert" :dismissible="alert.dismissible" :type="alert.type" :title="alert.title" :msg="alert.msg"></alert>
         <form id="recuperarForm" class="needs-validation" novalidate>
           <div class="form-row">
-            <div class="col-md-6 mb-3">
+            <div class="col-12 mb-3">
               <label for="emailReset">E-mail</label>
               <div class="input-group">
                 <div class="input-group-prepend">
@@ -24,12 +24,11 @@
             </div>
           </div>
           <div class="form-row">
-            <div class="col-md-6 mb-3">
+            <div class="col-12 mb-3">
               <button type="submit" class="btn btn-primary btn-block" v-on:click="validate">Enviar E-mail de recuperação</button>
             </div>
           </div>
         </form>
-        <alert :showAlert="alertSuccess.showAlert" :type="alertSuccess.type" :title="alertSuccess.title" :msg="alertSuccess.msg"></alert>
       </div>
     </div>
   </div>
@@ -52,13 +51,7 @@ export default {
       },
       alert: {
         showAlert: false,
-        dismissible: true,
-        type: '',
-        title: '',
-        msg: ''
-      },
-      alertSuccess: {
-        showAlert: false,
+        dismissible: false,
         type: '',
         title: '',
         msg: ''
@@ -70,28 +63,28 @@ export default {
     RingLoader
   },
   methods: {
-    showError: function () {
-      this.alertSuccess.showAlert = false
-      this.alert.showAlert = true
-      this.alert.type = 'alert-danger'
-      this.alert.title = 'Oops!'
-      this.alert.msg = 'Algo deu errado na comunicação com o servidor. Verifique sua conexão com a internet ou tente mais tarde.'
-    },
     sendResetMail: function () {
+      this.loader.loading = true
       let _this = this
       var email = this.emailForReset
+      let form = document.getElementById('recuperarForm')
+      form.classList.add('hideOn')
       auth.sendPasswordResetEmail(email).then(function () {
-        let form = document.getElementById('recuperarForm')
-        form.classList.add('hideOn')
-        _this.alert.showAlert = false
-        _this.alertSuccess.showAlert = true
-        _this.alertSuccess.type = 'alert-success'
-        _this.alertSuccess.title = 'Solicitação enviada com successo!'
-        _this.alertSuccess.msg = ' Caso o E-mail ' + _this.emailForReset + ' esteja cadastrado na plataforma, você receberá um E-mail para a redefinição de senha. Caso o E-mail não apareça em sua caixa de entrada verifique a pasta de Spam'
+        _this.alert.showAlert = true
+        _this.alert.dismissible = false
+        _this.alert.type = 'alert-success'
+        _this.alert.title = 'Solicitação enviada com successo!'
+        _this.alert.msg = ' Caso o E-mail ' + _this.emailForReset + ' esteja cadastrado na plataforma, você receberá um E-mail para a redefinição de senha. Caso o E-mail não apareça em sua caixa de entrada verifique a pasta de Spam'
       }).catch((err) => {
-        this.showError()
-        console.log('Erro ao tentar enviar E-mail de recuperação: ' + err)
+        form.classList.remove('hideOn')
+        _this.alert.showAlert = true
+        _this.alert.dismissible = true
+        _this.alert.type = 'alert-danger'
+        _this.alert.title = 'Oops!'
+        _this.alert.msg = 'Falha ao enviar E-mail de recuperação para ' + _this.emailForReset + ', por favor tente novamente mais tarde.'
+        console.log('Erro ao tentar enviar E-mail de recuperação: ' + err.code)
       })
+      this.loader.loading = false
     },
     checkEmail: function () {
       var email = this.emailForReset
@@ -104,17 +97,26 @@ export default {
       let _this = this
 
       auth.fetchProvidersForEmail(email).then(function (providers) {
-        _this.sendResetMail()
-        console.log('Email providers: ' + providers)
+        if (providers.length !== 0) {
+          _this.sendResetMail()
+        } else {
+          form.classList.remove('hideOn')
+          _this.alert.dismissible = true
+          _this.alert.showAlert = true
+          _this.alert.type = 'alert-danger'
+          _this.alert.title = 'Oops!'
+          _this.alert.msg = ' O E-mail ' + _this.emailForReset + ' não se encontra cadastrado em nosso sistema.'
+        }
       }).catch((err) => {
         form.classList.remove('hideOn')
-        this.showError()
-        console.log('Erro ao tentar vereficar E-mail: ' + err)
+        _this.alert.showAlert = false
+        _this.alert.dismissible = true
+        _this.alert.type = 'alert-danger'
+        _this.alert.title = 'Oops!'
+        _this.alert.msg = 'Falha na comunicação com o servidor, verifique sua conexão com a internet ou tente novamente mais tarde.'
+        console.log('Erro ao tentar vereficar E-mail: ' + err.code)
       })
-
-      setTimeout(function () {
-        _this.loader.loading = false
-      }, 50000)
+      _this.loader.loading = false
     },
     validate: function () {
       let _this = this
