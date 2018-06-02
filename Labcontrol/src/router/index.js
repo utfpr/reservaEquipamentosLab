@@ -4,6 +4,7 @@ import firebaseApp from '../firebase-controller.js'
 import Home from '@/components/Home'
 import Login from '@/components/Login'
 import p404 from '@/components/p404'
+import Perfil from '@/components/perfil/Perfil.vue'
 import Equipamentos from '@/components/equipamentos/Equipamentos'
 import EquipamentoCadastro from '@/components/equipamentos/EquipamentoCadastro'
 import EquipamentoDetails from '@/components/equipamentos/EquipamentoDetails'
@@ -38,6 +39,14 @@ const router = new Router({
       component: Login,
       meta: {
         login: true
+      }
+    },
+    {
+      path: '/perfil',
+      name: 'Perfil',
+      component: Perfil,
+      meta: {
+        requiresAuth: true
       }
     },
     {
@@ -82,7 +91,7 @@ const router = new Router({
       }
     },
     {
-      path: '/ResetarSenha/:code',
+      path: '/ResetarSenha',
       name: 'ResetarSenha',
       component: ResetarSenha,
       meta: {
