@@ -4,22 +4,28 @@
       <div v-if="loader.loading" class="row justify-content-center">
         <ring-loader :loading="loader.loading" :color="loader.color" :size="loader.size"></ring-loader>
       </div>
-      <div v-if="!loader.loading" class="row">
-        <div class="col justify-content-center">
-          <div class="input-group">
-            <input v-on:keyup="search()" id="search" type="text" class="form-control"  aria-label="Campo de pesquisa" placeholder="Buscar...">
-            <div class="input-group-append">
-              <button v-on:click="search()" type="button" class="btn btn-outline-secondary">{{filtroAtivo}}</button>
-              <button type="button" class="btn btn-outline-secondary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                <span class="sr-only">Filtro</span>
-              </button>
-              <div class="dropdown-menu">
-                <span v-for="filtro in filtros" v-on:click="selectFilter(filtro)" class="dropdown-item">{{filtro}}</span>
+        <div v-if="!loader.loading" class="row">
+          <div class="col-12 col-lg-10 justify-content-center">
+            <div class="input-group">
+              <input v-on:keyup="search()" id="search" type="text" class="form-control"  aria-label="Campo de pesquisa" placeholder="Buscar...">
+              <div class="input-group-append">
+                <button v-on:click="search()" type="button" class="btn btn-outline-secondary">{{filtroAtivo}}</button>
+                <button type="button" class="btn btn-outline-secondary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  <span class="sr-only">Filtro</span>
+                </button>
+                <div class="dropdown-menu">
+                  <span v-for="filtro in filtros" v-on:click="selectFilter(filtro)" class="dropdown-item">{{filtro}}</span>
+                </div>
               </div>
             </div>
           </div>
+          <div class="col-2 text-center">
+            <router-link to="/equipamentos/cadastro" class="justify-content-center btn d-none d-lg-flex btn-outline-primary btn-block">Novo</router-link>
+          </div>
         </div>
-      </div>
+        <div v-if="!loader.loading" class="row mt-4 justify-content-center text-center">
+          <h2> Equipamentos </h2>
+        </div>
       <div v-if="!loader.loading" class="row">
         <v-dialog/>
         <div class="col-12">
@@ -150,6 +156,9 @@ export default {
             _this.loader.loading = false
           })
         } else {
+          if (this.filtroAtivo === 'Local') {
+            pesquisa = pesquisa.toUpperCase()
+          }
           db.ref('Equipamentos').orderByChild(this.filtroAtivo).startAt(pesquisa).endAt(pesquisa + '\uffff').on('value', function (snapshot) {
             _this.loader.loading = true
             _this.equipamentos = []
