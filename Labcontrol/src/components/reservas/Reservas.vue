@@ -18,6 +18,9 @@
           </form>
         </div>
       </div>
+      <div v-if="!loader.loading" class="row mt-4 justify-content-center text-center">
+        <h2> Reservas </h2>
+      </div>
       <div v-if="!loader.loading" class="row">
         <div class="col-12">
           <h4 v-if="reservas.length === 0" class=" text-center mt-5"> Nenhuma reserva encontrada </h4>

@@ -14,7 +14,7 @@ import LocalDetails from '@/components/locais/LocalDetails'
 import Reservas from '@/components/reservas/Reservas'
 import Cadastro from '@/components/Cadastro'
 import VerificarEmail from '@/components/VerificarEmail'
-import ResetarSenha from '@/components/ResetarSenha'
+import actionHandler from '@/components/actionHandler'
 import RecuperarSenha from '@/components/RecuperarSenha'
 
 Vue.use(Router)
@@ -91,9 +91,9 @@ const router = new Router({
       }
     },
     {
-      path: '/ResetarSenha',
-      name: 'ResetarSenha',
-      component: ResetarSenha,
+      path: '/actionHandler',
+      name: 'actionHandler',
+      component: actionHandler,
       meta: {
         requiresAuth: false
       }

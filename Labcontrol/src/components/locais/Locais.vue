@@ -5,7 +5,7 @@
         <ring-loader :loading="loader.loading" :color="loader.color" :size="loader.size"></ring-loader>
       </div>
       <div v-if="!loader.loading" class="row">
-        <div class="col justify-content-center">
+        <div class="col-12 col-lg-10 justify-content-center">
           <div class="input-group">
             <input v-on:keyup="search()" id="search" type="text" class="form-control"  aria-label="Campo de pesquisa" placeholder="Buscar...">
             <div class="input-group-append">
@@ -19,6 +19,12 @@
             </div>
           </div>
         </div>
+        <div class="col-2 text-center">
+          <router-link to="/locais/cadastro" class="justify-content-center btn d-none d-lg-flex btn-outline-primary btn-block">Novo</router-link>
+        </div>
+      </div>
+      <div v-if="!loader.loading" class="row mt-4 justify-content-center text-center">
+        <h2> Locais </h2>
       </div>
       <div v-if="!loader.loading" class="row">
         <v-dialog/>
@@ -49,7 +55,7 @@
                       <router-link :to="{ name: 'LocalDetails', params: {key: local[0], action: 'edit'}}" class="mr-2 list-inline-item btn btn-primary btn-sm">Editar</router-link>
                     </li>
                     <li>
-                      <span v-on:click="confirmarDelete(local[0], local[1].Nome)" class="list-inline-item btn btn-danger btn-sm">Deletar</span>
+                      <span v-on:click="confirmarDelete(local[0])" class="list-inline-item btn btn-danger btn-sm">Deletar</span>
                     </li>
                   </ul>
                 </td>
@@ -98,21 +104,21 @@ export default {
     })
   },
   methods: {
-    confirmarDelete (key, nome) {
+    confirmarDelete (nome) {
       this.$modal.show('dialog', {
         title: 'Cuidado!',
-        text: 'Realmente deseja deletar o Local ' + nome + '? <br> Essa ação não pode ser desfeita',
+        text: 'Realmente deseja deletar o Local <b>' + nome + '</b>? <br> <i>Essa ação não poderá ser desfeita</i>',
         buttons: [
           {
             title: 'Deletar',
             handler: () => {
               let _this = this
-              db.ref('Locais').child(key).remove().then(function () {
+              db.ref('Locais').child(nome).remove().then(function () {
                 _this.$notify({
                   group: 'notify',
                   type: 'success',
                   title: 'Yey!',
-                  text: 'Local ' + nome + 'deletado com sucesso'
+                  text: 'Local <b>' + nome + '</b> deletado com sucesso'
                 })
               }).catch((err) => {
                 _this.$notify({

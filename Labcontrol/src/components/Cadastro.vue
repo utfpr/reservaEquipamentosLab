@@ -191,7 +191,7 @@ export default {
               group: 'notify',
               type: 'success',
               title: 'Yey!',
-              text: 'E-mail de verificação enviado para' + _this.newUser.email,
+              text: 'E-mail de verificação enviado para ' + _this.newUser.email,
               duration: 11000
             })
             form.classList.add('hideOn')
