@@ -34,7 +34,7 @@
                 <span class="collapseArrow"></span>
               </router-link>
               <div id="reservasMenu" class="collapse multi-collapse text-right" >
-                <a class="nav-link" href="#">Nova Reserva</a>
+                <router-link to="/reservas/cadastro" class="nav-link">Nova Reserva</router-link>
                 <a class="nav-link" href="#">Confirmadas</a>
                 <a class="nav-link" href="#">Pendentes</a>
               </div>
