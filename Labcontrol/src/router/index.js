@@ -10,6 +10,7 @@ import Cadastro from '@/components/Cadastro'
 import VerificarEmail from '@/components/VerificarEmail'
 import ResetarSenha from '@/components/ResetarSenha'
 import RecuperarSenha from '@/components/RecuperarSenha'
+import Calendario from '@/components/Calendar-event'
 
 Vue.use(Router)
 
@@ -80,6 +81,14 @@ const router = new Router({
       path: '/local',
       name: 'Local',
       component: Local,
+      meta: {
+        requiresAuth: false
+      }
+    },
+    {
+      path: '/calendario',
+      name: 'Calendario',
+      component: Calendario,
       meta: {
         requiresAuth: false
       }

@@ -10,8 +10,11 @@ import VueFire from 'vuefire'
 import VueValidator from 'vue-validator'
 import Validate from 'v-validate'
 import firebaseApp from './firebase-controller.js'
+import vueEventCalendar from 'vue-event-calendar'
+import 'vue-event-calendar/dist/style.css'
 import 'bootstrap'
 
+Vue.use(vueEventCalendar, {locale: 'pt-br'})
 Vue.use(Notifications)
 Vue.use(VueFire)
 Vue.use(VueResource)
