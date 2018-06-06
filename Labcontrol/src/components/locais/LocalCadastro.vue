@@ -16,9 +16,9 @@
               <div class="input-group-prepend">
                 <span class="input-group-text" id="salaPrepend"><i class="fas fa-map-marker"></i></span>
               </div>
-              <input id="sala" type="text" class="form-control" placeholder="Digite o bloco e a sala" autocomplete="given-name" aria-describedby="salaPrepend" maxlength="4" v-model = "newLocal.class" required>
+              <input v-on:change="checkUnique()" id="sala" type="text" class="form-control" placeholder="Digite o bloco e a sala" autocomplete="given-name" aria-describedby="salaPrepend" maxlength="4" v-model = "newLocal.Nome" required>
               <div class="invalid-feedback">
-                Por favor informe o bloco e a sala (ex: E100)
+                Por favor informe o bloco e a sala (ex: C103)
               </div>
             </div>
           </div>
@@ -28,7 +28,7 @@
               <div class="input-group-prepend">
                 <span class="input-group-text" id="supervisorPrepend"><i class="fas fa-clipboard"></i></span>
               </div>
-              <select id="supervisor" class="form-control" aria-describedby="supervisorPrepend" v-model = "newLocal.supervisor" required>
+              <select id="supervisor" class="form-control" aria-describedby="supervisorPrepend" v-model = "newLocal.Supervisor" required>
                 <option value="" disabled selected>Selecione o nome do supervisor</option>''
                 <option>Prof 1</option>
                 <option>Prof 2</option>
@@ -47,7 +47,7 @@
               <div class="input-group-prepend">
                 <span class="input-group-text" id="descPrepend"><i class="fas fa-book"></i></span>
               </div>
-              <input id="desc" type="text" class="form-control" placeholder="Digite uma descrição sobre o laboratorio" autocomplete="given-name" aria-describedby="descPrepend" v-model = "newLocal.descrip">
+              <input id="desc" type="text" class="form-control" placeholder="Digite uma descrição sobre o laboratorio" autocomplete="given-name" aria-describedby="descPrepend" v-model = "newLocal.Descricao">
             </div>
           </div>
         <div class="col-lg-6 mb-3">
@@ -56,7 +56,7 @@
             <div class="input-group-prepend">
               <span class="input-group-text" id="cursoPrepend"><i class="fas fa-graduation-cap"></i></span>
             </div>
-            <select id="cursolocal" class="form-control" aria-describedby="cursolocalPrepend" v-model = "newLocal.curso" required>
+            <select id="cursolocal" class="form-control" aria-describedby="cursolocalPrepend" v-model = "newLocal.Curso" required>
               <option value="" disabled selected>Selecione o curso de utilização</option>''
               <option>Todos</option>
               <option>Engenharia Ambiental</option>
@@ -89,18 +89,18 @@
   <script>
   import {mask} from 'vue-the-mask'
   import RingLoader from 'vue-spinner/src/RingLoader.vue'
-  import Alert from './Alert.vue'
-  import firebaseApp from '../firebase-controller.js'
+  import Alert from '../utility/Alert.vue'
+  import firebaseApp from '../../firebase-controller.js'
   const db = firebaseApp.database()
   export default {
-    name: 'local',
+    name: 'localCadastro',
     data () {
       return {
         newLocal: {
-          class: '',
-          descrip: '',
-          supervisor: '',
-          curso: ''
+          Nome: '',
+          Descricao: '',
+          Supervisor: '',
+          Curso: ''
         },
         loader: {
           loading: false,
@@ -117,7 +117,7 @@
       }
     },
     firebase: {
-      cadastroRef: db.ref('local')
+      cadastroRef: db.ref('Locais')
     },
     directives: {
       mask
@@ -136,11 +136,15 @@
         this.loader.loading = true
         this.alert.showAlert = false
         let _this = this
-        this.$firebaseRefs.cadastroRef.push(this.newLocal).then(function () {
+        this.$firebaseRefs.cadastroRef.child(this.newLocal.Nome).update({
+          'Curso': _this.newLocal.Curso,
+          'Descricao': _this.newLocal.Descricao,
+          'Supervisor': _this.newLocal.Supervisor
+        }).then(function () {
           _this.alert.type = 'alert-success'
           _this.alert.dismissible = true
           _this.alert.title = 'Yey!'
-          _this.alert.msg = 'O local ' + _this.newLocal.class + ', com código ' + _this.newLocal.class + ', foi cadastrado com sucesso!'
+          _this.alert.msg = 'O local ' + _this.newLocal.Nome + 'foi cadastrado com sucesso!'
           _this.loader.loading = false
           _this.alert.showAlert = true
           location.reload()
@@ -150,7 +154,7 @@
           _this.alert.type = 'alert-danger'
           _this.alert.dismissible = true
           _this.alert.title = 'Oops!'
-          _this.alert.msg = 'O local ' + _this.newLocal.class + ', com código ' + _this.newLocal.class + ', não foi cadastrado devido ao Erro: ' + err
+          _this.alert.msg = 'O local ' + _this.newLocal.Nome + ' não foi cadastrado devido ao Erro: ' + err
           _this.loader.loading = false
           _this.alert.showAlert = true
           form.classList.remove('hideOn')
@@ -170,6 +174,22 @@
             }
             form.classList.add('was-validated')
           }, false)
+        })
+      },
+      checkUnique: function () {
+        let _this = this
+        db.ref('Locais/' + this.newLocal.Nome).once('value', function (snapshot) {
+          let local = document.getElementById('sala')
+          if (!snapshot.val()) {
+            local.setCustomValidity('')
+          } else {
+            local.setCustomValidity('Local já está cadastrado')
+            _this.alert.type = 'alert-danger'
+            _this.alert.dismissible = true
+            _this.alert.title = 'Oops!'
+            _this.alert.msg = 'O nome ' + _this.newLocal.Nome + ' já se encontra cadastrado, caso queira alterar este local o procure na lista de Locais e clique em Editar'
+            _this.alert.showAlert = true
+          }
         })
       }
     }

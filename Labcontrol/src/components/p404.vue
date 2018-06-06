@@ -18,15 +18,21 @@ export default {
     return {}
   },
   mounted: function () {
-    let elements = document.getElementsByTagName('footer')
-    elements[0].classList.add('hideOn')
+    let toggler = document.getElementById('toggler-menu-button')
+    toggler.classList.add('hideOn')
+
+    let content = document.getElementById('page-content-wrapper')
+    content.setAttribute('style', 'padding: 0px!important;')
 
     let main = document.getElementsByTagName('main')
     main[0].setAttribute('style', 'margin-top: 55px!important;')
   },
   destroyed: function () {
-    let elements = document.getElementsByTagName('footer')
-    elements[0].classList.remove('hideOn')
+    let toggler = document.getElementById('toggler-menu-button')
+    toggler.classList.remove('hideOn')
+
+    let content = document.getElementById('page-content-wrapper')
+    content.setAttribute('style', '')
 
     let main = document.getElementsByTagName('main')
     main[0].setAttribute('style', '')

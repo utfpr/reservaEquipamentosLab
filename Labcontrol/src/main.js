@@ -10,6 +10,7 @@ import VueFire from 'vuefire'
 import VueValidator from 'vue-validator'
 import Validate from 'v-validate'
 import firebaseApp from './firebase-controller.js'
+import VModal from 'vue-js-modal'
 import vueEventCalendar from 'vue-event-calendar'
 import 'vue-event-calendar/dist/style.css'
 import 'bootstrap'
@@ -20,6 +21,7 @@ Vue.use(VueFire)
 Vue.use(VueResource)
 Vue.use(VueValidator)
 Vue.use(Validate)
+Vue.use(VModal, { dialog: true })
 
 Vue.config.productionTip = false
 
