@@ -11,16 +11,7 @@
         <form id="cadastroFormReservation" class="needs-validation" v-on:submit.prevent novalidate>
           <div class="form-row">
             <div class="col-md-6 mb-3">
-              <label for="nome">Nome</label>
-              <div class="input-group">
-                <div class="input-group-prepend">
-                  <span class="input-group-text" id="nomePrepend"><i class="fas fa-user"></i></span>
-                </div>
-                <input id="nome" type="text" class="form-control" placeholder="Digite seu nome" autocomplete="name" aria-describedby="nomePrepend" v-model = "newReservation.Aluno" required>
-                <div class="invalid-feedback">
-                  Por favor informe seu nome.
-                </div>
-              </div>
+              <!-- empty -->
             </div>
             <div class="col-md-6 mb-3">
               <label for="data">Data</label>
@@ -28,7 +19,8 @@
                 <div class="input-group-prepend">
                   <span class="input-group-text" id="dataPrepend"><i class="fas fa-calendar-alt"></i></span>
                 </div>
-                <input id="data" type="date-time" class="form-control" aria-describedby="dataPrepend" v-model = "newReservation.Data" required>
+                <datetime id="data" type="datetime" auto="true" class="form-control" aria-describedby="dataPrepend" v-model="newReservation.Data"></datetime>
+                <!-- <input id="data" type="date-time" class="form-control" aria-describedby="dataPrepend" v-model = "newReservation.Data" required> -->
                 <div class="invalid-feedback">
                   Por favor informe seu sobrenome.
                 </div>
