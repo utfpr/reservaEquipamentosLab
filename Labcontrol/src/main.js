@@ -11,7 +11,10 @@ import VueValidator from 'vue-validator'
 import Validate from 'v-validate'
 import firebaseApp from './firebase-controller.js'
 import VModal from 'vue-js-modal'
+import Datetime from 'vue-datetime'
 import 'bootstrap'
+
+import 'vue-datetime/dist/vue-datetime.css'
 
 Vue.use(Notifications)
 Vue.use(VueFire)
@@ -19,6 +22,7 @@ Vue.use(VueResource)
 Vue.use(VueValidator)
 Vue.use(Validate)
 Vue.use(VModal, { dialog: true })
+Vue.use(Datetime)
 
 Vue.config.productionTip = false
 
