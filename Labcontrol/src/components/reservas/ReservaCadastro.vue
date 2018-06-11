@@ -99,13 +99,14 @@ import RingLoader from 'vue-spinner/src/RingLoader.vue'
 import Alert from '../utility/Alert.vue'
 import firebaseApp from '../../firebase-controller.js'
 const db = firebaseApp.database()
+const auth = firebaseApp.auth()
 export default {
   name: 'reserva',
   data () {
     return {
       locais: [],
       newReservation: {
-        Aluno: '',
+        RA: '',
         Data: '',
         Equipamento: '',
         Retirada: '',
@@ -137,6 +138,13 @@ export default {
     RingLoader
   },
   mounted: function () {
+    let activeUser = auth.currentUser.uid
+    db.ref('Usuarios/' + activeUser.toString()).once('value', data => {
+      console.log(data.val())
+      var raNumber = data.val().RA
+      this.newReservation.RA = raNumber.toString()
+    })
+    // todo: get equipment name
     this.validate()
   },
   methods: {
@@ -146,8 +154,14 @@ export default {
       this.loader.loading = true
       this.alert.showAlert = false
       let _this = this
-      this.$firebaseRefs.cadastroRef.child(this.newReservation.Data).update({
-        'Aluno': _this.newReservation.Aluno,
+      var dateField = document.getElementById('data')
+      if (dateField.tagName === 'DIV') {
+        dateField = dateField.children[0]
+      }
+      var tmpDate = new Date(dateField.value)
+      let sanitizedDate = tmpDate.getUTCFullYear() + '-' + tmpDate.getUTCMonth() + '-' + tmpDate.getUTCDay() + 'T' + tmpDate.getUTCHours() + ':' + tmpDate.getUTCMinutes() + 'Z'
+      this.$firebaseRefs.cadastroRef.child(sanitizedDate).update({
+        'RA': _this.newReservation.RA,
         'Equipamento': _this.newReservation.Equipamento,
         'Retirada': _this.newReservation.Retirada,
         'Retorno': _this.newReservation.Retorno,
