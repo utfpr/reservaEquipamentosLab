@@ -16,6 +16,7 @@ import Cadastro from '@/components/Cadastro'
 import VerificarEmail from '@/components/VerificarEmail'
 import actionHandler from '@/components/actionHandler'
 import RecuperarSenha from '@/components/RecuperarSenha'
+import Calendario from '@/components/Calendar-event'
 
 Vue.use(Router)
 
@@ -136,6 +137,14 @@ const router = new Router({
       component: Reservas,
       meta: {
         requiresAuth: true
+      }
+    },
+    {
+      path: '/calendario',
+      name: 'Calendario',
+      component: Calendario,
+      meta: {
+        requiresAuth: false
       }
     },
     {
