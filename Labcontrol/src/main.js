@@ -12,15 +12,12 @@ import Validate from 'v-validate'
 import firebaseApp from './firebase-controller.js'
 import VModal from 'vue-js-modal'
 import vueEventCalendar from 'vue-event-calendar'
+import Datetime from 'vue-datetime'
 import 'vue-event-calendar/dist/style.css'
+import 'vue-datetime/dist/vue-datetime.css'
 import 'bootstrap'
 
 Vue.use(vueEventCalendar, {locale: 'pt-br'})
-import Datetime from 'vue-datetime'
-import 'bootstrap'
-
-import 'vue-datetime/dist/vue-datetime.css'
-
 Vue.use(Notifications)
 Vue.use(VueFire)
 Vue.use(VueResource)

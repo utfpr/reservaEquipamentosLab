@@ -148,6 +148,7 @@ const router = new Router({
         requiresAuth: false
       }
     },
+    {
       path: '/reservas/cadastro',
       name: 'Cadastro de reservas',
       component: ReservasCadastro,
