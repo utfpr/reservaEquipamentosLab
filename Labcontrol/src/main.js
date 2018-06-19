@@ -16,12 +16,18 @@ import 'vue-event-calendar/dist/style.css'
 import 'bootstrap'
 
 Vue.use(vueEventCalendar, {locale: 'pt-br'})
+import Datetime from 'vue-datetime'
+import 'bootstrap'
+
+import 'vue-datetime/dist/vue-datetime.css'
+
 Vue.use(Notifications)
 Vue.use(VueFire)
 Vue.use(VueResource)
 Vue.use(VueValidator)
 Vue.use(Validate)
 Vue.use(VModal, { dialog: true })
+Vue.use(Datetime)
 
 Vue.config.productionTip = false
 

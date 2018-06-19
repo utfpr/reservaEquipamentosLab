@@ -12,6 +12,7 @@ import Locais from '@/components/locais/Locais'
 import LocalCadastro from '@/components/locais/LocalCadastro'
 import LocalDetails from '@/components/locais/LocalDetails'
 import Reservas from '@/components/reservas/Reservas'
+import ReservasCadastro from '@/components/reservas/ReservaCadastro'
 import Cadastro from '@/components/Cadastro'
 import VerificarEmail from '@/components/VerificarEmail'
 import actionHandler from '@/components/actionHandler'
@@ -145,6 +146,13 @@ const router = new Router({
       component: Calendario,
       meta: {
         requiresAuth: false
+      }
+    },
+      path: '/reservas/cadastro',
+      name: 'Cadastro de reservas',
+      component: ReservasCadastro,
+      meta: {
+        requiresAuth: true
       }
     },
     {
