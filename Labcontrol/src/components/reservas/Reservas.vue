@@ -5,19 +5,24 @@
         <ring-loader :loading="loader.loading" :color="loader.color" :size="loader.size"></ring-loader>
       </div>
       <div v-if="!loader.loading" class="row">
-        <div class="col d-none d-md-flex justify-content-center">
-          <form>
-            <div class="form-row align-items-center">
-              <div class="col-auto my-1">
-                <input class="form-control mr-sm-2" type="search" placeholder="Realize uma busca" aria-label="Buscar">
-              </div>
-              <div class="col-auto my-1">
-                <button class="btn btn-outline-primary my-2 my-sm-0" type="submit">Buscar</button>
+        <div class="col-12 col-lg-10 justify-content-center">
+            <div class="input-group">
+              <input v-on:keyup="search()" id="search" type="text" class="form-control"  aria-label="Campo de pesquisa" placeholder="Buscar...">
+              <div class="input-group-append">
+                <button v-on:click="search()" type="button" class="btn btn-outline-secondary">{{filtroAtivo}}</button>
+                <button type="button" class="btn btn-outline-secondary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  <span class="sr-only">Filtro</span>
+                </button>
+                <div class="dropdown-menu">
+                  <span v-for="filtro in filtros" v-on:click="selectFilter(filtro)" class="dropdown-item">{{filtro}}</span>
+                </div>
               </div>
             </div>
-          </form>
+          </div>
+          <div class="col-2 text-center">
+            <router-link to="/reservas/cadastro" class="justify-content-center btn d-none d-lg-flex btn-outline-primary btn-block">Novo</router-link>
+          </div>
         </div>
-      </div>
       <div v-if="!loader.loading" class="row mt-4 justify-content-center text-center">
         <h2> Reservas </h2>
       </div>
@@ -27,11 +32,11 @@
           <table v-else class="table table-responsive-md table-hover text-center">
             <thead>
               <tr>
-                <th scope="col">Data</th>
-                <th scope="col">Periodo</th>
-                <th scope="col">Equipamento - Local</th>
-                <th scope="col">Aluno</th>
-                <th scope="col">Status</th>
+                <th scope="col"><span v-on:click="orderBy('Data')">Data</span></th>
+                <th scope="col"><span v-on:click="orderBy('Periodo')">Periodo</span></th>
+                <th scope="col"><span v-on:click="orderBy('Equipamento')">Equipamento - Local</span></th>
+                <th scope="col"><span v-on:click="orderBy('RA')">Aluno</span></th>
+                <th scope="col"><span v-on:click="orderBy('Status')">Status</span></th>
                 <th scope="col">Ações</th>
               </tr>
             </thead>
