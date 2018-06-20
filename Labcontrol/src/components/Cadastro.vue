@@ -286,7 +286,6 @@ export default {
           if (childSnapshot.val().RA === ra.value) {
             unique = false
           }
-          console.log(childSnapshot.val().RA)
         })
         if (unique) {
           ra.setCustomValidity('')
@@ -294,7 +293,7 @@ export default {
         } else {
           ra.setCustomValidity('RA já está cadastrado')
           _this.alert.type = 'alert-danger'
-          _this.alert.dismissible = true
+          _this.alert.dismissible = false
           _this.alert.title = 'Oops!'
           _this.alert.msg = 'O RA ' + _this.newUser.ra + ' já se encontra cadastrado. Caso tenha esquecido sua senha utilize o link "Esqueci minha senha" na tela de login'
           _this.alert.showAlert = true
