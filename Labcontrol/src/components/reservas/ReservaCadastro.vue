@@ -123,9 +123,15 @@ export default {
   },
   created: function () {
     this.$firebaseRefs.cadastroRef.orderByChild('Retirada').once('value', data => {
+      let requestList = new Array()
       console.log(data.val())
       data.forEach(element => {
-        console.log(element.val())
+        var val = element.val()
+        if (val.Retirada > Date.now().toISOString()){
+          requestList.add(val)
+          // add requests from today and up
+        }
+        console.log(requestList)
       })
     })
     let activeUser = this.newReservation.Solicitante = auth.currentUser.uid
