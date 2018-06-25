@@ -11,24 +11,6 @@
         <form id="cadastroFormReservation" class="needs-validation" v-on:submit.prevent novalidate>
           <div class="form-row">
             <div class="col-md-6 mb-3">
-              <!-- empty -->
-            </div>
-            <div class="col-md-6 mb-3">
-              <label for="data">Data</label>
-              <div class="input-group">
-                <div class="input-group-prepend">
-                  <span class="input-group-text" id="dataPrepend"><i class="fas fa-calendar-alt"></i></span>
-                </div>
-                <datetime id="data" type="datetime" auto="true" class="form-control" aria-describedby="dataPrepend" v-model="newReservation.Data"></datetime>
-                <!-- <input id="data" type="date-time" class="form-control" aria-describedby="dataPrepend" v-model = "newReservation.Data" required> -->
-                <div class="invalid-feedback">
-                  Por favor informe seu sobrenome.
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="form-row">
-            <div class="col-md-6 mb-3">
               <label for="equipamento">Equipamento</label>
               <div class="input-group">
                 <div class="input-group-prepend">
@@ -60,7 +42,8 @@
                 <div class="input-group-prepend">
                   <span class="input-group-text" id="retiradaPrepend"><i class="fas fa-clock"></i></span>
                 </div>
-                <input id="retirada" type="text" class="form-control" placeholder=" " aria-describedby="retiradaPrepend" v-model = "newReservation.Retirada" required>
+                <datetime id="retirada" type="datetime" auto="true" class="form-control" aria-describedby="retiradaPrepend" v-model="newReservation.Retirada"></datetime>
+                <!-- <input id="retirada" type="text" class="form-control" placeholder=" " aria-describedby="retiradaPrepend" v-model = "newReservation.Retirada" required> -->
                 <div class="invalid-feedback">
                   Por favor informe seu nome.
                 </div>
@@ -72,7 +55,8 @@
                 <div class="input-group-prepend">
                   <span class="input-group-text" id="retornoPrepend"><i class="far fa-clock"></i></span>
                 </div>
-                <input id="retorno" type="text" class="form-control" aria-describedby="retornoPrepend" v-model = "newReservation.retorno" required>
+                <datetime id="retorno" type="datetime" auto="true" class="form-control" aria-describedby="retornoPrepend" v-model="newReservation.Retorno"></datetime>
+                <!-- <input id="retorno" type="text" class="form-control" aria-describedby="retornoPrepend" v-model = "newReservation.retorno" required> -->
                 <div class="invalid-feedback">
                   Por favor informe seu sobrenome.
                 </div>
@@ -88,7 +72,7 @@
             </div>
           </div>
         </form>
-      </div>     
+      </div>
     </div>
   </div>
 </template>
@@ -106,8 +90,8 @@ export default {
     return {
       locais: [],
       newReservation: {
+        Solicitante: '',
         RA: '',
-        Data: '',
         Equipamento: '',
         Retirada: '',
         Retorno: '',
@@ -137,13 +121,26 @@ export default {
     Alert,
     RingLoader
   },
-  mounted: function () {
-    let activeUser = auth.currentUser.uid
-    db.ref('Usuarios/' + activeUser.toString()).once('value', data => {
+  created: function () {
+    this.$firebaseRefs.cadastroRef.orderByChild('Retirada').once('value', data => {
+      let requestList = new Array()
       console.log(data.val())
+      data.forEach(element => {
+        var val = element.val()
+        if (val.Retirada > Date.now().toISOString()){
+          requestList.add(val)
+          // add requests from today and up
+        }
+        console.log(requestList)
+      })
+    })
+    let activeUser = this.newReservation.Solicitante = auth.currentUser.uid
+    db.ref('Usuarios/' + activeUser.toString()).once('value', data => {
       var raNumber = data.val().RA
       this.newReservation.RA = raNumber.toString()
     })
+  },
+  mounted: function () {
     // todo: get equipment name
     this.validate()
   },
@@ -154,20 +151,18 @@ export default {
       this.loader.loading = true
       this.alert.showAlert = false
       let _this = this
-      var dateField = document.getElementById('data')
-      if (dateField.tagName === 'DIV') {
-        dateField = dateField.children[0]
+      // fix dates
+      var retiradaField = document.getElementById('retirada')
+      if (retiradaField.tagName === 'DIV') {
+        retiradaField = retiradaField.children[0]
       }
-      var tmpDate = new Date(dateField.value)
-      let sanitizedDate = tmpDate.getUTCFullYear() + '-' + tmpDate.getUTCMonth() + '-' + tmpDate.getUTCDay() + 'T' + tmpDate.getUTCHours() + ':' + tmpDate.getUTCMinutes() + 'Z'
-      this.$firebaseRefs.cadastroRef.child(sanitizedDate).update({
-        'RA': _this.newReservation.RA,
-        'Equipamento': _this.newReservation.Equipamento,
-        'Retirada': _this.newReservation.Retirada,
-        'Retorno': _this.newReservation.Retorno,
-        'Local': _this.newReservation.Local,
-        'Status': _this.newReservation.Status = 'Encaminhado'
-      }).then(function () {
+      _this.newReservation.Retirada = new Date(retiradaField.value).toISOString()
+      var retornoField = document.getElementById('retorno')
+      if (retornoField.tagName === 'DIV') {
+        retornoField = retornoField.children[0]
+      }
+      _this.newReservation.Retorno = new Date(retornoField.value).toISOString()
+      this.$firebaseRefs.cadastroRef.push(_this.newReservation).then(function () {
         _this.alert.type = 'alert-success'
         _this.alert.dismissible = true
         _this.alert.title = 'Yey!'
