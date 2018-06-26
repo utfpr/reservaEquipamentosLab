@@ -36,7 +36,7 @@
                 <th scope="col"><span v-on:click="orderBy('Periodo')">Periodo</span></th>
                 <th scope="col"><span v-on:click="orderBy('Equipamento')">Equipamento - Local</span></th>
                 <th scope="col"><span v-on:click="orderBy('RA')">Aluno</span></th>
-                <th scope="col"><span v-on:click="orderBy('Status')">Status</span></th>
+                <th scope="col"><span v-on:click="orderBy('Estado')">Status</span></th>
                 <th scope="col">Ações</th>
               </tr>
             </thead>
@@ -45,7 +45,7 @@
                 <th scope="row">{{reserva[1].Data}}</th>
                 <td>{{reserva[1].PeriodoInicio}} - {{reserva[1].PeriodoFim}}</td>
                 <td>{{reserva[1].Equipamento}} - {{reserva[1].Local}}</td>
-                <td>{{reserva[1].Aluno}} - {{reserva[1].Aluno}}</td>
+                <td>{{reserva[1].RA}} - {{reserva[1].Aluno}}</td>
                 <td>{{reserva[1].Status}}</td>
                 <td>
                   <ul class="list-inline d-inline-flex">
@@ -80,6 +80,8 @@ export default {
   name: 'reservas',
   data () {
     return {
+      filtros: ['Data', 'Periodo', 'RA', 'Equipamento', 'Estado'],
+      filtroAtivo: '',
       reservas: [],
       loader: {
         loading: true,
@@ -91,6 +93,9 @@ export default {
   components: {
     RingLoader
   },
+  created: function () {
+    this.filtroAtivo = this.filtros[0]
+  },
   mounted: function () {
     let _this = this
     db.ref('Reservas').on('value', function (snapshot) {
@@ -101,6 +106,106 @@ export default {
       })
       _this.loader.loading = false
     })
+  },
+  methods: {
+    selectFilter (filtro) {
+      this.filtroAtivo = filtro
+    },
+    search () {
+      let pesquisa = document.getElementById('search').value
+      let _this = this
+      if (pesquisa) {
+        if (this.filtroAtivo === 'Patrimônio') {
+          db.ref('Equipamentos').orderByKey().startAt(pesquisa).endAt(pesquisa + '\uffff').on('value', function (snapshot) {
+            _this.loader.loading = true
+            _this.equipamentos = []
+            snapshot.forEach(function (childSnapshot) {
+              _this.equipamentos.push([childSnapshot.key, childSnapshot.val()])
+            })
+            _this.loader.loading = false
+          })
+        } else {
+          if (this.filtroAtivo === 'Local') {
+            pesquisa = pesquisa.toUpperCase()
+          }
+          db.ref('Equipamentos').orderByChild(this.filtroAtivo).startAt(pesquisa).endAt(pesquisa + '\uffff').on('value', function (snapshot) {
+            _this.loader.loading = true
+            _this.equipamentos = []
+            snapshot.forEach(function (childSnapshot) {
+              _this.equipamentos.push([childSnapshot.key, childSnapshot.val()])
+            })
+            _this.loader.loading = false
+          })
+        }
+      } else {
+        db.ref('Equipamentos').orderByKey().on('value', function (snapshot) {
+          _this.loader.loading = true
+          _this.equipamentos = []
+          snapshot.forEach(function (childSnapshot) {
+            _this.equipamentos.push([childSnapshot.key, childSnapshot.val()])
+          })
+          _this.loader.loading = false
+        })
+      }
+    },
+    orderBy (campo) {
+      console.log('chamado')
+      if (campo === 'Data') {
+        this.reservas.sort(function (a, b) {
+          if (a[1].Data > b[0].Data) {
+            return 1
+          }
+          if (a[0].Data < b[0].Data) {
+            return -1
+          }
+          return 0
+        })
+      } else if (campo === 'Periodo') {
+        this.reservas.sort(function (a, b) {
+          if (a[1].PeriodoInicio > b[1].PeriodoInicio) {
+            return 1
+          }
+          if (a[1].PeriodoInicio < b[1].PeriodoInicio) {
+            return -1
+          }
+          return 0
+        })
+      } else if (campo === 'Equipamento') {
+        console.log(this.reservas)
+        this.reservas.sort(function (a, b) {
+          if (a[1].Equipamento > b[1].Equipamento) {
+            console.log('qualquertexot')
+            return 1
+          }
+          if (a[1].Equipamento < b[1].Equipamento) {
+            console.log('logo')
+            return -1
+          }
+          return 0
+        })
+      } else if (campo === 'RA') {
+        this.reservas.sort(function (a, b) {
+          if (a[1].RA > b[1].RA) {
+            return 1
+          }
+          if (a[1].RA < b[1].RA) {
+            return -1
+          }
+          return 0
+        })
+      } else if (campo === 'Estado') {
+        this.reservas.sort(function (a, b) {
+          if (a[1].Status > b[1].Status) {
+            return 1
+          }
+          if (a[1].Status < b[1].Status) {
+            return -1
+          }
+          return 0
+        })
+      }
+      console.log('terminado')
+    }
   }
 }
 </script>
