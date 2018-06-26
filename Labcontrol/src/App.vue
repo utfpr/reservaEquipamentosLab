@@ -35,8 +35,6 @@
               </router-link>
               <div id="reservasMenu" class="collapse multi-collapse text-right" >
                 <router-link to="/reservas/cadastro" class="nav-link">Nova Reserva</router-link>
-                <a class="nav-link" href="#">Confirmadas</a>
-                <a class="nav-link" href="#">Pendentes</a>
               </div>
             </li>
             <li class="nav-item">
