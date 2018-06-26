@@ -74,6 +74,42 @@
           <router-view></router-view>
           <notifications group="notify" />
           <vue-progress-bar></vue-progress-bar>
+          <modal name="reauthenticate-modal" :adaptive="true" height="auto">
+            <div class="container">
+              <div class="row">
+                <div class="col-12 justify-content-center">
+                  <h3 class="text-center" >Reautenticação Necessária</h3>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-12">
+                  <form id="reauthenticate" class="needs-validation" novalidate>
+                    <div class="form-group">
+                      <div class="input-group ">
+                        <div class="input-group-prepend">
+                          <div class="input-group-text input-group-text-login d-xs-none d-md-flex"><i class="fas fa-envelope"></i></div>
+                        </div>
+                        <input type="email" v-model="reauthenticate.email" class="form-control form-control-login" id="email" placeholder="E-mail" autocomplete="off" >
+                        <div class="invalid-feedback">
+                          E-mail inválido.
+                        </div>
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      <label class="sr-only" for="password">Senha</label>
+                      <div class="input-group">
+                        <div class="input-group-prepend">
+                          <div class="input-group-text input-group-text-login d-xs-none d-md-flex"><i class="fas fa-lock"></i></div>
+                        </div>
+                        <input type="password" v-model="reauthenticate.password" class="form-control form-control-login" id="password" placeholder="Senha" autocomplete="current-password">
+                      </div>
+                    </div>
+                    <button type="submit" class="btn btn-outline-primary btn-block" style="margin-bottom: 15px;">Reautenticar</button>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </modal>
         </div>
       </div>
     </main>
@@ -82,13 +118,18 @@
 
 <script>
 import firebaseApp from './firebase-controller.js'
+import firebase from 'firebase'
 const auth = firebaseApp.auth()
 export default {
   name: 'app',
   data () {
     return {
       username: null,
-      isUser: null
+      isUser: null,
+      reauthenticate: {
+        email: null,
+        password: null
+      }
     }
   },
   mounted () {
@@ -128,6 +169,38 @@ export default {
         wrapper.classList.add('toggled')
       }
       this.$root.toggled = !this.$root.toggled
+    },
+    reauthentication () {
+      let _this = this
+      const credentialLogin = firebase.auth.EmailAuthProvider.credential(this.reauthenticate.email, this.reauthenticate.password)
+      auth.currentUser.reauthenticateWithCredential(credentialLogin).then(function () {
+        if ((_this.$children[(_this.$children.length) - 1].action) === 'deleteAccount') {
+          _this.$children[(_this.$children.length) - 1].deleteAccount()
+        } else if ((_this.$children[(_this.$children.length) - 1].action) === 'editProfile') {
+          _this.$children[(_this.$children.length) - 1].editProfile()
+        }
+      }).catch(function (err) {
+        _this.$notify({
+          group: 'notify',
+          type: 'error',
+          title: 'Oops!',
+          text: 'Falha ao Reautenticar!'
+        })
+        console.log('Falha de reautenticação: ' + err)
+      })
+    },
+    validate: function () {
+      let _this = this
+      var form = document.getElementById('reauthenticate')
+      form.addEventListener('submit', function (event) {
+        if (form.checkValidity() === false) {
+          event.preventDefault()
+          event.stopPropagation()
+        } else {
+          _this.reauthentication()
+        }
+        form.classList.add('was-validated')
+      }, false)
     }
   }
 }
@@ -143,8 +216,8 @@ export default {
   min-height: 100vh;
   -webkit-box-orient: vertical;
   -webkit-box-direction: normal;
-      -ms-flex-direction: column;
-          flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
 }
 
 body {
@@ -153,8 +226,8 @@ body {
 
 main {
   -webkit-box-flex: 1;
-      -ms-flex: 1 1 auto;
-          flex: 1 1 auto;
+  -ms-flex: 1 1 auto;
+  flex: 1 1 auto;
   margin-top: 70px;
 }
 
@@ -368,25 +441,25 @@ input[type=number] {
 }
 
 .autocomplete {
-    position: absolute;
-    z-index: 1000;
-    min-width: -webkit-fill-available;
-    margin-top: 50px;
-    display: flex;
+  position: absolute;
+  z-index: 1000;
+  min-width: -webkit-fill-available;
+  margin-top: 50px;
+  display: flex;
 }
 
 /*
 .v-autocomplete {
-  position:relative
+position:relative
 }
 .v-autocomplete .v-autocomplete-list {
-  position:absolute
+position:absolute
 }
 .v-autocomplete .v-autocomplete-list .v-autocomplete-list-item {
-  cursor:pointer
+cursor:pointer
 }
 .v-autocomplete .v-autocomplete-list .v-autocomplete-list-item .v-autocomplete-item-active {
-  background-color:#f3f6fa
+background-color:#f3f6fa
 } */
 
 </style>
