@@ -19,8 +19,8 @@
             </div>
           </div>
         </div>
-        <div class="col-2 text-center">
-          <router-link to="/locais/cadastro" class="justify-content-center btn d-none d-lg-flex btn-outline-primary btn-block">Novo</router-link>
+        <div class="col-12 col-md-2 text-center">
+          <router-link to="/locais/cadastro" class="justify-content-center mt-2 mt-md-0 btn btn-outline-primary btn-block">Novo</router-link>
         </div>
       </div>
       <div v-if="!loader.loading" class="row mt-4 justify-content-center text-center">
@@ -52,9 +52,12 @@
                       <router-link :to="{ name: 'LocalDetails', params: {key: local[0], action: 'view'}}" class="mr-2 list-inline-item btn btn-primary btn-sm">Vizualizar</router-link>
                     </li>
                     <li>
+                      <router-link :to="{ name: 'reservaLocal', params: {local: local[0]}}" class="mr-2 list-inline-item btn btn-primary btn-sm">Reservar</router-link>
+                    </li>
+                    <li v-if="role === 'admin' || role === 'Supervisor'">
                       <router-link :to="{ name: 'LocalDetails', params: {key: local[0], action: 'edit'}}" class="mr-2 list-inline-item btn btn-primary btn-sm">Editar</router-link>
                     </li>
-                    <li>
+                    <li v-if="role === 'admin' || role === 'Supervisor'">
                       <span v-on:click="confirmarDelete(local[0])" class="list-inline-item btn btn-danger btn-sm">Deletar</span>
                     </li>
                   </ul>
@@ -141,6 +144,7 @@ export default {
     },
     selectFilter (filtro) {
       this.filtroAtivo = filtro
+      this.search()
     },
     search () {
       let pesquisa = document.getElementById('search').value

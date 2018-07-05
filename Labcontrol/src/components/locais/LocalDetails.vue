@@ -7,7 +7,7 @@
       <div v-else-if="action === 'view'" class="container">
         <div class="row">
           <div class="col-sm-12 col-md-6">
-            <h5><strong>Nome</strong>: {{this.$route.params.key}}</h5>
+            <h5><strong>Nome</strong>: {{key}}</h5>
           </div>
         </div>
         <hr />
@@ -30,7 +30,10 @@
                 <router-link :to="{ name: 'Locais', params: {}}" class="mr-2 list-inline-item btn btn-primary btn-sm">Voltar</router-link>
               </li>
               <li>
-                <span v-on:click="confirmarDelete(key)" class="list-inline-item btn btn-danger btn-sm">Deletar</span>
+                <router-link :to="{ name: 'reservaLocal', params: {local: key}}" class="mr-2 list-inline-item btn btn-primary btn-sm">Reservar</router-link>
+              </li>
+              <li>
+                <span v-if="role === 'admin' || role === 'Supervisor'" v-on:click="confirmarDelete(key)" class="list-inline-item btn btn-danger btn-sm">Deletar</span>
               </li>
             </ul>
           </div>

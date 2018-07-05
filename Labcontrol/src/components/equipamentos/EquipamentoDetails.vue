@@ -39,7 +39,13 @@
               <li>
                 <router-link :to="{ name: 'Equipamentos', params: {}}" class="mr-2 list-inline-item btn btn-primary btn-sm">Voltar</router-link>
               </li>
-              <li>
+              <li v-if="equipamento.Status !== 'Normal'">
+                <span class="mr-2 list-inline-item btn btn-primary btn-sm disabled">Reservar</span>
+              </li>
+              <li v-else>
+                <router-link :to="{ name: 'reservaEquipamento', params: {patrimonio: key}}" class="mr-2 list-inline-item btn btn-primary btn-sm">Reservar</router-link>
+              </li>
+              <li v-if="role === 'admin' || role === 'Supervisor'">
                 <span v-on:click="confirmarDelete(key)" class="list-inline-item btn btn-danger btn-sm">Deletar</span>
               </li>
             </ul>
