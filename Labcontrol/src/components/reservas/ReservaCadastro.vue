@@ -2,7 +2,7 @@
   <div id="cadastroReservation">
     <div class="container-fluid">
       <div class="row justify-content-center text-center">
-        <h2> Cadastro de reservas </h2>
+        <h2> Informe o período de sua reserva </h2>
       </div>
       <hr />
       <div class="row justify-content-center">
@@ -72,7 +72,7 @@
             </div>
           </div>
         </form>
-      </div>     
+      </div>
     </div>
   </div>
 </template>
@@ -122,6 +122,7 @@ export default {
     RingLoader
   },
   created: function () {
+    this.$parent.currentStep = 2
     this.$firebaseRefs.cadastroRef.orderByChild('Retirada').once('value', data => {
       let requestList = []
       console.log(data.val())
