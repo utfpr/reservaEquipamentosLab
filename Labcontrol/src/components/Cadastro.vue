@@ -185,7 +185,8 @@ export default {
             'RA': _this.newUser.ra,
             'Nome': _this.newUser.firstName,
             'Sobrenome': _this.newUser.lastName,
-            'Curso': _this.newUser.curso
+            'Curso': _this.newUser.curso,
+            'role': 'comum'
           }).then(function () {
             _this.$notify({
               group: 'notify',
