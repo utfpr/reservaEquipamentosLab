@@ -8,10 +8,10 @@
         <v-dialog/>
         <div class="row">
           <div class="col-sm-12 col-md-6">
-            <h5><strong>RA</strong>: {{user.ra}}</h5>
+            <h5><strong>Nome:</strong> {{user.Nome}} {{user.Sobrenome}}</h5>
           </div>
           <div class="col-sm-12 col-md-6">
-            <h5><strong>Nome</strong>: {{user.Nome}} {{user.Sobrenome}}</h5>
+            <h5><strong>RA:</strong> {{user.ra}}</h5>
           </div>
         </div>
         <hr />
