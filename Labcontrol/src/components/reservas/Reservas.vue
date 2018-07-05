@@ -19,8 +19,8 @@
               </div>
             </div>
           </div>
-          <div class="col-2 text-center">
-            <router-link to="/reservas/cadastro" class="justify-content-center btn d-none d-lg-flex btn-outline-primary btn-block">Novo</router-link>
+          <div class="col-12 col-md-2 text-center">
+            <router-link to="/reservar" class="justify-content-center mt-2 mt-md-0 btn btn-outline-primary btn-block">Novo</router-link>
           </div>
         </div>
       <div v-if="!loader.loading" class="row mt-4 justify-content-center text-center">
