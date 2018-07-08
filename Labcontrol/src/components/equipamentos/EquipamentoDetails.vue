@@ -162,6 +162,23 @@
               </div>
             </div>
             <div class="form-row">
+              <div class="col-12 mb-3">
+                <p id="current-file-status"></p>
+              </div>
+              <div class="col-12 mb-3">
+                <label for="arquivo">Arquivo</label>
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text" id="retornoPrepend"><i class="far fa-clock"></i></span>
+                  </div>
+                  <input id="arquivo" type="file" class="form-control" aria-describedby="retornoPrepend" required accept="application/pdf">
+                  <div class="invalid-feedback">
+                    Por favor selecione um arquivo.
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="form-row">
               <div class="col-sm-6 justify-content-right">
                 <button type="submit" class="btn btn-primary btn-block" >Confirmar</button>
               </div>
@@ -235,7 +252,32 @@
     },
     mounted: function () {
       if (this.action === 'edit') {
+        document.getElementById('arquivo').onchange = this.handleFileSelect
         this.validate()
+        var _this = this
+        var pathReference = storage.ref(_this.equipment.Patrimonio + '.pdf')
+        pathReference.getDownloadURL().then(function (url) {
+          console.log(null)
+        }).catch(function (err) {
+          // A full list of error codes is available at
+          // https://firebase.google.com/docs/storage/web/handle-errors
+          switch (err.code) {
+            case 'storage/object-not-found':
+              var p = document.getElementById('current-file-status')
+              p.style.setProperty('color', 'red')
+              p.textContent = 'Arquivo não existente.'
+              break
+            case 'storage/unauthorized':
+              alert('Usuário não autorizado')
+              break
+            case 'storage/canceled':
+              alert('Operação cancelada')
+              break
+            case 'storage/unknown':
+              alert('Erro desconhecido')
+              break
+          }
+        })
       }
     },
     methods: {
@@ -263,6 +305,7 @@
             text: 'Equipamento ' + _this.equipment.Nome + ', com patrimônio ' + _this.equipment.Patrimonio + ', foi atualizado com sucesso!',
             duration: 10000
           })
+          _this.uploadFile()
           _this.$router.replace('/equipamentos/' + _this.equipment.Patrimonio + '/view')
           setTimeout(function () {
             location.reload()
@@ -378,7 +421,6 @@
       downloadFile: function () {
         var _this = this
         var pathReference = storage.ref(_this.equipment.Patrimonio + '.pdf')
-        console.log(pathReference)
         pathReference.getDownloadURL().then(function (url) {
           window.location.replace(url, '_blank')
         }).catch(function (err) {
@@ -398,6 +440,23 @@
               alert('Erro desconhecido')
               break
           }
+        })
+      },
+      handleFileSelect: function (e) {
+        var _this = this
+        if (e.target.files[0] === null) {
+          _this.pdf = null
+        } else {
+          _this.pdf = e.target.files[0]
+          console.log(_this.pdf.name)
+        }
+      },
+      uploadFile: function () {
+        var _this = this
+        if (_this.pdf === null) return
+        var pdfRef = storage.ref().child(_this.newEquipment.Patrimonio + '.pdf')
+        pdfRef.put(_this.pdf).then(function (data) {
+          console.log('upload successful')
         })
       }
     }
