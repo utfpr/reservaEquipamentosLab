@@ -17,6 +17,11 @@ import 'vue-event-calendar/dist/style.css'
 import 'vue-datetime/dist/vue-datetime.css'
 import 'bootstrap'
 
+const moment = require('moment')
+require('moment/locale/pt-br')
+
+Vue.use(require('vue-moment'), {moment})
+
 Vue.use(vueEventCalendar, {locale: 'pt-br'})
 Vue.use(Notifications)
 Vue.use(VueFire)
