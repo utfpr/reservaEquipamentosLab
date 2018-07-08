@@ -30,7 +30,7 @@
                 <router-link :to="{ name: 'Locais', params: {}}" class="mr-2 list-inline-item btn btn-primary btn-sm">Voltar</router-link>
               </li>
               <li>
-                <router-link :to="{ name: 'reservaLocal', params: {local: key}}" class="mr-2 list-inline-item btn btn-primary btn-sm">Reservar</router-link>
+                <router-link :to="{ name: 'periodoReserva', params: {objetoReserva: 'laboratorio', itemReserva: key}}" class="mr-2 list-inline-item btn btn-primary btn-sm">Reservar</router-link>
               </li>
               <li>
                 <span v-if="role === 'admin' || role === 'Supervisor'" v-on:click="confirmarDelete(key)" class="list-inline-item btn btn-danger btn-sm">Deletar</span>

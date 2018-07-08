@@ -43,7 +43,7 @@
                 <span class="mr-2 list-inline-item btn btn-primary btn-sm disabled">Reservar</span>
               </li>
               <li v-else>
-                <router-link :to="{ name: 'reservaEquipamento', params: {patrimonio: key}}" class="mr-2 list-inline-item btn btn-primary btn-sm">Reservar</router-link>
+                <router-link :to="{ name: 'periodoReserva', params: {objetoReserva: 'equipamento', itemReserva: key}}" class="mr-2 list-inline-item btn btn-primary btn-sm">Reservar</router-link>
               </li>
               <li v-if="role === 'admin' || role === 'Supervisor'">
                 <span v-on:click="confirmarDelete(key)" class="list-inline-item btn btn-danger btn-sm">Deletar</span>
@@ -184,10 +184,12 @@
   import RingLoader from 'vue-spinner/src/RingLoader.vue'
   import firebaseApp from '../../firebase-controller.js'
   const db = firebaseApp.database()
+  const auth = firebaseApp.auth()
   export default {
     name: 'EquipamentoDetails',
     data () {
       return {
+        role: null,
         locais: [],
         key: this.$route.params.key,
         action: this.$route.params.action,
@@ -238,6 +240,10 @@
       if (this.action === 'edit') {
         this.validate()
       }
+      let _this = this
+      db.ref('Usuarios/' + auth.currentUser.uid + '/role').on('value', function (snapshot) {
+        _this.role = snapshot.val()
+      })
     },
     methods: {
       submitEquip () {

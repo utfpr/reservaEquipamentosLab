@@ -75,10 +75,12 @@
 import RingLoader from 'vue-spinner/src/RingLoader.vue'
 import firebaseApp from '../../firebase-controller.js'
 const db = firebaseApp.database()
+const auth = firebaseApp.auth()
 export default {
   name: 'locais',
   data () {
     return {
+      role: null,
       filtros: ['Nome', 'Descrição', 'Curso', 'Supervisor'],
       filtroAtivo: '',
       locais: [],
@@ -104,6 +106,9 @@ export default {
         _this.locais.push([childSnapshot.key, childSnapshot.val()])
       })
       _this.loader.loading = false
+    })
+    db.ref('Usuarios/' + auth.currentUser.uid + '/role').on('value', function (snapshot) {
+      _this.role = snapshot.val()
     })
   },
   methods: {

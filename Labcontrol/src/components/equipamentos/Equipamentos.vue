@@ -55,7 +55,7 @@
                       <span class="mr-2 list-inline-item btn btn-primary btn-sm disabled">Reservar</span>
                     </li>
                     <li v-else>
-                      <router-link :to="{ name: 'reservaEquipamento', params: {patrimonio: equipamento[0]}}" class="mr-2 list-inline-item btn btn-primary btn-sm">Reservar</router-link>
+                      <router-link :to="{ name: 'periodoReserva', params: {objetoReserva: 'equipamento', itemReserva: equipamento[0]}}" class="mr-2 list-inline-item btn btn-primary btn-sm">Reservar</router-link>
                     </li>
                     <li v-if="role === 'admin' || role === 'Supervisor'">
                       <router-link :to="{ name: 'EquipamentoDetails', params: {key: equipamento[0], action: 'edit'}}" class="mr-2 list-inline-item btn btn-primary btn-sm">Editar</router-link>
