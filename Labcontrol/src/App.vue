@@ -50,7 +50,7 @@
           <router-view></router-view>
           <notifications group="notify" />
           <vue-progress-bar></vue-progress-bar>
-          <modal name="reauthenticate-modal" :adaptive="true" height="auto">
+          <modal name="reauthenticate-modal" v-on:submit.prevent :adaptive="true" height="auto">
             <div class="container">
               <div class="row">
                 <div class="col-12 justify-content-center">
