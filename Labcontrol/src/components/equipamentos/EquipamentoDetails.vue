@@ -37,6 +37,9 @@
           <div class="col-12 text-right">
             <ul class="list-inline d-inline-flex">
               <li>
+                <button class="mr-2 list-inline-item btn btn-primary btn-sm" v-on:click="downloadFile()">Baixar POP</button>
+              </li>
+              <li>
                 <router-link :to="{ name: 'Equipamentos', params: {}}" class="mr-2 list-inline-item btn btn-primary btn-sm">Voltar</router-link>
               </li>
               <li>
@@ -177,7 +180,9 @@
   import Alert from '../utility/Alert.vue'
   import RingLoader from 'vue-spinner/src/RingLoader.vue'
   import firebaseApp from '../../firebase-controller.js'
+  import firebase from 'firebase'
   const db = firebaseApp.database()
+  const storage = firebase.storage()
   export default {
     name: 'EquipamentoDetails',
     data () {
@@ -367,6 +372,31 @@
             _this.alert.title = 'Oops!'
             _this.alert.msg = 'O número de patrimônio ' + _this.equipment.Patrimonio + ' já se encontra cadastrado, caso queira alterar este equipamento o procure na lista de Equipamentos e clique em Editar'
             _this.alert.showAlert = true
+          }
+        })
+      },
+      downloadFile: function () {
+        var _this = this
+        var pathReference = storage.ref(_this.equipment.Patrimonio + '.pdf')
+        console.log(pathReference)
+        pathReference.getDownloadURL().then(function (url) {
+          window.location.replace(url, '_blank')
+        }).catch(function (err) {
+          // A full list of error codes is available at
+          // https://firebase.google.com/docs/storage/web/handle-errors
+          switch (err.code) {
+            case 'storage/object-not-found':
+              alert('Arquivo não existe.')
+              break
+            case 'storage/unauthorized':
+              alert('Usuário não autorizado')
+              break
+            case 'storage/canceled':
+              alert('Operação cancelada')
+              break
+            case 'storage/unknown':
+              alert('Erro desconhecido')
+              break
           }
         })
       }
