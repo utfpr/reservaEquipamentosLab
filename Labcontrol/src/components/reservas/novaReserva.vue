@@ -9,9 +9,9 @@
       </div>
       <hr style="margin-top:5%" />
       <div>
-        <keep-alive>
+        <!-- <keep-alive> -->
           <router-view />
-        </keep-alive>
+        <!-- </keep-alive> -->
       </div>
     </div>
   </div>
@@ -34,6 +34,7 @@ export default {
   methods: {
     voltar () {
       this.$router.go(-1)
+      this.currentStep = this.currentStep === 0 ? 0 : this.currentStep - 1
     }
   }
 }
