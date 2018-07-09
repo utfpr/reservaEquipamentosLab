@@ -185,7 +185,7 @@ export default {
             'Nome': _this.newUser.firstName,
             'Sobrenome': _this.newUser.lastName,
             'Curso': _this.newUser.curso,
-            'email': auth.currentUser.email,
+            'Email': auth.currentUser.email,
             'role': 'comum'
           }).then(function () {
             _this.$notify({

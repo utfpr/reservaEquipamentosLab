@@ -389,6 +389,7 @@ export default {
         db.ref('Usuarios').child(auth.currentUser.uid).update({
           'RA': _this.user.ra,
           'Nome': _this.user.Nome,
+          'Email': auth.currentUser.email,
           'Sobrenome': _this.user.Sobrenome,
           'Curso': _this.user.Curso
         }).then(function () {
