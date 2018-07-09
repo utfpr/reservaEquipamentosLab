@@ -159,7 +159,9 @@ export default {
         _this.loader.loading = true
         _this.reservas.confirmadas = []
         snapshot.forEach(function (childSnapshot) {
-          // TODO filtrar apenas as reservas cujo o periodo abranja a data atual - Usar comapração com this.$moment() assim como foi feito para filtrar datas válidas no momento da criação de uma reserva
+          // TODO filtrar apenas as reservas cujo o periodo abranja a data atual
+          // Usar comparação this.$moment().isBetween e this.$moment().isSame
+          // assim como foi feito para filtrar datas válidas no momento da criação de uma reserva
           _this.reservas.confirmadas.push(childSnapshot.key)
         })
         _this.loader.loading = false
