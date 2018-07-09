@@ -192,7 +192,6 @@ export default {
           })
         })
       })
-      console.log(this.reservasUser)
       this.reservasUser.forEach(function (reserva) {
         let ReservaInicio = {
           date: _this.$moment(new Date(reserva[1].Inicio)).format('YYYY/MM/DD'),
@@ -208,9 +207,7 @@ export default {
         _this.reservasCalendar.push(ReservaFim)
       })
       this.loader.loading = false
-      console.log(this.reservasCalendar)
     }
-    console.log(this.role)
   },
   methods: {
     zeroPattern (n) {
