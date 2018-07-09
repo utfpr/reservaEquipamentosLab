@@ -63,7 +63,8 @@
                       <span v-else class="mr-2 list-inline-item btn btn-primary btn-sm" v-on:click="confirmaConfirmarReserva(reserva)">Confirmar</span>
                     </li>
                     <li>
-                      <span class="list-inline-item btn btn-danger btn-sm" v-on:click="confirmaCancelarReserva(reserva)">Cancelar</span>
+                      <span v-if="reserva[1].Status === 'Cancelada'" class="list-inline-item btn btn-danger btn-sm disabled">Cancelar</span>
+                      <span v-else class="list-inline-item btn btn-danger btn-sm" v-on:click="confirmaCancelarReserva(reserva)">Cancelar</span>
                     </li>
                   </ul>
                 </td>
