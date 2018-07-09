@@ -30,7 +30,7 @@
               </div>
               <select id="supervisor" class="form-control" aria-describedby="supervisorPrepend" v-model = "newLocal.Supervisor" required>
                 <option value="" disabled selected>Selecione um supervisor</option>
-                <option v-for="supervisor in supervisores" value="supervisor">{{supervisor}}</option>
+                <option v-for="supervisor in supervisores" :value="supervisor">{{supervisor}}</option>
               </select>
               <div class="invalid-feedback">
                 Por favor selecione um supervisor.
@@ -55,11 +55,8 @@
               <span class="input-group-text" id="cursoPrepend"><i class="fas fa-graduation-cap"></i></span>
             </div>
             <select id="cursolocal" class="form-control" aria-describedby="cursolocalPrepend" v-model = "newLocal.Curso" required>
-              <option value="" disabled selected>Selecione o curso de utilização</option>
-              <option>Todos</option>
-              <option>Engenharia Ambiental</option>
-              <option>Engenharia de Alimentos</option>
-              <option>Quimica</option>
+              <option value="" disabled selected>Selecione o curso responsável</option>
+              <option v-for="curso in cursos" :value="curso">{{curso}}</option>
             </select>
             <div class="invalid-feedback">
               Por favor selecione um curso.
@@ -81,9 +78,6 @@
   </div>
 </template>
 
-
-
-
   <script>
   import {mask} from 'vue-the-mask'
   import RingLoader from 'vue-spinner/src/RingLoader.vue'
@@ -95,6 +89,7 @@
     data () {
       return {
         supervisores: [],
+        cursos: [],
         newLocal: {
           Nome: '',
           Descricao: '',
@@ -129,6 +124,13 @@
         _this.supervisores = []
         snapshot.forEach(function (supervisor) {
           _this.supervisores.push(supervisor.val().Nome)
+        })
+      })
+      let _this = this
+      db.ref('Controle/Cursos').orderByKey().on('value', function (snapshot) {
+        _this.cursos = []
+        snapshot.forEach(function (childSnapshot) {
+          _this.cursos.push(childSnapshot.key)
         })
       })
     },

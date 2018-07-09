@@ -110,11 +110,8 @@
                     <span class="input-group-text" id="cursoPrepend"><i class="fas fa-graduation-cap"></i></span>
                   </div>
                   <select v-on:focus="autocompleteHide()" id="cursoequipamento" class="form-control" aria-describedby="cursoequipamentoPrepend" v-model = "equipment.Curso" required>
-                    <option value="" disabled selected>Selecione o curso de utilização</option>''
-                    <option>Todos</option>
-                    <option>Engenharia Ambiental</option>
-                    <option>Engenharia de Alimentos</option>
-                    <option>Quimica</option>
+                    <option value="" disabled selected>Selecione o curso de responsável</option>''
+                    <option v-for="curso in cursos" :value="curso">{{curso}}</option>
                   </select>
                   <div class="invalid-feedback">
                     Por favor selecione um curso.
@@ -213,6 +210,7 @@
       return {
         role: null,
         locais: [],
+        cursos: [],
         key: this.$route.params.key,
         action: this.$route.params.action,
         equipamento: null,
@@ -256,6 +254,12 @@
         _this.equipment.Marca = _this.equipamento.Marca
         _this.equipment.Local = _this.equipamento.Local
         _this.loader.loading = false
+      })
+      db.ref('Controle/Cursos').orderByKey().on('value', function (snapshot) {
+        _this.cursos = []
+        snapshot.forEach(function (childSnapshot) {
+          _this.cursos.push(childSnapshot.key)
+        })
       })
     },
     mounted: function () {

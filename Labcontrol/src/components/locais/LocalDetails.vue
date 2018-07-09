@@ -90,10 +90,7 @@
                 </div>
                 <select id="cursolocal" class="form-control" aria-describedby="cursolocalPrepend" v-model = "local.Curso" required>
                   <option value="" disabled selected>Selecione o curso de utilização</option>''
-                  <option>Todos</option>
-                  <option>Engenharia Ambiental</option>
-                  <option>Engenharia de Alimentos</option>
-                  <option>Quimica</option>
+                  <option v-for="curso in cursos" :value="curso">{{curso}}</option>
                 </select>
                 <div class="invalid-feedback">
                   Por favor selecione um curso.
@@ -131,6 +128,7 @@ export default {
       role: null,
       localDetails: null,
       supervisores: [],
+      cursos: [],
       loader: {
         loading: true,
         color: '#007bff',
@@ -178,6 +176,12 @@ export default {
     })
     db.ref('Usuarios/' + auth.currentUser.uid + '/role').on('value', function (snapshot) {
       _this.role = snapshot.val()
+    })
+    db.ref('Controle/Cursos').orderByKey().on('value', function (snapshot) {
+      _this.cursos = []
+      snapshot.forEach(function (childSnapshot) {
+        _this.cursos.push(childSnapshot.key)
+      })
     })
   },
   methods: {
