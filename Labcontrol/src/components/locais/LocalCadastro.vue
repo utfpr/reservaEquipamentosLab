@@ -114,7 +114,7 @@
           msg: ''
         }
       }
-    }
+    },
     directives: {
       mask
     },
