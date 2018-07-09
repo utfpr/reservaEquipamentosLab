@@ -96,7 +96,7 @@ export default {
     return {
       role: null,
       verificandoDados: false,
-      antecedenciaReserva: 4,
+      antecedenciaReserva: null,
       itemReserva: this.$route.params.itemReserva,
       objetoReserva: this.$route.params.objetoReserva,
       equipamento: null,
@@ -172,6 +172,9 @@ export default {
         _this.laboratorio = snapshot.val()
       })
     }
+    db.ref('Controle/Configuracao/TempoMinAntesReserva').on('value', function (snapshot) {
+      _this.antecedenciaReserva = snapshot.val()
+    })
   },
   mounted: function () {
     this.loader.loading = true
