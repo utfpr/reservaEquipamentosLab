@@ -44,8 +44,8 @@
             </thead>
             <tbody>
               <tr v-for="reserva in reservas">
-                <td>{{reserva[1].Inicio}}</td>
-                <td>{{reserva[1].Fim}}</td>
+                <td>{{$moment(new Date(reserva[1].Inicio)).format('DD/MM/YY [ás] HH:mm')}}</td>
+                <td>{{$moment(new Date(reserva[1].Fim)).format('DD/MM/YY [ás] HH:mm')}}</td>
                 <td>{{reserva[1].Equipamento}} - {{reserva[2].Nome}}</td>
                 <td>{{reserva[2].Local}}</td>
                 <td>{{reserva[3].RA}} - {{reserva[3].Nome}}</td>
