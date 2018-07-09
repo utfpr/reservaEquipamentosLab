@@ -33,8 +33,7 @@
           <table v-else class="table table-responsive-md table-hover text-center">
             <thead>
               <tr>
-                <th scope="col"><span v-on:click="orderBy('Inicio')">Inicio</span></th>
-                <th scope="col"><span v-on:click="orderBy('Fim')">Fim</span></th>
+                <th scope="col"><span v-on:click="orderBy('Periodo')">Período</span></th>
                 <th scope="col"><span v-on:click="orderBy('Equipamento')">Equipamento</span></th>
                 <th scope="col"><span v-on:click="orderBy('Local')">Local</span></th>
                 <th scope="col"><span v-on:click="orderBy('Solicitante')">Solicitante</span></th>
@@ -44,8 +43,7 @@
             </thead>
             <tbody>
               <tr v-for="reserva in reservas">
-                <td>{{reserva[1].Inicio}}</td>
-                <td>{{reserva[1].Fim}}</td>
+                <td>{{periodoFormatado(reserva[1].Inicio, reserva[1].Fim)}}</td>
                 <td>{{reserva[1].Equipamento}} - {{reserva[2].Nome}}</td>
                 <td>{{reserva[2].Local}}</td>
                 <td>{{reserva[3].RA}} - {{reserva[3].Nome}}</td>
@@ -143,6 +141,9 @@ export default {
     }
   },
   methods: {
+    periodoFormatado (inicio, fim) {
+      return this.$moment(new Date(inicio)).format('[De] DD/MM/YYYY [às] HH:mm [até] ') + this.$moment(new Date(fim)).format('DD/MM/YYYY [às] HH:mm')
+    },
     confirmaCancelarReserva (reserva) {
       this.$modal.show('dialog', {
         title: 'Cuidado!',
