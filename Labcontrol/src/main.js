@@ -12,9 +12,7 @@ import Validate from 'v-validate'
 import firebaseApp from './firebase-controller.js'
 import VModal from 'vue-js-modal'
 import vueEventCalendar from 'vue-event-calendar'
-import Datetime from 'vue-datetime'
 import 'vue-event-calendar/dist/style.css'
-import 'vue-datetime/dist/vue-datetime.css'
 import 'bootstrap'
 
 const moment = require('moment')
@@ -29,7 +27,6 @@ Vue.use(VueResource)
 Vue.use(VueValidator)
 Vue.use(Validate)
 Vue.use(VModal, { dialog: true })
-Vue.use(Datetime)
 
 Vue.config.productionTip = false
 
