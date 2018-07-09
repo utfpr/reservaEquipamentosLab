@@ -8,10 +8,10 @@
         <v-dialog/>
         <div class="row">
           <div class="col-sm-12 col-md-6">
-            <h5><strong>RA</strong>: {{user.ra}}</h5>
+            <h5><strong>Nome:</strong> {{user.Nome}} {{user.Sobrenome}}</h5>
           </div>
           <div class="col-sm-12 col-md-6">
-            <h5><strong>Nome</strong>: {{user.Nome}} {{user.Sobrenome}}</h5>
+            <h5><strong>RA:</strong> {{user.ra}}</h5>
           </div>
         </div>
         <hr />
@@ -389,6 +389,7 @@ export default {
         db.ref('Usuarios').child(auth.currentUser.uid).update({
           'RA': _this.user.ra,
           'Nome': _this.user.Nome,
+          'Email': auth.currentUser.email,
           'Sobrenome': _this.user.Sobrenome,
           'Curso': _this.user.Curso
         }).then(function () {

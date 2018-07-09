@@ -35,7 +35,14 @@ module.exports = merge(baseWebpackConfig, {
       inject: true,
       serviceWorkerLoader: `<script>${fs.readFileSync(path.join(__dirname,
         './service-worker-dev.js'), 'utf-8')}</script>`
-    }),
+      }),
+      new webpack.ProvidePlugin({
+        Vue: ['vue/dist/vue.esm.js', 'default'],
+        jQuery: 'jquery',
+        'window.jQuery': 'jquery',
+        $: 'jquery',
+        moment: 'moment',
+      }),
     new FriendlyErrorsPlugin()
   ]
 })

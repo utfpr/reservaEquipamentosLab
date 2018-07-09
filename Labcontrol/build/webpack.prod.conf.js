@@ -98,6 +98,13 @@ const webpackConfig = merge(baseWebpackConfig, {
         ignore: ['.*']
       }
     ]),
+    new webpack.ProvidePlugin({
+      Vue: ['vue/dist/vue.esm.js', 'default'],
+      jQuery: 'jquery',
+      'window.jQuery': 'jquery',
+      $: 'jquery',
+      moment: 'moment',
+    }),
     // service worker caching
     new SWPrecacheWebpackPlugin({
       cacheId: 'lab-control',

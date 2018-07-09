@@ -10,7 +10,7 @@
             </div>
         </div>
         <div class="col-sm-12 col-md-12 col-lg-4 justify-content-center login-form login-center login-divider">
-          <form id="singIn" v-on:submit="login">
+          <form id="singIn" v-on:submit.prevent="login">
             <div class="form-group">
               <label class="sr-only" for="email">E-mail</label>
               <div class="input-group ">
@@ -45,6 +45,7 @@
 </template>
 
 <script>
+import firebase from 'firebase'
 import firebaseApp from '../firebase-controller.js'
 const auth = firebaseApp.auth()
 
@@ -83,39 +84,41 @@ export default {
   methods: {
     login: function () {
       let _this = this
-      auth.signInWithEmailAndPassword(this.email, this.password).then(function (user) {
-        _this.$router.replace('/verificar-email')
-      }).catch((err) => {
-        switch (err.message) {
-          case 'The email address is badly formatted.': {
-            this.$notify({
-              group: 'notify',
-              type: 'error',
-              title: 'Oops!',
-              text: 'Endereço de E-mail inválido'
-            })
-            break
+      auth.setPersistence(firebase.auth.Auth.Persistence.SESSION).then(function () {
+        auth.signInWithEmailAndPassword(_this.email, _this.password).then(function (user) {
+          _this.$router.replace('/verificar-email')
+        }).catch((err) => {
+          switch (err.message) {
+            case 'The email address is badly formatted.': {
+              _this.$notify({
+                group: 'notify',
+                type: 'error',
+                title: 'Oops!',
+                text: 'Endereço de E-mail inválido'
+              })
+              break
+            }
+            case 'The password is invalid or the user does not have a password.' || 'There is no user record corresponding to this identifier. The user may have been deleted.': {
+              _this.$notify({
+                group: 'notify',
+                type: 'error',
+                title: 'Oops!',
+                text: 'E-mail não cadastrado ou senha inválida'
+              })
+              break
+            }
+            default: {
+              _this.$notify({
+                group: 'notify',
+                type: 'error',
+                title: 'Oops!',
+                text: 'Parece que algo deu errado.<br>Por favor, tente novamente'
+              })
+              break
+            }
           }
-          case 'The password is invalid or the user does not have a password.' || 'There is no user record corresponding to this identifier. The user may have been deleted.': {
-            this.$notify({
-              group: 'notify',
-              type: 'error',
-              title: 'Oops!',
-              text: 'E-mail não cadastrado ou senha inválida'
-            })
-            break
-          }
-          default: {
-            this.$notify({
-              group: 'notify',
-              type: 'error',
-              title: 'Oops!',
-              text: 'Parece que algo deu errado.<br>Por favor, tente novamente'
-            })
-            break
-          }
-        }
-        console.log('Falha ao logar: ' + err.message)
+          console.log('Falha ao logar: ' + err.message)
+        })
       })
     }
   }

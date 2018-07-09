@@ -42,7 +42,13 @@
               <li>
                 <router-link :to="{ name: 'Equipamentos', params: {}}" class="mr-2 list-inline-item btn btn-primary btn-sm">Voltar</router-link>
               </li>
-              <li>
+              <li v-if="equipamento.Status !== 'Normal'">
+                <span class="mr-2 list-inline-item btn btn-primary btn-sm disabled">Reservar</span>
+              </li>
+              <li v-else>
+                <router-link :to="{ name: 'periodoReserva', params: {objetoReserva: 'equipamento', itemReserva: key}}" class="mr-2 list-inline-item btn btn-primary btn-sm">Reservar</router-link>
+              </li>
+              <li v-if="role === 'admin' || role === 'Supervisor'">
                 <span v-on:click="confirmarDelete(key)" class="list-inline-item btn btn-danger btn-sm">Deletar</span>
               </li>
             </ul>
@@ -104,11 +110,8 @@
                     <span class="input-group-text" id="cursoPrepend"><i class="fas fa-graduation-cap"></i></span>
                   </div>
                   <select v-on:focus="autocompleteHide()" id="cursoequipamento" class="form-control" aria-describedby="cursoequipamentoPrepend" v-model = "equipment.Curso" required>
-                    <option value="" disabled selected>Selecione o curso de utilização</option>''
-                    <option>Todos</option>
-                    <option>Engenharia Ambiental</option>
-                    <option>Engenharia de Alimentos</option>
-                    <option>Quimica</option>
+                    <option value="" disabled selected>Selecione o curso de responsável</option>''
+                    <option v-for="curso in cursos" :value="curso">{{curso}}</option>
                   </select>
                   <div class="invalid-feedback">
                     Por favor selecione um curso.
@@ -200,11 +203,14 @@
   import firebase from 'firebase'
   const db = firebaseApp.database()
   const storage = firebase.storage()
+  const auth = firebaseApp.auth()
   export default {
     name: 'EquipamentoDetails',
     data () {
       return {
+        role: null,
         locais: [],
+        cursos: [],
         key: this.$route.params.key,
         action: this.$route.params.action,
         equipamento: null,
@@ -249,6 +255,12 @@
         _this.equipment.Local = _this.equipamento.Local
         _this.loader.loading = false
       })
+      db.ref('Controle/Cursos').orderByKey().on('value', function (snapshot) {
+        _this.cursos = []
+        snapshot.forEach(function (childSnapshot) {
+          _this.cursos.push(childSnapshot.key)
+        })
+      })
     },
     mounted: function () {
       if (this.action === 'edit') {
@@ -279,6 +291,9 @@
           }
         })
       }
+      db.ref('Usuarios/' + auth.currentUser.uid + '/role').on('value', function (snapshot) {
+        _this.role = snapshot.val()
+      })
     },
     methods: {
       submitEquip () {

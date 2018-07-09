@@ -6,7 +6,7 @@
         <button id="toggler-menu-button" class="navbar-toggler d-flex" type="button" v-on:click="toggle" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon-personalized"></span>
         </button>
-        <a class="navbar-brand text-justify" href="#">LabControl</a>
+        <router-link to="/" class="navbar-brand text-justify">LabControl</router-link>
       </nav>
     </header>
     <main>
@@ -28,38 +28,14 @@
             <li class="nav-item">
               <router-link to="/home" class="nav-link">Home</router-link>
             </li>
-            <li class="nav-item dropdown">
-              <router-link to="/reservas" class="nav-link" href="#reservasMenu" data-toggle="collapse" aria-haspopup="true" aria-expanded="false" aria-controls="reservasMenu" role="button">
-                <span>Reservas</span>
-                <span class="collapseArrow"></span>
-              </router-link>
-              <div id="reservasMenu" class="collapse multi-collapse text-right" >
-                <router-link to="/reservas/cadastro" class="nav-link">Nova Reserva</router-link>
-              </div>
+            <li class="nav-item">
+              <router-link to="/reservas" class="nav-link">Reservas</router-link>
             </li>
             <li class="nav-item">
-              <li class="nav-item dropdown">
-                <router-link to="/equipamentos" class="nav-link" href="#equipamentosMenu" data-toggle="collapse" aria-haspopup="true" aria-expanded="false" aria-controls="equipamentosMenu" role="button">
-                  <span>Equipamentos</span>
-                  <span class="collapseArrow"></span>
-                </router-link>
-                <div id="equipamentosMenu" class="collapse multi-collapse text-right" >
-                  <router-link to="/equipamentos/cadastro" class="nav-link">Novo Equipamento</router-link>
-                  <a class="nav-link" href="#">Em Manutenção</a>
-                  <a class="nav-link" href="#">Quebrados</a>
-                </div>
-              </li>
+              <router-link to="/equipamentos" class="nav-link">Equipamentos</router-link>
             </li>
             <li class="nav-item">
-              <li class="nav-item dropdown">
-                <router-link to="/locais" class="nav-link" href="#locaisMenu" data-toggle="collapse" aria-haspopup="true" aria-expanded="false" aria-controls="locaisMenu" role="button">
-                  <span>Locais</span>
-                  <span class="collapseArrow"></span>
-                </router-link>
-                <div id="locaisMenu" class="collapse multi-collapse text-right" >
-                  <router-link to="/locais/cadastro" class="nav-link">Novo Local</router-link>
-                </div>
-              </li>
+              <router-link to="/locais" class="nav-link">Locais</router-link>
             </li>
           </ul>
           <ul v-else class="sidebar-nav">
@@ -74,7 +50,7 @@
           <router-view></router-view>
           <notifications group="notify" />
           <vue-progress-bar></vue-progress-bar>
-          <modal name="reauthenticate-modal" :adaptive="true" height="auto">
+          <modal name="reauthenticate-modal" v-on:submit.prevent :adaptive="true" height="auto">
             <div class="container">
               <div class="row">
                 <div class="col-12 justify-content-center">
@@ -448,18 +424,11 @@ input[type=number] {
   display: flex;
 }
 
-/*
-.v-autocomplete {
-position:relative
+.table-wrapper {
+    display: block;
+    max-height: 45vh;
+    overflow-y: auto;
+    -ms-overflow-style: -ms-autohiding-scrollbar;
 }
-.v-autocomplete .v-autocomplete-list {
-position:absolute
-}
-.v-autocomplete .v-autocomplete-list .v-autocomplete-list-item {
-cursor:pointer
-}
-.v-autocomplete .v-autocomplete-list .v-autocomplete-list-item .v-autocomplete-item-active {
-background-color:#f3f6fa
-} */
 
 </style>

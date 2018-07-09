@@ -12,7 +12,11 @@ import Locais from '@/components/locais/Locais'
 import LocalCadastro from '@/components/locais/LocalCadastro'
 import LocalDetails from '@/components/locais/LocalDetails'
 import Reservas from '@/components/reservas/Reservas'
-import ReservasCadastro from '@/components/reservas/ReservaCadastro'
+import listaEquipamentos from '@/components/reservas/ListaEquipamentos'
+import listaLocais from '@/components/reservas/ListaLocais'
+import itemReserva from '@/components/reservas/itemReserva'
+import novaReserva from '@/components/reservas/novaReserva'
+import ReservaCadastro from '@/components/reservas/ReservaCadastro'
 import Cadastro from '@/components/Cadastro'
 import VerificarEmail from '@/components/VerificarEmail'
 import actionHandler from '@/components/actionHandler'
@@ -149,9 +153,50 @@ const router = new Router({
       }
     },
     {
+      path: '/reservar',
+      component: novaReserva,
+      meta: {
+        requiresAuth: true
+      },
+      children: [
+        {
+          path: '',
+          name: 'itemReserva',
+          component: itemReserva,
+          meta: {
+            requiresAuth: true
+          }
+        },
+        {
+          path: 'equipamento',
+          name: 'ListaEquipamentos',
+          component: listaEquipamentos,
+          meta: {
+            requiresAuth: true
+          }
+        },
+        {
+          path: 'laboratorio',
+          name: 'listaLocais',
+          component: listaLocais,
+          meta: {
+            requiresAuth: true
+          }
+        },
+        {
+          path: ':objetoReserva/:itemReserva',
+          name: 'periodoReserva',
+          component: ReservaCadastro,
+          meta: {
+            requiresAuth: true
+          }
+        }
+      ]
+    },
+    {
       path: '/reservas/cadastro',
       name: 'Cadastro de reservas',
-      component: ReservasCadastro,
+      component: ReservaCadastro,
       meta: {
         requiresAuth: true
       }
@@ -163,7 +208,7 @@ const router = new Router({
     },
     {
       path: '*',
-      redirect: '/p404'
+      redirect: '/'
     }
   ]
 })

@@ -19,8 +19,8 @@
               </div>
             </div>
           </div>
-          <div class="col-2 text-center">
-            <router-link to="/equipamentos/cadastro" class="justify-content-center btn d-none d-lg-flex btn-outline-primary btn-block">Novo</router-link>
+          <div v-if="role === 'admin' || role === 'Supervisor'" class="col-12 col-md-2 text-center">
+            <router-link to="/equipamentos/cadastro" class="justify-content-center mt-2 mt-md-0 btn btn-outline-primary btn-block">Novo</router-link>
           </div>
         </div>
         <div v-if="!loader.loading" class="row mt-4 justify-content-center text-center">
@@ -51,10 +51,16 @@
                     <li>
                       <router-link :to="{ name: 'EquipamentoDetails', params: {key: equipamento[0], action: 'view'}}" class="mr-2 list-inline-item btn btn-primary btn-sm">Vizualizar</router-link>
                     </li>
-                    <li>
+                    <li v-if="equipamento[1].Status !== 'Normal'">
+                      <span class="mr-2 list-inline-item btn btn-primary btn-sm disabled">Reservar</span>
+                    </li>
+                    <li v-else>
+                      <router-link :to="{ name: 'periodoReserva', params: {objetoReserva: 'equipamento', itemReserva: equipamento[0]}}" class="mr-2 list-inline-item btn btn-primary btn-sm">Reservar</router-link>
+                    </li>
+                    <li v-if="role === 'admin' || role === 'Supervisor'">
                       <router-link :to="{ name: 'EquipamentoDetails', params: {key: equipamento[0], action: 'edit'}}" class="mr-2 list-inline-item btn btn-primary btn-sm">Editar</router-link>
                     </li>
-                    <li>
+                    <li v-if="role === 'admin' || role === 'Supervisor'">
                       <span v-on:click="confirmarDelete(equipamento[0])" class="list-inline-item btn btn-danger btn-sm">Deletar</span>
                     </li>
                   </ul>
@@ -72,6 +78,7 @@
 import RingLoader from 'vue-spinner/src/RingLoader.vue'
 import firebaseApp from '../../firebase-controller.js'
 const db = firebaseApp.database()
+const auth = firebaseApp.auth()
 export default {
   name: 'equipamentos',
   data () {
@@ -79,6 +86,7 @@ export default {
       filtros: ['Patrimônio', 'Nome', 'Local', 'Estado'],
       filtroAtivo: '',
       equipamentos: [],
+      role: null,
       loader: {
         loading: true,
         color: '#007bff',
@@ -101,6 +109,9 @@ export default {
         _this.equipamentos.push([childSnapshot.key, childSnapshot.val()])
       })
       _this.loader.loading = false
+    })
+    db.ref('Usuarios/' + auth.currentUser.uid + '/role').on('value', function (snapshot) {
+      _this.role = snapshot.val()
     })
   },
   methods: {
@@ -141,6 +152,7 @@ export default {
     },
     selectFilter (filtro) {
       this.filtroAtivo = filtro
+      this.search()
     },
     search () {
       let pesquisa = document.getElementById('search').value

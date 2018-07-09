@@ -38,6 +38,7 @@
 import RingLoader from 'vue-spinner/src/RingLoader.vue'
 import Alert from './utility/Alert.vue'
 import firebaseApp from '../firebase-controller.js'
+const db = firebaseApp.database()
 const auth = firebaseApp.auth()
 export default {
   name: 'verificarEmail',
@@ -142,8 +143,12 @@ export default {
       let _this = this
       auth.currentUser.updateEmail(this.user.newEmail).then(function () {
         _this.user.email = _this.user.newEmail
-        console.log('E-mail alterado com sucesso!')
-        _this.resendEmail()
+        db.ref('Usuarios').child(auth.currentUser.uid).update({
+          'Email': auth.currentUser.email
+        }).then(function () {
+          console.log('E-mail alterado com sucesso!')
+          _this.resendEmail()
+        })
       }).catch((err) => {
         var forms = document.getElementsByClassName('needs-validation')
         switch (err.code) {
@@ -171,6 +176,7 @@ export default {
             Array.prototype.filter.call(forms, function (form) {
               form.classList.remove('hideOn')
             })
+            this.$modal.show('reauthenticate-modal')
             break
           }
           case 'auth/user-token-expired': {
