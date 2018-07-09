@@ -126,7 +126,6 @@
           _this.supervisores.push(supervisor.val().Nome)
         })
       })
-      let _this = this
       db.ref('Controle/Cursos').orderByKey().on('value', function (snapshot) {
         _this.cursos = []
         snapshot.forEach(function (childSnapshot) {
