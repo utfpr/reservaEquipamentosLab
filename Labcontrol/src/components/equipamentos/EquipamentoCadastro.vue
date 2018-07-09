@@ -180,7 +180,7 @@ export default {
         msg: ''
       }
     }
-  }
+  },
   directives: {
     mask
   },

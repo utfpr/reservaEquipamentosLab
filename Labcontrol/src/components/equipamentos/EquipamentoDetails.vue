@@ -287,7 +287,6 @@
           }
         })
       }
-      let _this = this
       db.ref('Usuarios/' + auth.currentUser.uid + '/role').on('value', function (snapshot) {
         _this.role = snapshot.val()
       })
