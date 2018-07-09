@@ -60,19 +60,19 @@
       </div>
       <div class="d-flex d-md-none row justify-content-between">
         <div class="col-12 col-md-6 text-right">
-          <router-link v-if="equipamentoReserva" :to="{ name: 'reservaEquipamento', params: {patrimonio: equipamentoReserva}}" class="btn btn-primary btn-block">Continuar reserva</router-link>
+          <router-link v-if="equipamentoReserva" :to="{ name: 'periodoReserva', params: {objetoReserva: 'equipamento', itemReserva: equipamentoReserva}}" class="btn btn-primary btn-block">Continuar reserva</router-link>
           <span v-else class="btn btn-primary btn-block disabled">Continuar reserva</span>
         </div>
         <div class="col-12 col-md-6 text-left">
-          <button type="submit" v-on:click="$parent.voltar" class="btn btn-danger btn-block" >Voltar</button>
+          <button type="submit" v-on:click="$parent.voltar" class="btn btn-light btn-block" >Voltar</button>
         </div>
       </div>
       <div class="d-none d-md-flex row justify-content-between">
         <div class="col-12 col-md-6 text-left">
-          <button type="submit" v-on:click="$parent.voltar" class="btn btn-danger" >Voltar</button>
+          <button type="submit" v-on:click="$parent.voltar" class="btn btn-light" >Voltar</button>
         </div>
         <div class="col-12 col-md-6 text-right">
-          <router-link v-if="equipamentoReserva" :to="{ name: 'reservaEquipamento', params: {patrimonio: equipamentoReserva}}" class="btn btn-primary">Continuar reserva</router-link>
+          <router-link v-if="equipamentoReserva" :to="{ name: 'periodoReserva', params: {objetoReserva: 'equipamento', itemReserva: equipamentoReserva}}" class="btn btn-primary">Continuar reserva</router-link>
           <span v-else class="btn btn-primary disabled">Continuar reserva</span>
         </div>
       </div>
@@ -150,7 +150,6 @@ export default {
   },
   created: function () {
     this.filtroAtivo = this.filtros[0]
-    this.$parent.currentStep = 1
   },
   mounted: function () {
     let _this = this
@@ -164,13 +163,13 @@ export default {
       })
       _this.loader.loading = false
     })
+    this.$parent.currentStep = 1
   },
   methods: {
     selectItem (patrimonio) {
       let itemReserva = document.getElementById(patrimonio)
       itemReserva.checked = true
       this.equipamentoReserva = itemReserva.value
-      console.log(this.equipamentoReserva)
     },
     selectFilter (filtro) {
       this.filtroAtivo = filtro

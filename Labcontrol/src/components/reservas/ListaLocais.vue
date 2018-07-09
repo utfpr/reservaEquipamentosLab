@@ -32,7 +32,6 @@
                 <th scope="col"> <span v-on:click="orderBy('Nome')">Nome</span> </th>
                 <th scope="col"> <span v-on:click="orderBy('Descricao')">Descrição</span> </th>
                 <th scope="col"> <span v-on:click="orderBy('Curso')">Curso</span> </th>
-                <th scope="col"></th>
               </tr>
             </thead>
             <tbody>
@@ -57,15 +56,15 @@
         <span v-else class="btn btn-primary btn-block disabled">Continuar reserva</span>
       </div>
       <div class="col-12 col-md-6 text-left">
-        <button type="submit" v-on:click="$parent.voltar" class="btn btn-danger btn-block" >Voltar</button>
+        <button type="submit" v-on:click="$parent.voltar" class="btn btn-light btn-block" >Voltar</button>
       </div>
     </div>
     <div class="d-none d-md-flex row justify-content-between">
       <div class="col-12 col-md-6 text-left">
-        <button type="submit" v-on:click="$parent.voltar" class="btn btn-danger" >Voltar</button>
+        <button type="submit" v-on:click="$parent.voltar" class="btn btn-light" >Voltar</button>
       </div>
       <div class="col-12 col-md-6 text-right">
-        <router-link v-if="localReserva" :to="{ name: 'reservaLocal', params: {local: localReserva}}" class="btn btn-primary">Continuar reserva</router-link>
+        <router-link v-if="localReserva" :to="{ name: 'periodoReserva', params: {objetoReserva: 'laboratorio', itemReserva: localReserva}}" class="btn btn-primary">Continuar reserva</router-link>
         <span v-else class="btn btn-primary disabled">Continuar reserva</span>
       </div>
     </div>
@@ -96,7 +95,6 @@ export default {
   },
   created: function () {
     this.filtroAtivo = this.filtros[0]
-    this.$parent.currentStep = 1
   },
   mounted: function () {
     let _this = this
@@ -108,6 +106,7 @@ export default {
       })
       _this.loader.loading = false
     })
+    this.$parent.currentStep = 1
   },
   methods: {
     selectItem (local) {
