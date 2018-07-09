@@ -29,10 +29,8 @@
                 <span class="input-group-text" id="supervisorPrepend"><i class="fas fa-clipboard"></i></span>
               </div>
               <select id="supervisor" class="form-control" aria-describedby="supervisorPrepend" v-model = "newLocal.Supervisor" required>
-                <option value="" disabled selected>Selecione o nome do supervisor</option>''
-                <option>Prof 1</option>
-                <option>Prof 2</option>
-                <option>Prof 3</option>
+                <option value="" disabled selected>Selecione um supervisor</option>
+                <option v-for="supervisor in supervisores" value="supervisor">{{supervisor}}</option>
               </select>
               <div class="invalid-feedback">
                 Por favor selecione um supervisor.
@@ -57,7 +55,7 @@
               <span class="input-group-text" id="cursoPrepend"><i class="fas fa-graduation-cap"></i></span>
             </div>
             <select id="cursolocal" class="form-control" aria-describedby="cursolocalPrepend" v-model = "newLocal.Curso" required>
-              <option value="" disabled selected>Selecione o curso de utilização</option>''
+              <option value="" disabled selected>Selecione o curso de utilização</option>
               <option>Todos</option>
               <option>Engenharia Ambiental</option>
               <option>Engenharia de Alimentos</option>
@@ -96,6 +94,7 @@
     name: 'localCadastro',
     data () {
       return {
+        supervisores: [],
         newLocal: {
           Nome: '',
           Descricao: '',
@@ -128,6 +127,13 @@
     },
     mounted: function () {
       this.validate()
+      let _this = this
+      db.ref('Usuarios').orderByChild('role').equalTo('Supervisor').on('value', (snapshot) => {
+        _this.supervisores = []
+        snapshot.forEach(function (supervisor) {
+          _this.supervisores.push(supervisor.val().Nome)
+        })
+      })
     },
     methods: {
       submitNewPlace () {

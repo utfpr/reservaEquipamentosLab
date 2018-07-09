@@ -64,9 +64,7 @@
                   </div>
                   <select id="supervisor" class="form-control" aria-describedby="supervisorPrepend" v-model = "local.Supervisor" required>
                     <option value="" disabled selected>Selecione o nome do supervisor</option>''
-                    <option>Prof 1</option>
-                    <option>Prof 2</option>
-                    <option>Prof 3</option>
+                    <option v-for="supervisor in supervisores" value="supervisor">{{supervisor}}</option>
                   </select>
                   <div class="invalid-feedback">
                     Por favor selecione um supervisor.
@@ -123,13 +121,16 @@ import Alert from '../utility/Alert.vue'
 import RingLoader from 'vue-spinner/src/RingLoader.vue'
 import firebaseApp from '../../firebase-controller.js'
 const db = firebaseApp.database()
+const auth = firebaseApp.auth()
 export default {
   name: 'EquipamentoDetails',
   data () {
     return {
       key: this.$route.params.key,
       action: this.$route.params.action,
+      role: null,
       localDetails: null,
+      supervisores: [],
       loader: {
         loading: true,
         color: '#007bff',
@@ -168,6 +169,16 @@ export default {
   },
   mounted: function () {
     this.validate()
+    let _this = this
+    db.ref('Usuarios').orderByChild('role').equalTo('Supervisor').on('value', (snapshot) => {
+      _this.supervisores = []
+      snapshot.forEach(function (supervisor) {
+        _this.supervisores.push(supervisor.val().Nome)
+      })
+    })
+    db.ref('Usuarios/' + auth.currentUser.uid + '/role').on('value', function (snapshot) {
+      _this.role = snapshot.val()
+    })
   },
   methods: {
     submitLocal () {
