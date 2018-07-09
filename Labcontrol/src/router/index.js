@@ -184,16 +184,8 @@ const router = new Router({
           }
         },
         {
-          path: 'equipamento/:patrimonio',
-          name: 'reservaEquipamento',
-          component: ReservaCadastro,
-          meta: {
-            requiresAuth: true
-          }
-        },
-        {
-          path: 'laboratorio/:local',
-          name: 'reservaLocal',
+          path: ':objetoReserva/:itemReserva',
+          name: 'periodoReserva',
           component: ReservaCadastro,
           meta: {
             requiresAuth: true
