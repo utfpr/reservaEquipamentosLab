@@ -114,10 +114,7 @@
           msg: ''
         }
       }
-    },
-    firebase: {
-      cadastroRef: db.ref('Locais')
-    },
+    }
     directives: {
       mask
     },
@@ -142,7 +139,7 @@
         this.loader.loading = true
         this.alert.showAlert = false
         let _this = this
-        this.$firebaseRefs.cadastroRef.child(this.newLocal.Nome).update({
+        db.ref('Locais').child(this.newLocal.Nome).update({
           'Curso': _this.newLocal.Curso,
           'Descricao': _this.newLocal.Descricao,
           'Supervisor': _this.newLocal.Supervisor

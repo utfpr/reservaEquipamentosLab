@@ -6,9 +6,6 @@ import router from './router'
 import App from './App'
 import VueProgressBar from 'vue-progressbar'
 import Notifications from 'vue-notification'
-import VueFire from 'vuefire'
-import VueValidator from 'vue-validator'
-import Validate from 'v-validate'
 import firebaseApp from './firebase-controller.js'
 import VModal from 'vue-js-modal'
 import vueEventCalendar from 'vue-event-calendar'
@@ -22,15 +19,12 @@ Vue.use(require('vue-moment'), {moment})
 
 Vue.use(vueEventCalendar, {locale: 'pt-br'})
 Vue.use(Notifications)
-Vue.use(VueFire)
 Vue.use(VueResource)
-Vue.use(VueValidator)
-Vue.use(Validate)
 Vue.use(VModal, { dialog: true })
 
 Vue.config.productionTip = false
 
-let app
+var app
 
 const options = {
   color: '#0042b1',

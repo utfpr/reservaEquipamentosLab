@@ -118,6 +118,20 @@
             </div>
           </div>
           <div class="form-row">
+            <div class="col-12 mb-3">
+              <label for="arquivo">Arquivo</label>
+              <div class="input-group">
+                <div class="input-group-prepend">
+                  <span class="input-group-text" id="retornoPrepend"><i class="far fa-clock"></i></span>
+                </div>
+                <input id="arquivo" type="file" class="form-control" aria-describedby="retornoPrepend" required accept="application/pdf">
+                <div class="invalid-feedback">
+                  Por favor selecione um arquivo.
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="form-row">
             <div class="col-sm-6 justify-content-right">
               <button type="submit" class="btn btn-primary btn-block" >Confirmar</button>
             </div>
@@ -136,7 +150,9 @@ import {mask} from 'vue-the-mask'
 import RingLoader from 'vue-spinner/src/RingLoader.vue'
 import Alert from '../utility/Alert.vue'
 import firebaseApp from '../../firebase-controller.js'
+import firebase from 'firebase'
 const db = firebaseApp.database()
+const storage = firebase.storage()
 export default {
   name: 'equipamento',
   data () {
@@ -164,10 +180,7 @@ export default {
         msg: ''
       }
     }
-  },
-  firebase: {
-    cadastroRef: db.ref('Equipamentos')
-  },
+  }
   directives: {
     mask
   },
@@ -176,6 +189,7 @@ export default {
     RingLoader
   },
   mounted: function () {
+    document.getElementById('arquivo').onchange = this.handleFileSelect
     this.validate()
   },
   methods: {
@@ -185,7 +199,7 @@ export default {
       this.loader.loading = true
       this.alert.showAlert = false
       let _this = this
-      this.$firebaseRefs.cadastroRef.child(this.newEquipment.Patrimonio).update({
+      db.ref('Equipamentos').child(this.newEquipment.Patrimonio).update({
         'Curso': _this.newEquipment.Curso,
         'Nome': _this.newEquipment.Nome,
         'Marca': _this.newEquipment.Marca,
@@ -199,6 +213,7 @@ export default {
         _this.alert.msg = 'O equipamento ' + _this.newEquipment.Nome + ', com patrimônio ' + _this.newEquipment.Patrimonio + ', foi cadastrado com sucesso!'
         _this.loader.loading = false
         _this.alert.showAlert = true
+        _this.uploadFile()
         location.reload()
         form.classList.remove('hideOn')
         console.log('completo')
@@ -273,6 +288,23 @@ export default {
           _this.alert.msg = 'O número de patrimônio ' + _this.newEquipment.Patrimonio + ' já se encontra cadastrado, caso queira alterar este equipamento o procure na lista de Equipamentos e clique em Editar'
           _this.alert.showAlert = true
         }
+      })
+    },
+    handleFileSelect: function (e) {
+      var _this = this
+      if (e.target.files[0] === null) {
+        _this.pdf = null
+      } else {
+        _this.pdf = e.target.files[0]
+        console.log(_this.pdf.name)
+      }
+    },
+    uploadFile: function () {
+      var _this = this
+      if (_this.pdf === null) return
+      var pdfRef = storage.ref().child(_this.newEquipment.Patrimonio + '.pdf')
+      pdfRef.put(_this.pdf).then(function (data) {
+        console.log('upload successful')
       })
     }
   }
