@@ -19,7 +19,7 @@
             </div>
           </div>
         </div>
-        <div class="col-12 col-md-2 text-center">
+        <div v-if="role === 'admin' || role === 'Supervisor'" class="col-12 col-md-2 text-center">
           <router-link to="/locais/cadastro" class="justify-content-center mt-2 mt-md-0 btn btn-outline-primary btn-block">Novo</router-link>
         </div>
       </div>
