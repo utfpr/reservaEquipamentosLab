@@ -8,7 +8,7 @@ export function sendEmail (to, subject, textBody, htmlBody) {
   let email = {
     'api_key': 'api-D9A1DF38838611E8BBEBF23C91C88F4E',
     'to': to,
-    'sender': 'LabControl <bcc34f201801progapp@gmail.com>',
+    'sender': 'LabControl <labcontrol@utfpr.edu.br>',
     'subject': subject,
     'text_body': textBody,
     'html_body': htmlBody,
