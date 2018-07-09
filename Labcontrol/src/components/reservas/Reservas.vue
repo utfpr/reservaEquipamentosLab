@@ -87,7 +87,7 @@ export default {
   name: 'reservas',
   data () {
     return {
-      filtros: ['Inicio', 'Fim', 'RA', 'Patrimônio', 'Nome', 'Status'],
+      filtros: ['Período', 'RA', 'Patrimônio', 'Nome', 'Status'],
       filtroAtivo: '',
       reservas: [],
       role: null,
