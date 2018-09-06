@@ -22,7 +22,28 @@
             <p><strong>Descrição</strong><br />{{local.Descricao}}</p>
           </div>
         </div>
-        <hr />
+        <hr/>
+
+
+        <!-- Listagem de Equipamentos no Local -->
+        <div class="row">
+          <div class="col-sm-12 col-md-6">
+            <p><strong>Equipamentos</strong>
+            <br />
+            <tbody>
+              <tr v-for="local in locais">
+                <th scope="row">{{equipamento[0]}}</th>
+                <td>{{equipamento[1].Nome}}</td>
+                <td>{{equipamento[1].Local}}</td>
+                <td>{{equipamento[1].Status}}</td>
+              </tr>
+            </tbody>
+          </div>
+        </div>
+        <hr/>
+
+
+
         <div class="row">
           <div class="col-12 text-right">
             <ul class="list-inline d-inline-flex">
@@ -139,6 +160,10 @@ export default {
         Descricao: '',
         Supervisor: '',
         Curso: ''
+      },
+      Equipamentos: {
+        Nome: '',
+        Status: ''
       },
       alert: {
         showAlert: false,
