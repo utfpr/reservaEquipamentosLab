@@ -154,6 +154,7 @@ export default {
             handler: () => {
               this.$modal.hide('dialog')
               this.cancelarReserva(reserva)
+              this.$router.push('/home')
             }
           },
           {

@@ -58,7 +58,7 @@
                       <router-link :to="{ name: 'LocalDetails', params: {key: local[0], action: 'edit'}}" class="mr-2 list-inline-item btn btn-primary btn-sm">Editar</router-link>
                     </li>
                     <li v-if="role === 'admin' || role === 'Supervisor'">
-                      <span v-on:click="confirmarDelete(local[0])" class="list-inline-item btn btn-danger btn-sm">Deletar</span>
+                      <span v-on:click="confirmarDelete(local[0])" class="list-inline-item btn btn-danger btn-sm">Remover</span>
                     </li>
                   </ul>
                 </td>
