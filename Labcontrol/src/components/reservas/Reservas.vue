@@ -146,25 +146,68 @@ export default {
     },
     // modal para cancelar reservas
     confirmaCancelarReserva (reserva) {
-      this.$modal.show('dialog', {
-        title: 'Cuidado!',
-        text: ' Se realmente deseja <b>cancelar</b> esta reserva, informe o motivo e clique em Cancelar Reserva<br/><textarea style = "width: 100%; min-height: 100px" id = "motivoCancelamento"></textarea><br/><i>Essa ação não poderá ser desfeita</i>',
-        buttons: [
-          {
-            title: 'Cancelar Reserva',
-            handler: () => {
-              this.$modal.hide('dialog')
-              this.cancelarReserva(reserva)
+      // rota do superrvisor
+      if (this.role === 'Supervisor') {
+        this.$modal.show('dialog', {
+          title: 'Cuidado!',
+          text: ' Se realmente deseja <b>cancelar</b> esta reserva, informe o motivo e clique em Cancelar Reserva<br/><textarea style = "width: 100%; min-height: 100px" id = "motivoCancelamento"></textarea><br/><i>Essa ação não poderá ser desfeita</i>',
+          buttons: [
+            {
+              title: 'Cancelar Reserva',
+              handler: () => {
+                this.$modal.hide('dialog')
+                this.cancelarReservaSupervisor(reserva)
+              }
+            },
+            {
+              title: 'Sair',
+              default: true
             }
-          },
-          {
-            title: 'Sair',
-            default: true
-          }
-        ]
+          ]
+        })
+      // rota do usuario
+      } else {
+        this.$modal.show('dialog', {
+          title: 'Cuidado!',
+          text: ' Se realmente deseja <b>cancelar</b> esta reserva, clique em cancelar a reserva <br/><i>Essa ação não poderá ser desfeita</i>',
+          buttons: [
+            {
+              title: 'Cancelar Reserva',
+              handler: () => {
+                this.$modal.hide('dialog')
+                this.cancelarReserva(reserva)
+                this.$router.push('/home')
+              }
+            },
+            {
+              title: 'Sair',
+              default: true
+            }
+          ]
+        })
+      }
+    },
+    // cancela reserva para usuarios comuns
+    cancelarReserva (reserva) {
+      db.ref('Reservas/equipamentos').child(reserva[0]).update({
+        'Status': 'Cancelada'
+      })
+      let to = [auth.currentUser.displayName + ' <' + this.userEmail + '>']
+      let subject = 'Reserva de equipamento cancelada'
+      let textBody = 'Sua resersa foi cancelada'
+
+      let htmlBody = '<h3>Reserva cancelada</h3><br><p>Sua reserva do equipamento: <strong>' + reserva[1].Equipamento + ' - ' + reserva[2].Nome + '</strong> no local <strong>' + reserva[2].Local + '</strong> no período: <strong>' + (this.$moment(new Date(reserva[1].Inicio)).format('[De] DD/MM/YYYY [às] HH:mm [até] ') + this.$moment(new Date(reserva[1].Fim)).format('DD/MM/YYYY [às] HH:mm')) + '</strong> foi <strong>cancelada</strong> pelo responsável.</p><small>Este é um E-mail automático, por favor não responda</small>'
+      sendEmail(to, subject, textBody, htmlBody)
+      this.$notify({
+        group: 'notify',
+        type: 'success',
+        title: 'Yey!',
+        text: 'Reserva <b>cancelada</b> com sucesso'
       })
     },
-    cancelarReserva (reserva) {
+
+    // cancela reserva para supervisores
+    cancelarReservaSupervisor (reserva) {
       var motivo = document.getElementById('motivoCancelamento').value
       if (motivo) {
         db.ref('Reservas/equipamentos').child(reserva[0]).update({

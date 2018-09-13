@@ -17,7 +17,26 @@
                 </div>
               </div>
             </div>
-          </div>
+          </div> <FormGroup>
+      <Input
+        className="form-control"
+        id="email"
+        type="email"
+        name="email"
+        placeholder="Digite seu e-mail"
+        onChange={props.handleChangeText}
+      />
+    </FormGroup>
+    <FormGroup>
+      <Input
+        className="form-control"
+        id="pswd"
+        type="password"
+        name="senha"
+        placeholder="Digite sua Senha"
+        onChange={props.handleChangeText}
+      />
+    </FormGroup>
         </div>
         <div v-if="!loader.loading" class="row mt-4 justify-content-center text-center">
           <h2> Escolha um equipamento </h2>
