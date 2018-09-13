@@ -4,6 +4,18 @@
       <div v-if="loader.loading" class="row justify-content-center">
         <ring-loader :loading="loader.loading" :color="loader.color" :size="loader.size"></ring-loader>
       </div>
+      <div class="d-flex d-md-none form-row justify-content-end">
+        <!-- Div de Botão Continuar reserva versão mobile -->
+        <div class="col-12 col-md-6 text-right" style="padding-top: 10px;">
+          <span v-on:click="verificarDados" class="btn btn-primary my-3 btn-block">Continuar reserva</span>
+        </div>
+      </div>
+      <div class="d-none d-md-flex form-row justify-content-end">
+        <!-- Div de Botão Continuar reserva versão web -->
+        <div class="col-12 col-md-6 text-right" style="padding-top: 10px;">
+          <span v-on:click="verificarDados" class="btn btn-primary">Continuar reserva</span>
+        </div>
+      </div>
       <div v-if="!loader.loading" class="row justify-content-center">
         <alert :showAlert="alert.showAlert" :dismissible="alert.dismissible" :type="alert.type" :title="alert.title" :msg="alert.msg"></alert>
         <h4> Informe o período de sua reserva </h4>
@@ -19,21 +31,15 @@
             </div>
           </div>
           <div class="d-flex d-md-none form-row justify-content-between">
-            <!-- Mobile buttons -->
-            <div class="col-12 col-md-6 text-right">
-              <span v-on:click="verificarDados" class="btn btn-primary my-3 btn-block">Continuar reserva</span>
-            </div>
+            <!-- Div de Botão Voltar versão mobile -->
             <div class="col-12 col-md-6 text-left">
               <button type="submit" v-on:click="$parent.voltar" class="btn btn-light btn-block" >Voltar</button>
             </div>
           </div>
           <div class="d-none d-md-flex form-row justify-content-between">
-            <!-- Medium+ buttons -->
+            <!-- Div de Botão Voltar versão Desktop -->
             <div class="col-12 col-md-6 text-left">
               <button type="submit" v-on:click="$parent.voltar" class="btn btn-light" >Voltar</button>
-            </div>
-            <div class="col-12 col-md-6 text-right">
-              <span v-on:click="verificarDados" class="btn btn-primary">Continuar reserva</span>
             </div>
           </div>
         </form>
