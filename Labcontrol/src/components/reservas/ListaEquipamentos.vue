@@ -38,6 +38,21 @@
       />
     </FormGroup>
         </div>
+        <!-- Div de Botão Continuar reserva versão mobile -->
+        <div class="d-flex d-md-none row justify-content-between" style="padding-top: 10px;">
+          <div class="col-12 col-md-6 text-right">
+            <router-link v-if="equipamentoReserva" :to="{ name: 'periodoReserva', params: {objetoReserva: 'equipamento', itemReserva: equipamentoReserva}}" class="btn btn-primary btn-block">Continuar reserva</router-link>
+            <span v-else class="btn btn-primary btn-block disabled">Continuar reserva</span>
+          </div>
+        </div>
+
+        <!-- Div de Botão Continuar reserva versão Desktop -->
+        <div class="d-none d-md-flex row justify-content-end" style="padding-top: 10px;">
+          <div class="col-12 col-md-6 text-right">
+            <router-link v-if="equipamentoReserva" :to="{ name: 'periodoReserva', params: {objetoReserva: 'equipamento', itemReserva: equipamentoReserva}}" class="btn btn-primary">Continuar reserva</router-link>
+            <span v-else class="btn btn-primary disabled">Continuar reserva</span>
+          </div>
+        </div>
         <div v-if="!loader.loading" class="row mt-4 justify-content-center text-center">
           <h2> Escolha um equipamento </h2>
         </div>
@@ -77,22 +92,18 @@
           </div>
         </div>
       </div>
+
+      <!-- Div de Botão Voltar versão mobile -->
       <div class="d-flex d-md-none row justify-content-between">
-        <div class="col-12 col-md-6 text-right">
-          <router-link v-if="equipamentoReserva" :to="{ name: 'periodoReserva', params: {objetoReserva: 'equipamento', itemReserva: equipamentoReserva}}" class="btn btn-primary btn-block">Continuar reserva</router-link>
-          <span v-else class="btn btn-primary btn-block disabled">Continuar reserva</span>
-        </div>
         <div class="col-12 col-md-6 text-left">
           <button type="submit" v-on:click="$parent.voltar" class="btn btn-light btn-block" >Voltar</button>
         </div>
       </div>
+
+      <!-- Div de Botão Voltar versão Desktop -->
       <div class="d-none d-md-flex row justify-content-between">
         <div class="col-12 col-md-6 text-left">
           <button type="submit" v-on:click="$parent.voltar" class="btn btn-light" >Voltar</button>
-        </div>
-        <div class="col-12 col-md-6 text-right">
-          <router-link v-if="equipamentoReserva" :to="{ name: 'periodoReserva', params: {objetoReserva: 'equipamento', itemReserva: equipamentoReserva}}" class="btn btn-primary">Continuar reserva</router-link>
-          <span v-else class="btn btn-primary disabled">Continuar reserva</span>
         </div>
       </div>
 

@@ -36,7 +36,7 @@
                 <th scope="col"> <span v-on:click="orderBy('Patrimonio')">Patrimônio</span> </th>
                 <th scope="col"> <span v-on:click="orderBy('Nome')">Nome</span> </th>
                 <th scope="col"> <span v-on:click="orderBy('Local')">Local</span> </th>
-                <th scope="col"> <span v-on:click="orderBy('Estado')">Estado</span> </th>
+                <th scope="col"> <span v-on:click="orderBy('Estado')">Status</span> </th>
                 <th scope="col">Ações</th>
               </tr>
             </thead>
@@ -61,7 +61,7 @@
                       <router-link :to="{ name: 'EquipamentoDetails', params: {key: equipamento[0], action: 'edit'}}" class="mr-2 list-inline-item btn btn-primary btn-sm">Editar</router-link>
                     </li>
                     <li v-if="role === 'admin' || role === 'Supervisor'">
-                      <span v-on:click="confirmarDelete(equipamento[0])" class="list-inline-item btn btn-danger btn-sm">Deletar</span>
+                      <span v-on:click="confirmarDelete(equipamento[0])" class="list-inline-item btn btn-danger btn-sm">Remover</span>
                     </li>
                   </ul>
                 </td>
