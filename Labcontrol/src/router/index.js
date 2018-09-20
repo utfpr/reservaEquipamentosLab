@@ -8,6 +8,7 @@ import Perfil from '@/components/perfil/Perfil.vue'
 import Equipamentos from '@/components/equipamentos/Equipamentos'
 import EquipamentoCadastro from '@/components/equipamentos/EquipamentoCadastro'
 import EquipamentoDetails from '@/components/equipamentos/EquipamentoDetails'
+import ReservaDetails from '@/components/reservas/ReservaDetails'
 import Locais from '@/components/locais/Locais'
 import LocalCadastro from '@/components/locais/LocalCadastro'
 import LocalDetails from '@/components/locais/LocalDetails'
@@ -75,6 +76,14 @@ const router = new Router({
       path: '/equipamentos/:key/:action',
       name: 'EquipamentoDetails',
       component: EquipamentoDetails,
+      meta: {
+        requiresAuth: true
+      }
+    },
+    {
+      path: '/reservas/equipamentos/:key/:action',
+      name: 'ReservaDetails',
+      component: ReservaDetails,
       meta: {
         requiresAuth: true
       }

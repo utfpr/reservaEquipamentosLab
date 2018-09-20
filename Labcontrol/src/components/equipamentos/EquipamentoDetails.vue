@@ -174,10 +174,7 @@
                   <div class="input-group-prepend">
                     <span class="input-group-text" id="retornoPrepend"><i class="far fa-clock"></i></span>
                   </div>
-                  <input id="arquivo" type="file" class="form-control" aria-describedby="retornoPrepend" required accept="application/pdf">
-                  <div class="invalid-feedback">
-                    Por favor selecione um arquivo.
-                  </div>
+                  <input id="arquivo" type="file" class="form-control" aria-describedby="retornoPrepend" accept="application/pdf">
                 </div>
               </div>
             </div>
