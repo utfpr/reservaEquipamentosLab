@@ -12,32 +12,38 @@
         </div>
         <hr />
         <div class="row">
-          <div class="col-sm-12 col-md-6">
+          <div class="col-sm-12 col-md-4">
             <p><strong>Curso</strong><br />{{local.Curso}}</p>
           </div>
-          <div class="col-sm-12 col-md-6">
+          <div class="col-sm-12 col-md-4">
             <p><strong>Supervisor</strong><br />{{local.Supervisor}}</p>
           </div>
-          <div class="col-12">
+          <div class="col-sm-12 col-md-4">
             <p><strong>Descrição</strong><br />{{local.Descricao}}</p>
           </div>
         </div>
-        <hr/>
 
 
         <!-- Listagem de Equipamentos no Local -->
         <div class="row">
           <div class="col-sm-12 col-md-6">
-            <p><strong>Equipamentos</strong>
-            <br />
-            <tbody>
-              <tr v-for="local in locais">
-                <th scope="row">{{equipamento[0]}}</th>
-                <td>{{equipamento[1].Nome}}</td>
-                <td>{{equipamento[1].Local}}</td>
-                <td>{{equipamento[1].Status}}</td>
-              </tr>
-            </tbody>
+            <p><strong>Equipamentos</strong></p>
+            <table class="table table-responsive-md table-hover text-center">
+              <thead>
+                <tr>
+                  <th scope="col"> <span v-on:click="orderBy('key')">Patrimônio</span> </th>
+                  <th scope="col"> <span v-on:click="orderBy('Nome')">Nome</span> </th>
+                  <th scope="col"> <span v-on:click="orderBy('Status')">Status</span> </th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="equipamento in equipamentos">
+                  <th scope="row">{{equipamento[0]}}</th>
+                  <td>{{equipamento[1].Nome}}</td>
+                  <td>{{equipamento[1].Status}}</td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
         <hr/>
@@ -161,10 +167,7 @@ export default {
         Supervisor: '',
         Curso: ''
       },
-      Equipamentos: {
-        Nome: '',
-        Status: ''
-      },
+      equipamentos: [],
       alert: {
         showAlert: false,
         dismissible: false,
@@ -187,6 +190,7 @@ export default {
       _this.local.Descricao = _this.localDetails.Descricao
       _this.local.Supervisor = _this.localDetails.Supervisor
       _this.local.Curso = _this.localDetails.Curso
+      _this.local.equipamentos = []
       _this.loader.loading = false
     })
   },
@@ -207,6 +211,15 @@ export default {
       snapshot.forEach(function (childSnapshot) {
         _this.cursos.push(childSnapshot.key)
       })
+      // console.log(_this.cursos)
+    })
+    db.ref('Equipamentos').orderByChild('Local').equalTo(_this.local.Nome).on('value', (snapshot) => {
+      _this.equipamentos = []
+      snapshot.forEach(function (childSnapshot) {
+        _this.equipamentos.push([childSnapshot.key, childSnapshot.val()])
+      })
+      // console.log(_this.equipamentos)
+      console.log(_this.equipamentos)
     })
   },
   methods: {
@@ -296,6 +309,40 @@ export default {
           }
         ]
       })
+    },
+    orderBy (campo) {
+      if (campo === 'key') {
+        this.equipamentos.sort(function (a, b) {
+          if (a[0] > b[0]) {
+            return 1
+          }
+          if (a[0] < b[0]) {
+            return -1
+          }
+          return 0
+        })
+      } else if (campo === 'Nome') {
+        this.equipamentos.sort(function (a, b) {
+          if (a[1].Nome > b[1].Nome) {
+            return 1
+          }
+          if (a[1].Nome < b[1].Nome) {
+            return -1
+          }
+          return 0
+        })
+      } else if (campo === 'Status') {
+        this.equipamentos.sort(function (a, b) {
+          if (a[1].Status > b[1].Status) {
+            return 1
+          }
+          if (a[1].Status < b[1].Status) {
+            return -1
+          }
+          return 0
+        })
+      }
+      console.log('Ordenado por ' + campo)
     },
     checkUnique: function () {
       let _this = this
