@@ -37,6 +37,15 @@
             <li class="nav-item">
               <router-link to="/locais" class="nav-link">Locais</router-link>
             </li>
+            <li v-if="role === 'admin' || role === 'Supervisor'">
+              <router-link to="/aulas" class="nav-link">Aulas</router-link>
+            </li>
+            <li v-if="role === 'admin' || role === 'Supervisor'">
+              <router-link to="/cursos" class="nav-link">Cursos</router-link>
+            </li>
+            <li v-if="role === 'admin'">
+              <router-link to="/usuarios" class="nav-link">Usuários</router-link>
+            </li>
           </ul>
           <ul v-else class="sidebar-nav">
             <li class="nav-item">
@@ -96,10 +105,13 @@
 import firebaseApp from './firebase-controller.js'
 import firebase from 'firebase'
 const auth = firebaseApp.auth()
+const db = firebaseApp.database()
+
 export default {
   name: 'app',
   data () {
     return {
+      role: null,
       username: null,
       isUser: null,
       reauthenticate: {
@@ -109,7 +121,13 @@ export default {
     }
   },
   mounted () {
+    let _this = this
     this.$Progress.finish()
+
+    db.ref('Usuarios/' + auth.currentUser.uid + '/role').on('value', function (snapshot) {
+      _this.role = snapshot.val()
+      console.log(snapshot.val())
+    })
   },
   created () {
     this.$Progress.start()

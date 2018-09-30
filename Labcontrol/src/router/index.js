@@ -23,6 +23,7 @@ import VerificarEmail from '@/components/VerificarEmail'
 import actionHandler from '@/components/actionHandler'
 import RecuperarSenha from '@/components/RecuperarSenha'
 import Calendario from '@/components/Calendar-event'
+import Aulas from '@/components/aulas/Aulas'
 
 Vue.use(Router)
 
@@ -46,6 +47,14 @@ const router = new Router({
       component: Login,
       meta: {
         login: true
+      }
+    },
+    {
+      path: '/aulas',
+      name: 'Aulas',
+      component: Aulas,
+      meta: {
+        requiresAuth: true
       }
     },
     {
