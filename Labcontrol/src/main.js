@@ -12,6 +12,8 @@ import vueEventCalendar from 'vue-event-calendar'
 import 'vue-event-calendar/dist/style.css'
 import 'bootstrap'
 
+import './design'
+
 const moment = require('moment')
 require('moment/locale/pt-br')
 

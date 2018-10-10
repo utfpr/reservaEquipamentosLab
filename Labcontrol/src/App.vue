@@ -1,105 +1,94 @@
 <template>
-  <div id="root">
-    <header>
-      <nav id="navBar" class="navbar navbar-expand-lg navbar-dark fixed-top nav-bg-gradient justify-content-between" style="min-height: 70px;">
+  <a-layout id = "components-layout-demo-custom-trigger">
+    <a-layout-sider
+      :trigger = "null"
+      collapsible
+      v-model = "collapsed"
+    >
+      <div class = "logo"/>
 
-        <button id="toggler-menu-button" class="navbar-toggler d-flex" type="button" v-on:click="toggle" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
-          <span class="navbar-toggler-icon-personalized"></span>
-        </button>
-        <router-link to="/" class="navbar-brand text-justify">LabControl</router-link>
-      </nav>
-    </header>
-    <main>
-      <div id="wrapper" class="">
+      <a-menu theme = "dark" mode = "inline" :defaultSelectedKeys = "['1']">
+        <a-menu-item key = "home">
+          <a-icon type = "home" />
+          <span> Home </span>
+          <router-link to = "/home" class = "nav-link" />
+        </a-menu-item>
+        
+        <a-menu-item key = "reservas">
+          <a-icon type = "database" />
+          <span> Reservas </span>
+          <router-link to = "/reservas" class = "nav-link" />
+        </a-menu-item>
 
-        <!-- Sidebar -->
-        <div id="sidebar-wrapper">
-          <ul v-if="isUser" class="sidebar-nav">
-            <li class="nav-item dropdown">
-              <a class="nav-link" href="#userMenu" data-toggle="collapse" aria-haspopup="true" aria-expanded="false" aria-controls="userMenu" role="button">
-                Olá<span v-if="username">, {{ username }}</span>
-                <span class="collapseArrow"></span>
-              </a>
-              <div id="userMenu" class="collapse multi-collapse text-right">
-                <router-link to="/perfil" class="nav-link">Perfil</router-link>
-                <a href="#" v-on:click="logout" class="nav-link">Sair</a>
-              </div>
-            </li>
-            <li class="nav-item">
-              <router-link to="/home" class="nav-link">Home</router-link>
-            </li>
-            <li class="nav-item">
-              <router-link to="/reservas" class="nav-link">Reservas</router-link>
-            </li>
-            <li class="nav-item">
-              <router-link to="/equipamentos" class="nav-link">Equipamentos</router-link>
-            </li>
-            <li class="nav-item">
-              <router-link to="/locais" class="nav-link">Locais</router-link>
-            </li>
-            <li v-if="role === 'admin' || role === 'Supervisor'">
-              <router-link to="/aulas" class="nav-link">Aulas</router-link>
-            </li>
-            <li v-if="role === 'admin' || role === 'Supervisor'">
-              <router-link to="/cursos" class="nav-link">Cursos</router-link>
-            </li>
-            <li v-if="role === 'admin'">
-              <router-link to="/usuarios" class="nav-link">Usuários</router-link>
-            </li>
-          </ul>
-          <ul v-else class="sidebar-nav">
-            <li class="nav-item">
-              <router-link to="/login" class="nav-link">Login</router-link>
-            </li>
-          </ul>
-        </div>
-        <!-- End sidebar -->
+        <a-menu-item key = "equipamentos">
+          <a-icon class = "fa fa-flask" />
+          <span> Equipamentos </span>
+          <router-link to = "/equipamentos" class = "nav-link" />
+        </a-menu-item>
 
+        <a-menu-item key = "locais">
+          <a-icon class = "fa fa-map-marker-alt" />
+          <span> Locais </span>
+          <router-link to = "/locais" class = "nav-link" />
+        </a-menu-item>
+
+        <a-menu-item v-if = "role === 'admin' || role === 'Supervisor'" key = "aulas">
+          <a-icon type = "schedule" />
+          <span> Aulas </span>
+          <router-link to = "/aulas" class = "nav-link" />
+        </a-menu-item>
+
+        <a-menu-item v-if = "role === 'admin' || role === 'Supervisor'" key = "cursos">
+          <a-icon type = "book" />
+          <span> Cursos </span>
+          <router-link to = "/cursos" class = "nav-link" />
+        </a-menu-item>
+
+        <a-menu-item v-if = "role === 'admin'" key = "usuarios">
+          <a-icon class = "fa fa-users" />
+          <span> Usuários </span>
+          <router-link to = "/usuarios" class = "nav-link" />
+        </a-menu-item>
+      </a-menu>
+    </a-layout-sider>
+
+    <a-layout>
+      <a-layout-header style="background: #fff; padding: 0">
+        <a-icon
+          class="trigger"
+          :type="collapsed ? 'menu-unfold' : 'menu-fold'"
+          @click="()=> collapsed = !collapsed"
+        />
+      </a-layout-header>
+      <a-layout-content :style="{ margin: '24px 16px', padding: '24px', background: '#fff', minHeight: '280px' }">
         <div id="page-content-wrapper">
           <router-view></router-view>
           <notifications group="notify" />
-          <vue-progress-bar></vue-progress-bar>
-          <modal name="reauthenticate-modal" v-on:submit.prevent :adaptive="true" height="auto">
-            <div class="container">
-              <div class="row">
-                <div class="col-12 justify-content-center">
-                  <h3 class="text-center" >Reautenticação Necessária</h3>
-                </div>
-              </div>
-              <div class="row">
-                <div class="col-12">
-                  <form id="reauthenticate" class="needs-validation" novalidate>
-                    <div class="form-group">
-                      <div class="input-group ">
-                        <div class="input-group-prepend">
-                          <div class="input-group-text input-group-text-login d-xs-none d-md-flex"><i class="fas fa-envelope"></i></div>
-                        </div>
-                        <input type="email" v-model="reauthenticate.email" class="form-control form-control-login" id="email" placeholder="E-mail" autocomplete="off" >
-                        <div class="invalid-feedback">
-                          E-mail inválido.
-                        </div>
-                      </div>
-                    </div>
-                    <div class="form-group">
-                      <label class="sr-only" for="password">Senha</label>
-                      <div class="input-group">
-                        <div class="input-group-prepend">
-                          <div class="input-group-text input-group-text-login d-xs-none d-md-flex"><i class="fas fa-lock"></i></div>
-                        </div>
-                        <input type="password" v-model="reauthenticate.password" class="form-control form-control-login" id="password" placeholder="Senha" autocomplete="current-password">
-                      </div>
-                    </div>
-                    <button type="submit" class="btn btn-outline-primary btn-block" style="margin-bottom: 15px;">Reautenticar</button>
-                  </form>
-                </div>
-              </div>
-            </div>
-          </modal>
         </div>
-      </div>
-    </main>
-  </div>
+      </a-layout-content>
+    </a-layout>
+  </a-layout>
 </template>
+
+<style>
+#components-layout-demo-custom-trigger .trigger {
+  font-size: 18px;
+  line-height: 64px;
+  padding: 0 24px;
+  cursor: pointer;
+  transition: color .3s;
+}
+
+#components-layout-demo-custom-trigger .trigger:hover {
+  color: #1890ff;
+}
+
+#components-layout-demo-custom-trigger .logo {
+  height: 32px;
+  background: rgba(255,255,255,.2);
+  margin: 16px;
+}
+</style>
 
 <script>
 import firebaseApp from './firebase-controller.js'
@@ -117,7 +106,8 @@ export default {
       reauthenticate: {
         email: null,
         password: null
-      }
+      },
+      collapsed: false
     }
   },
   mounted () {
