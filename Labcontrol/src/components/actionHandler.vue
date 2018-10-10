@@ -58,7 +58,7 @@
 </template>
 
 <script>
-import Alert from './utility/Alert.vue'
+import Alert from './Alert.vue'
 import firebaseApp from '../firebase-controller.js'
 const auth = firebaseApp.auth()
 export default {
