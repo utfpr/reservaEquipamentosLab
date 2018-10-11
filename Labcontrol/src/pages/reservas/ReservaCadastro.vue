@@ -4,18 +4,6 @@
       <div v-if="loader.loading" class="row justify-content-center">
         <ring-loader :loading="loader.loading" :color="loader.color" :size="loader.size"></ring-loader>
       </div>
-      <div class="d-flex d-md-none form-row justify-content-end">
-        <!-- Div de Botão Continuar reserva versão mobile -->
-        <div class="col-12 col-md-6 text-right" style="padding-top: 10px;">
-          <span v-on:click="verificarDados" class="btn btn-primary my-3 btn-block">Continuar reserva</span>
-        </div>
-      </div>
-      <div class="d-none d-md-flex form-row justify-content-end">
-        <!-- Div de Botão Continuar reserva versão web -->
-        <div class="col-12 col-md-6 text-right" style="padding-top: 10px;">
-          <span v-on:click="verificarDados" class="btn btn-primary">Continuar reserva</span>
-        </div>
-      </div>
       <div v-if="!loader.loading" class="row justify-content-center">
         <alert :showAlert="alert.showAlert" :dismissible="alert.dismissible" :type="alert.type" :title="alert.title" :msg="alert.msg"></alert>
         <h4> Informe o período de sua reserva </h4>
@@ -31,15 +19,27 @@
             </div>
           </div>
           <div class="d-flex d-md-none form-row justify-content-between">
-            <!-- Div de Botão Voltar versão mobile -->
+            <!-- Mobile buttons -->
+            <div class="col-12 col-md-6 text-right">
+              <span v-on:click="verificarDados" class="btn btn-primary my-3 btn-block">Continuar reserva</span>
+            </div>
             <div class="col-12 col-md-6 text-left">
               <button type="submit" v-on:click="$parent.voltar" class="btn btn-light btn-block" >Voltar</button>
             </div>
           </div>
           <div class="d-none d-md-flex form-row justify-content-between">
-            <!-- Div de Botão Voltar versão Desktop -->
+            <!-- Medium+ buttons -->
             <div class="col-12 col-md-6 text-left">
               <button type="submit" v-on:click="$parent.voltar" class="btn btn-light" >Voltar</button>
+            </div>
+            <div class="col-12 col-md-6 text-right">
+              <!--aquiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii-->
+              <div v-if="status == 1">
+                <span v-on:click="verificarDadosSupervisor" class="btn btn-primary">Continuar reserva mesmo?</span>
+              </div>
+              <div v-else>
+                <span v-on:click="verificarDados" class="btn btn-primary">Continuar reserva1</span>
+              </div>
             </div>
           </div>
         </form>
@@ -92,7 +92,7 @@ import datePicker from 'vue-bootstrap-datetimepicker'
 import 'pc-bootstrap4-datetimepicker/build/css/bootstrap-datetimepicker.css'
 import {sendEmail} from '../../emailAPI.js'
 import RingLoader from 'vue-spinner/src/RingLoader.vue'
-import Alert from '../../components/Alert.vue'
+import Alert from '../utility/Alert.vue'
 import firebaseApp from '../../firebase-controller.js'
 const db = firebaseApp.database()
 const auth = firebaseApp.auth()
@@ -100,6 +100,9 @@ export default {
   name: 'reserva',
   data () {
     return {
+      // eu alterei aqui
+      conflito: [],
+      status: null,
       role: null,
       verificandoDados: false,
       antecedenciaReserva: null,
@@ -257,9 +260,13 @@ export default {
       })
     },
     checkPeriodo () {
+      // pega a data de inicio da reserva
       let inicio = this.$moment(new Date(this.periodoReservar.inicio))
+      // pega a data final da reserva
       let fim = this.$moment(new Date(this.periodoReservar.fim))
+      // isSameOrAfter verifica se a data de inicio e igual oconflitou maior a data de fim
       if (inicio.isSameOrAfter(fim)) {
+        // erro
         this.periodoReservar.inicio = this.optionsInicio.defaultDate
         this.periodoReservar.fim = this.optionsFim.defaultDate
         this.$notify({
@@ -273,7 +280,9 @@ export default {
       }
       let _this = this
       var conflitos = []
+      // requestList[] tem equipamento
       this.requestList.forEach(function (reserva) {
+        // se a data estiver entre o inicio e final ele guarda ela em conflito
         if (_this.$moment(new Date(reserva.Inicio)).isBetween(inicio, fim) || _this.$moment(new Date(reserva.Fim)).isBetween(inicio, fim)) {
           conflitos[0] = 1
           conflitos.push(reserva)
@@ -283,6 +292,7 @@ export default {
         return conflitos
       }
       if (this.objetoReserva === 'equipamento') {
+        // verifica se ja existe um equipamento cadastrado nesta data
         db.ref('Reservas/locais').orderByChild('Local').equalTo(this.equipamento.Local).on('value', function (snapshot) {
           snapshot.forEach(function (reservaLab) {
             if (_this.$moment(new Date(reservaLab.val().Inicio)).isBetween(inicio, fim) || _this.$moment(new Date(reservaLab.val().Fim)).isBetween(inicio, fim) || inicio.isSame(_this.$moment(new Date(reservaLab.val().Inicio))) || fim.isSame(_this.$moment(new Date(reservaLab.val().Fim)))) {
@@ -298,103 +308,262 @@ export default {
       let _this = this
       let conflitos = this.checkPeriodo()
       let msg = ''
+      this.conflito = conflitos
       if (conflitos.length > 0 && conflitos[0] !== -1) {
-        if (conflitos[0] === 1) {
-          this.$parent.currentStep = 2
-          this.verificandoDados = false
-          if (this.objetoReserva === 'equipamento') {
-            msg = 'Algumas das reservas deste equipamento estão entrando em conflito com o periodo selecionado por você. Este equipamento está reservado nos seguintes períodos conflitantes com o seu: '
-          } else if (this.objetoReserva === 'laboratorio') {
-            msg = 'Algumas das reservas deste laboratório estão entrando em conflito com o periodo selecionado por você. Este laboratório está reservado nos seguintes períodos conflitantes com o seu: '
+        // se voce for supervisor entra aqui
+        if (this.role === 'Supervisor') {
+          // reserva de equipamento ou laboratorio invalida
+          if (conflitos[0] === 1) {
+            this.$parent.currentStep = 2
+            this.verificandoDados = false
+            if (this.objetoReserva === 'equipamento') {
+              msg = 'Algumas das reservas deste equipamento estão entrando em conflito com o periodo selecionado por você. Este equipamento está reservado nos seguintes períodos conflitantes com o seu: '
+            } else if (this.objetoReserva === 'laboratorio') {
+              msg = 'Algumas das reservas deste laboratório estão entrando em conflito com o periodo selecionado por você. Este laboratório está reservado nos seguintes períodos conflitantes com o seu: '
+            }
+            conflitos.forEach(function (conflito) {
+              if (conflito !== 1) {
+                let inicio = new Date(conflito.Inicio)
+                let fim = new Date(conflito.Fim)
+                msg += _this.$moment(inicio).format('[| de ] DD/MM/YYYY [às] HH:mm [até] ') + _this.$moment(fim).format('DD/MM/YYYY [às] HH:mm [| ]')
+              }
+            })
+            msg += 'Deseja mesmo sobrescrever estas reservas? Se sim clique em confirmar reserva ou escolha outra data'
+            _this.status = 1
+            _this.alert.type = 'alert-danger'
+            _this.alert.dismissible = true
+            _this.alert.title = 'Oops!'
+            _this.alert.msg = msg
+            _this.alert.showAlert = true
+            // erro se equipamento se encontra em algum local
+          } else if (conflitos[0] === 2) {
+            this.$parent.currentStep = 2
+            this.verificandoDados = false
+            msg = 'Este equipamento se encontra no local ' + this.equipamento.Local + ' que está reservado nos seguintes períodos conflitantes com o período selecionado: '
+            conflitos.forEach(function (conflito) {
+              if (conflito !== 2) {
+                let inicio = new Date(conflito.Inicio)
+                let fim = new Date(conflito.Fim)
+                msg += _this.$moment(inicio).format('[| de ] DD/MM/YYYY [às] HH:mm [até] ') + _this.$moment(fim).format('DD/MM/YYYY [às] HH:mm [| ]')
+              }
+            })
+            msg += 'Deseja mesmo sobrescrever estas reservas? Se sim clique em confirmar reserva ou escolha outra data'
+            _this.status = 1
+            _this.alert.type = 'alert-danger'
+            _this.alert.dismissible = true
+            _this.alert.title = 'Oops!'
+            _this.alert.msg = msg
+            _this.alert.showAlert = true
           }
-          conflitos.forEach(function (conflito) {
-            if (conflito !== 1) {
-              let inicio = new Date(conflito.Inicio)
-              let fim = new Date(conflito.Fim)
-              msg += _this.$moment(inicio).format('[| de ] DD/MM/YYYY [às] HH:mm [até] ') + _this.$moment(fim).format('DD/MM/YYYY [às] HH:mm [| ]')
+        // se for qualquer usuario menos o Supervisor entra aqui
+        } else {
+          // reserva de equipamento ou laboratorio invalida
+          if (conflitos[0] === 1) {
+            this.$parent.currentStep = 2
+            this.verificandoDados = false
+            if (this.objetoReserva === 'equipamento') {
+              msg = 'Algumas das reservas deste equipamento estão entrando em conflito com o periodo selecionado por você. Este equipamento está reservado nos seguintes períodos conflitantes com o seu: '
+            } else if (this.objetoReserva === 'laboratorio') {
+              msg = 'Algumas das reservas deste laboratório estão entrando em conflito com o periodo selecionado por você. Este laboratório está reservado nos seguintes períodos conflitantes com o seu: '
             }
-          })
-          msg += 'Por favor escolha um período que não interfira nestes.'
-          _this.alert.type = 'alert-danger'
-          _this.alert.dismissible = true
-          _this.alert.title = 'Oops!'
-          _this.alert.msg = msg
-          _this.alert.showAlert = true
-        } else if (conflitos[0] === 2) {
-          this.$parent.currentStep = 2
-          this.verificandoDados = false
-          msg = 'Este equipamento se encontra no local ' + this.equipamento.Local + ' que está reservado nos seguintes períodos conflitantes com o período selecionado: '
-          conflitos.forEach(function (conflito) {
-            if (conflito !== 2) {
-              let inicio = new Date(conflito.Inicio)
-              let fim = new Date(conflito.Fim)
-              msg += _this.$moment(inicio).format('[| de ] DD/MM/YYYY [às] HH:mm [até] ') + _this.$moment(fim).format('DD/MM/YYYY [às] HH:mm [| ]')
-            }
-          })
-          msg += 'Por favor escolha um período que não interfira nestes.'
-          _this.alert.type = 'alert-danger'
-          _this.alert.dismissible = true
-          _this.alert.title = 'Oops!'
-          _this.alert.msg = msg
-          _this.alert.showAlert = true
+            conflitos.forEach(function (conflito) {
+              if (conflito !== 1) {
+                let inicio = new Date(conflito.Inicio)
+                let fim = new Date(conflito.Fim)
+                msg += _this.$moment(inicio).format('[| de ] DD/MM/YYYY [às] HH:mm [até] ') + _this.$moment(fim).format('DD/MM/YYYY [às] HH:mm [| ]')
+              }
+            })
+            // <------------------------------------------------------------------
+            msg += 'Por favor escolha um período que não interfira nestes.'
+            _this.alert.type = 'alert-danger'
+            _this.alert.dismissible = true
+            _this.alert.title = 'Oops!'
+            _this.alert.msg = msg
+            _this.alert.showAlert = true
+            // erro se equipamento se encontra em algum local
+          } else if (conflitos[0] === 2) {
+            this.$parent.currentStep = 2
+            this.verificandoDados = false
+            msg = 'Este equipamento se encontra no local ' + this.equipamento.Local + ' que está reservado nos seguintes períodos conflitantes com o período selecionado: '
+            conflitos.forEach(function (conflito) {
+              if (conflito !== 2) {
+                let inicio = new Date(conflito.Inicio)
+                let fim = new Date(conflito.Fim)
+                msg += _this.$moment(inicio).format('[| de ] DD/MM/YYYY [às] HH:mm [até] ') + _this.$moment(fim).format('DD/MM/YYYY [às] HH:mm [| ]')
+              }
+            })
+            msg += 'Por favor escolha um período que não interfira nestes.'
+            _this.alert.type = 'alert-danger'
+            _this.alert.dismissible = true
+            _this.alert.title = 'Oops!'
+            _this.alert.msg = msg
+            _this.alert.showAlert = true
+          }
+        // mensagem se inicio for maior ou igual que fim
         }
       } else if (conflitos[0] !== -1) {
         this.verificandoDados = true
         this.$parent.currentStep = 3
       }
     },
-    solicitarReserva () {
-      this.verificarDados()
-      if (this.$parent.currentStep === 3) {
-        let _this = this
-        if (this.objetoReserva === 'equipamento') {
-          let reservaEquip = {
-            Equipamento: this.itemReserva,
-            Inicio: this.periodoReservar.inicio,
-            Fim: this.periodoReservar.fim,
-            Status: 'Pendente',
-            Solicitante: auth.currentUser.uid
-          }
-          db.ref('Reservas/equipamentos').push(reservaEquip).then(function () {
-            let to = [auth.currentUser.displayName + ' <' + auth.currentUser.email + '>']
-            let subject = 'Nova reserva de equipamento'
-            let textBody = 'Sua resersa foi realizada e está aguardando aprovação'
-            let htmlBody = '<h3>Nova reserva</h3><br><p>Sua reserva do equipamento: <strong>' + _this.itemReserva + ' - ' + _this.equipamento.Nome + '</strong> no local <strong>' + _this.equipamento.Local + '</strong> no período: <strong>' + _this.periodoFormatado + '</strong> foi realizada com sucesso e está aguardando aprovação do responsável.</p><p>Você será notificado por E-mail caso sua reserva seja confirmada ou cancelada, em caso de dúvidas entre em contato com o responsável pelo equipamento.</p><small>Este é um E-mail automático, por favor não responda</small>'
-            sendEmail(to, subject, textBody, htmlBody)
-            _this.$notify({
-              group: 'notify',
-              type: 'success',
-              title: 'Yey!',
-              text: 'Reserva solicitada com sucesso.<br>Você será nofiticado por <b>E-mail</b> sobre o decorrer do processo. Verifique também sua caixa de <i>span</i>',
-              duration: 10000
+    verificarDadosSupervisor () {
+      this.verificandoDados = true
+      this.$parent.currentStep = 3
+      this.cancelarReserva()
+      console.log('otimo', this.conflito)
+    },
+    cancelarReserva () {
+      var usuario = []
+      var conflito = this.conflito
+      var i
+      var count = this.conflito.length
+      for (i = 1; i < count; i++) {
+        db.ref('Usuarios/' + conflito[i].Solicitante).on('value', function (snapshot) {
+          console.log('snap', snapshot.val())
+          usuario.push(snapshot.val())
+          // console.log('usuario', usuario)
+          console.log('usuario', usuario[0].Nome)
+          db.ref('Reservas/equipamentos').orderByChild('Solicitante').equalTo(conflito[1].Solicitante).on('value', function (snapshot2) {
+            db.ref('Reservas/equipamentos' + snapshot2.val().Key).update({
+              'Status': 'Cancelada'
             })
-            _this.$router.push('/home')
           })
-        } else if (this.objetoReserva === 'laboratorio') {
-          let reservaLocal = {
-            Local: this.itemReserva,
-            Inicio: this.periodoReservar.inicio,
-            Fim: this.periodoReservar.fim,
-            Status: 'Pendente',
-            Solicitante: auth.currentUser.uid
-          }
-          db.ref('Reservas/locais').push(reservaLocal).then(function () {
-            let to = [auth.currentUser.displayName + ' <' + auth.currentUser.email + '>']
-            let subject = 'Nova reserva de laboratório'
-            let textBody = 'Sua resersa foi realizada e está aguardando aprovação'
-            let htmlBody = '<h3>Nova reserva</h3><br><p>Sua reserva do laboratório: <strong>' + _this.itemReserva + '</strong> no período: <strong>' + _this.periodoFormatado + '</strong> foi realizada com sucesso e está aguardando aprovação do responsável.</p><p>Você será notificado por E-mail caso sua reserva seja confirmada ou cancelada, em caso de dúvidas entre em contato com o responsável pelo local.</p><small>Este é um E-mail automático, por favor não responda</small>'
+          console.log('conflito', conflito)
+          db.ref('Equipamentos/' + conflito[1].Equipamento).on('value', function (snapshot1) {
+            var equipamento = snapshot1.val()
+            console.log('equipamento', equipamento)
+            let to = [usuario[0].Nome + ' <' + usuario[0].Email + '>']
+            let subject = 'Reserva de equipamento cancelada'
+            let textBody = 'Sua resersa foi cancelada'
+            let htmlBody = '<h3>Reserva cancelada</h3><br><p>Sua reserva do equipamento: <strong>' + conflito[1].Equipamento + ' - ' + equipamento.Nome + '</strong> no local <strong>' + equipamento.Local + '</strong> no período: <strong>' + conflito[1].Inicio + ' até ' + conflito[1].Fim + '</strong> foi <strong>cancelada</strong> pelo responsável.</p><small>Este é um E-mail automático, por favor não responda</small>'
             sendEmail(to, subject, textBody, htmlBody)
-            _this.$notify({
-              group: 'notify',
-              type: 'success',
-              title: 'Yey!',
-              text: 'Reserva solicitada com sucesso.<br>Você será nofiticado por <b>E-mail</b> sobre o decorrer do processo. Verifique também sua caixa de <i>span</i>',
-              duration: 10000
-            })
-            _this.$router.push('/home')
           })
-        }
+        })
       }
+      // confirmar isto <------------------------------------------
+      // db.ref('Reservas/equipamentos').child(this.conlfito[1].key()).update({
+      // 'Status': 'Cancelada'
+      // })
+      // let to = [auth.currentUser.displayName + ' <' + this.userEmail + '>']
+      // let subject = 'Reserva de equipamento cancelada'
+      // let textBody = 'Sua resersa foi cancelada'
+
+      // let htmlBody = '<h3>Reserva cancelada</h3><br><p>Sua reserva do equipamento: <strong>' + reserva[1].Equipamento + ' - ' + reserva[2].Nome + '</strong> no local <strong>' + reserva[2].Local + '</strong> no período: <strong>' + (this.$moment(new Date(reserva[1].Inicio)).format('[De] DD/MM/YYYY [às] HH:mm [até] ') + this.$moment(new Date(reserva[1].Fim)).format('DD/MM/YYYY [às] HH:mm')) + '</strong> foi <strong>cancelada</strong> pelo responsável.</p><small>Este é um E-mail automático, por favor não responda</small>'
+      // sendEmail(to, subject, textBody, htmlBody)
+      // this.$notify({
+      // group: 'notify',
+      // type: 'success',
+      // title: 'Yey!',
+      // text: 'Reserva <b>cancelada</b> com sucesso'
+      // })
+    },
+    solicitarReserva () {
+      if (this.role === 'Supervisor') { // se for supervisor mando mensagens para as pessoas que irao perder sua confirmacao
+        this.verificarDadosSupervisor()
+        if (this.$parent.currentStep === 3) {
+          let _this = this
+          if (this.objetoReserva === 'equipamento') {
+            let reservaEquip = {
+              Equipamento: this.itemReserva,
+              Inicio: this.periodoReservar.inicio,
+              Fim: this.periodoReservar.fim,
+              Status: 'Confirmada',
+              Solicitante: auth.currentUser.uid
+            }
+            db.ref('Reservas/equipamentos').push(reservaEquip).then(function () {
+              let to = [auth.currentUser.displayName + ' <' + auth.currentUser.email + '>']
+              let subject = 'Nova reserva de equipamento'
+              let textBody = 'Sua resersa foi realizada e está aguardando aprovação'
+              let htmlBody = '<h3>Nova reserva</h3><br><p>Sua reserva do equipamento: <strong>' + _this.itemReserva + ' - ' + _this.equipamento.Nome + '</strong> no local <strong>' + _this.equipamento.Local + '</strong> no período: <strong>' + _this.periodoFormatado + '</strong> foi realizada com sucesso e está aguardando aprovação do responsável.</p><p>Você será notificado por E-mail caso sua reserva seja confirmada ou cancelada, em caso de dúvidas entre em contato com o responsável pelo equipamento.</p><small>Este é um E-mail automático, por favor não responda</small>'
+              sendEmail(to, subject, textBody, htmlBody)
+              _this.$notify({
+                group: 'notify',
+                type: 'success',
+                title: 'Yey!',
+                text: 'Reserva solicitada com sucesso.<br>Você será nofiticado por <b>E-mail</b> sobre o decorrer do processo. Verifique também sua caixa de <i>span</i>',
+                duration: 10000
+              })
+              _this.$router.push('/home')
+            })
+          } else if (this.objetoReserva === 'laboratorio') {
+            let reservaLocal = {
+              Local: this.itemReserva,
+              Inicio: this.periodoReservar.inicio,
+              Fim: this.periodoReservar.fim,
+              Status: 'Confirmada',
+              Solicitante: auth.currentUser.uid
+            }
+            db.ref('Reservas/locais').push(reservaLocal).then(function () {
+              let to = [auth.currentUser.displayName + ' <' + auth.currentUser.email + '>']
+              let subject = 'Nova reserva de laboratório'
+              let textBody = 'Sua resersa foi realizada e está aguardando aprovação'
+              let htmlBody = '<h3>Nova reserva</h3><br><p>Sua reserva do laboratório: <strong>' + _this.itemReserva + '</strong> no período: <strong>' + _this.periodoFormatado + '</strong> foi realizada com sucesso e está aguardando aprovação do responsável.</p><p>Você será notificado por E-mail caso sua reserva seja confirmada ou cancelada, em caso de dúvidas entre em contato com o responsável pelo local.</p><small>Este é um E-mail automático, por favor não responda</small>'
+              sendEmail(to, subject, textBody, htmlBody)
+              _this.$notify({
+                group: 'notify',
+                type: 'success',
+                title: 'Yey!',
+                text: 'Reserva solicitada com sucesso.<br>Você será nofiticado por <b>E-mail</b> sobre o decorrer do processo. Verifique também sua caixa de <i>span</i>',
+                duration: 10000
+              })
+              _this.$router.push('/home')
+            })
+          }
+        }
+      } else { // se nao for Supervisor entao verifico normalmente
+        this.verificarDados()
+        // so executa se o estado atual for igual a 3?
+        if (this.$parent.currentStep === 3) {
+          let _this = this
+          if (this.objetoReserva === 'equipamento') {
+            let reservaEquip = {
+              Equipamento: this.itemReserva,
+              Inicio: this.periodoReservar.inicio,
+              Fim: this.periodoReservar.fim,
+              Status: 'Pendente',
+              Solicitante: auth.currentUser.uid
+            }
+            db.ref('Reservas/equipamentos').push(reservaEquip).then(function () {
+              let to = [auth.currentUser.displayName + ' <' + auth.currentUser.email + '>']
+              let subject = 'Nova reserva de equipamento'
+              let textBody = 'Sua resersa foi realizada e está aguardando aprovação'
+              let htmlBody = '<h3>Nova reserva</h3><br><p>Sua reserva do equipamento: <strong>' + _this.itemReserva + ' - ' + _this.equipamento.Nome + '</strong> no local <strong>' + _this.equipamento.Local + '</strong> no período: <strong>' + _this.periodoFormatado + '</strong> foi realizada com sucesso e está aguardando aprovação do responsável.</p><p>Você será notificado por E-mail caso sua reserva seja confirmada ou cancelada, em caso de dúvidas entre em contato com o responsável pelo equipamento.</p><small>Este é um E-mail automático, por favor não responda</small>'
+              sendEmail(to, subject, textBody, htmlBody)
+              _this.$notify({
+                group: 'notify',
+                type: 'success',
+                title: 'Yey!',
+                text: 'Reserva solicitada com sucesso.<br>Você será nofiticado por <b>E-mail</b> sobre o decorrer do processo. Verifique também sua caixa de <i>span</i>',
+                duration: 10000
+              })
+              _this.$router.push('/home')
+            })
+          } else if (this.objetoReserva === 'laboratorio') {
+            let reservaLocal = {
+              Local: this.itemReserva,
+              Inicio: this.periodoReservar.inicio,
+              Fim: this.periodoReservar.fim,
+              Status: 'Pendente',
+              Solicitante: auth.currentUser.uid
+            }
+            db.ref('Reservas/locais').push(reservaLocal).then(function () {
+              let to = [auth.currentUser.displayName + ' <' + auth.currentUser.email + '>']
+              let subject = 'Nova reserva de laboratório'
+              let textBody = 'Sua resersa foi realizada e está aguardando aprovação'
+              let htmlBody = '<h3>Nova reserva</h3><br><p>Sua reserva do laboratório: <strong>' + _this.itemReserva + '</strong> no período: <strong>' + _this.periodoFormatado + '</strong> foi realizada com sucesso e está aguardando aprovação do responsável.</p><p>Você será notificado por E-mail caso sua reserva seja confirmada ou cancelada, em caso de dúvidas entre em contato com o responsável pelo local.</p><small>Este é um E-mail automático, por favor não responda</small>'
+              sendEmail(to, subject, textBody, htmlBody)
+              _this.$notify({
+                group: 'notify',
+                type: 'success',
+                title: 'Yey!',
+                text: 'Reserva solicitada com sucesso.<br>Você será nofiticado por <b>E-mail</b> sobre o decorrer do processo. Verifique também sua caixa de <i>span</i>',
+                duration: 10000
+              })
+              _this.$router.push('/home')
+            })
+          }
+        }
+      } // fim do else
     },
     voltar () {
       this.verificandoDados = false
