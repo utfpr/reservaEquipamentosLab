@@ -4,10 +4,11 @@
       :trigger = "null"
       collapsible
       v-model = "collapsed"
+      v-if = "isUser"
     >
       <div class = "logo"/>
 
-      <a-menu theme = "dark" mode = "inline" :defaultSelectedKeys = "['1']">
+      <a-menu theme = "dark" mode = "inline" :selectedKeys = "[this.menuKey]">
         <a-menu-item key = "home">
           <a-icon type = "home" />
           <span> Home </span>
@@ -53,390 +54,171 @@
     </a-layout-sider>
 
     <a-layout>
-      <a-layout-header style="background: #fff; padding: 0">
-        <a-icon
-          class="trigger"
-          :type="collapsed ? 'menu-unfold' : 'menu-fold'"
-          @click="()=> collapsed = !collapsed"
-        />
+      <a-layout-header v-if = "isUser" style = "background: #fff; padding: 0">
+        <a-row>
+          <a-col :span = "20">
+            <a-icon
+              class = "trigger"
+              :type = "collapsed ? 'menu-unfold' : 'menu-fold'"
+              @click = "() => collapsed = !collapsed"
+            />
+          </a-col>
+          
+          <a-col :span = "4">
+            <a-dropdown>
+              <a-menu slot = "overlay">
+                <a-menu-item key = "perfil">
+                  <router-link to = "/perfil" class = "nav-link">
+                    <a-icon type = "idcard" />
+                    <span> Perfil </span>
+                  </router-link>
+                </a-menu-item>
+
+                <a-menu-item v-on:click = "logout" key = "logout">
+                  <a-icon type = "logout" /> Sair
+                </a-menu-item>
+              </a-menu>
+
+              <a-button style = "margin-left: 8">
+                <a-icon type = "user" style = "font-size: '18px', margin-top: '5px'" />
+                <span v-if = "username"> Olá, {{ username }} </span>
+              </a-button>
+            </a-dropdown>
+          </a-col>
+        </a-row>
       </a-layout-header>
-      <a-layout-content :style="{ margin: '24px 16px', padding: '24px', background: '#fff', minHeight: '280px' }">
-        <div id="page-content-wrapper">
+
+      <a-layout-content :style = "{ margin: '24px 16px', padding: '24px', background: '#fff' }">
+        <div id = "page-content-wrapper">
           <router-view></router-view>
-          <notifications group="notify" />
+          <notifications group = "notify" />
         </div>
       </a-layout-content>
     </a-layout>
   </a-layout>
 </template>
 
-<style>
-#components-layout-demo-custom-trigger .trigger {
-  font-size: 18px;
-  line-height: 64px;
-  padding: 0 24px;
-  cursor: pointer;
-  transition: color .3s;
-}
-
-#components-layout-demo-custom-trigger .trigger:hover {
-  color: #1890ff;
-}
-
-#components-layout-demo-custom-trigger .logo {
-  height: 32px;
-  background: rgba(255,255,255,.2);
-  margin: 16px;
-}
-</style>
-
 <script>
-import firebaseApp from './firebase-controller.js'
-import firebase from 'firebase'
-const auth = firebaseApp.auth()
-const db = firebaseApp.database()
+  import firebaseApp from './firebase-controller.js'
+  import firebase from 'firebase'
+  const auth = firebaseApp.auth()
+  const db = firebaseApp.database()
 
-export default {
-  name: 'app',
-  data () {
-    return {
-      role: null,
-      username: null,
-      isUser: null,
-      reauthenticate: {
-        email: null,
-        password: null
-      },
-      collapsed: false
-    }
-  },
-  mounted () {
-    let _this = this
-    this.$Progress.finish()
-
-    db.ref('Usuarios/' + auth.currentUser.uid + '/role').on('value', function (snapshot) {
-      _this.role = snapshot.val()
-      console.log(snapshot.val())
-    })
-  },
-  created () {
-    this.$Progress.start()
-    this.$router.beforeEach((to, from, next) => {
-      this.$Progress.start()
-      next()
-    })
-    this.$router.afterEach((to, from) => {
-      this.isUser = auth.currentUser
-      if (auth.currentUser) {
-        this.username = auth.currentUser.displayName
-        if (!auth.currentUser.emailVerified && !this.$route.query.mode) {
-          this.$router.replace('/verificar-email')
-        }
+  export default {
+    name: 'app',
+    data () {
+      return {
+        menuKey: '',
+        role: null,
+        username: null,
+        isUser: null,
+        reauthenticate: {
+          email: null,
+          password: null
+        },
+        collapsed: false
       }
+    },
+    updated () {
+      this.menuKey = this.$route.meta.menuKey
+    },
+    mounted () {
       this.$Progress.finish()
-    })
-  },
-  methods: {
-    logout: function () {
-      if (this.$root.toggled) {
-        this.toggle()
-      }
-      auth.signOut()
-      this.$router.replace('/login')
-      location.reload()
     },
-    toggle: function () {
-      let wrapper = document.getElementById('wrapper')
-      if (this.$root.toggled) {
-        wrapper.classList.remove('toggled')
-      } else {
-        wrapper.classList.add('toggled')
-      }
-      this.$root.toggled = !this.$root.toggled
-    },
-    reauthentication () {
+    created () {
       let _this = this
-      const credentialLogin = firebase.auth.EmailAuthProvider.credential(this.reauthenticate.email, this.reauthenticate.password)
-      auth.currentUser.reauthenticateWithCredential(credentialLogin).then(function () {
-        if ((_this.$children[(_this.$children.length) - 1].action) === 'deleteAccount') {
-          _this.$children[(_this.$children.length) - 1].deleteAccount()
-        } else if ((_this.$children[(_this.$children.length) - 1].action) === 'editProfile') {
-          _this.$children[(_this.$children.length) - 1].editProfile()
-        }
-      }).catch(function (err) {
-        _this.$notify({
-          group: 'notify',
-          type: 'error',
-          title: 'Oops!',
-          text: 'Falha ao Reautenticar!'
+      this.$Progress.start()
+      this.$router.beforeEach((to, from, next) => {
+        this.$Progress.start()
+        next()
+      })
+      this.$router.afterEach((to, from) => {
+        this.isUser = auth.currentUser
+        db.ref('Usuarios/' + auth.currentUser.uid + '/role').on('value', function (snapshot) {
+          _this.role = snapshot.val()
         })
-        console.log('Falha de reautenticação: ' + err)
+
+        if (auth.currentUser) {
+          this.username = auth.currentUser.displayName
+          if (!auth.currentUser.emailVerified && !this.$route.query.mode) {
+            this.$router.replace('/verificar-email')
+          }
+        }
+        this.$Progress.finish()
       })
     },
-    validate: function () {
-      let _this = this
-      var form = document.getElementById('reauthenticate')
-      form.addEventListener('submit', function (event) {
-        if (form.checkValidity() === false) {
-          event.preventDefault()
-          event.stopPropagation()
-        } else {
-          _this.reauthentication()
+    methods: {
+      logout: function () {
+        if (this.$root.toggled) {
+          this.toggle()
         }
-        form.classList.add('was-validated')
-      }, false)
+        auth.signOut()
+        this.$router.replace('/login')
+        location.reload()
+      },
+      toggle: function () {
+        let wrapper = document.getElementById('wrapper')
+        if (this.$root.toggled) {
+          wrapper.classList.remove('toggled')
+        } else {
+          wrapper.classList.add('toggled')
+        }
+        this.$root.toggled = !this.$root.toggled
+      },
+      reauthentication () {
+        let _this = this
+        const credentialLogin = firebase.auth.EmailAuthProvider.credential(this.reauthenticate.email, this.reauthenticate.password)
+        auth.currentUser.reauthenticateWithCredential(credentialLogin).then(function () {
+          if ((_this.$children[(_this.$children.length) - 1].action) === 'deleteAccount') {
+            _this.$children[(_this.$children.length) - 1].deleteAccount()
+          } else if ((_this.$children[(_this.$children.length) - 1].action) === 'editProfile') {
+            _this.$children[(_this.$children.length) - 1].editProfile()
+          }
+        }).catch(function (err) {
+          _this.$notify({
+            group: 'notify',
+            type: 'error',
+            title: 'Oops!',
+            text: 'Falha ao Reautenticar!'
+          })
+          console.log('Falha de reautenticação: ' + err)
+        })
+      },
+      validate: function () {
+        let _this = this
+        var form = document.getElementById('reauthenticate')
+        form.addEventListener('submit', function (event) {
+          if (form.checkValidity() === false) {
+            event.preventDefault()
+            event.stopPropagation()
+          } else {
+            _this.reauthentication()
+          }
+          form.classList.add('was-validated')
+        }, false)
+      }
     }
   }
-}
 </script>
 
-<style lang="css">
-@import '../node_modules/bootstrap/dist/css/bootstrap.css';
+<style lang = "css">
+  @import '../node_modules/bootstrap/dist/css/bootstrap.css';
 
-#root {
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-  min-height: 100vh;
-  -webkit-box-orient: vertical;
-  -webkit-box-direction: normal;
-  -ms-flex-direction: column;
-  flex-direction: column;
-}
-
-body {
-  /* overflow-x: hidden; */
-}
-
-main {
-  -webkit-box-flex: 1;
-  -ms-flex: 1 1 auto;
-  flex: 1 1 auto;
-  margin-top: 70px;
-}
-
-.vertical-center {
-  position: absolute;
-  top: 50%;
-  -webkit-transform: translateY(-50%);
-  transform: translateY(-50%);
-}
-
-.horizontal-center {
-  position: absolute;
-  right: 50%;
-  -webkit-transform: translateX(50%);
-  transform: translateX(50%);
-}
-
-.nav-bg-gradient {
-  background-image: linear-gradient(135deg, #343a40 50%, #007bff 100%);
-}
-
-.navbar-toggler-icon-personalized {
-  display: inline-block;
-  width: 1.5em;
-  height: 1.5em;
-  vertical-align: middle;
-  content: "";
-  background: no-repeat center center;
-  background-size: 100% 100%;
-  background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='rgba(255, 255, 255, 0.5)' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
-}
-
-.navbar-dark .navbar-toggler {
-  border: 0;
-}
-
-.collapseArrow {
-  display: inline-block;
-  width: 0;
-  height: 0;
-  margin-left: 0.255em;
-  vertical-align: 0.255em;
-  border-top: 0.3em solid;
-  border-right: 0.3em solid transparent;
-  border-bottom: 0;
-  border-left: 0.3em solid transparent;
-}
-
-[aria-expanded="true"] .collapseArrow {
-  -webkit-transform: rotate(180deg);
-  transform: rotate(180deg);
-}
-
-@media (min-width: 0px){
-  .d-xs-none{
-    display: none;
+  #components-layout-demo-custom-trigger .trigger {
+    font-size: 18px;
+    line-height: 64px;
+    padding: 0 24px;
+    cursor: pointer;
+    transition: color .3s;
   }
-}
 
-::-webkit-scrollbar {
-  width: 5px;
-  background-color:rgba(0, 0, 0, 0);
-}
-
-::-webkit-scrollbar-track {
-  background-color:rgba(0, 0, 0, 0);
-}
-
-
-::-webkit-scrollbar-thumb {
-  background: rgb(136, 136, 136, 1);
-  border-radius: 25px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: rgb(85, 85, 85, 1);
-}
-
-.hideOn {
-  display: none!important;
-}
-
-input[type=number]::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  display: none;
-  cursor:pointer;
-  display:block;
-  width:8px;
-  color: #333;
-  text-align:center;
-  position:relative;
-}
-input[type=number] {
-  -webkit-appearance: textfield;
-  -moz-appearance: textfield;
-  appearance: textfield;
-  margin: 0;
-}
-
-#wrapper {
-  padding-left: 0;
-  -webkit-transition: all 0.5s ease;
-  transition: all 0.5s ease;
-}
-
-#wrapper.toggled {
-  padding-left: 280px;
-}
-
-#sidebar-wrapper {
-  z-index: 1000;
-  position: fixed;
-  left: 280px;
-  width: 0;
-  height: 100%;
-  margin-left: -280px;
-  overflow-y: auto;
-  background: #343a40;
-  -webkit-transition: all 0.5s ease;
-  transition: all 0.5s ease;
-}
-
-#sidebar-wrapper .collapse, #sidebar-wrapper .collapsing {
-  background: #222629;
-}
-
-#wrapper.toggled #sidebar-wrapper {
-  width: 280px;
-}
-
-#page-content-wrapper {
-  width: 100%;
-  position: absolute;
-  padding: 15px;
-}
-
-#wrapper.toggled #page-content-wrapper {
-  position: absolute;
-  margin-right: -280px;
-}
-
-
-/* Sidebar Styles */
-
-#wrapper .sidebar-nav {
-  position: absolute;
-  top: 0;
-  width: 280px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-#wrapper .sidebar-nav li {
-  text-indent: 20px;
-  line-height: 40px;
-}
-
-#wrapper .sidebar-nav li a {
-  display: block;
-  text-decoration: none;
-  color: #999999;
-}
-
-#wrapper .sidebar-nav li a:hover {
-  text-decoration: none;
-  color: #fff;
-  background: rgba(255, 255, 255, 0.2);
-}
-
-#wrapper .sidebar-nav li a:active, .sidebar-nav li a:focus {
-  text-decoration: none;
-}
-
-#wrapper .sidebar-nav>.sidebar-brand {
-  height: 65px;
-  font-size: 18px;
-  line-height: 60px;
-}
-
-#wrapper .sidebar-nav>.sidebar-brand a {
-  color: #999999;
-}
-
-#wrapper .sidebar-nav>.sidebar-brand a:hover {
-  color: #fff;
-  background: none;
-}
-
-@media(min-width:768px) {
-  #wrapper {
-    padding-left: 0;
+  #components-layout-demo-custom-trigger .trigger:hover {
+    color: #1890ff;
   }
-  #wrapper.toggled {
-    padding-left: 280px;
-  }
-  #sidebar-wrapper {
-    width: 0;
-  }
-  #wrapper.toggled #sidebar-wrapper {
-    width: 280px;
-  }
-  #page-content-wrapper {
-    padding: 20px;
-    position: relative;
-  }
-  #wrapper.toggled #page-content-wrapper {
-    position: relative;
-    margin-right: 0;
-  }
-}
 
-.autocomplete {
-  position: absolute;
-  z-index: 1000;
-  min-width: -webkit-fill-available;
-  margin-top: 50px;
-  display: flex;
-}
-
-.table-wrapper {
-    display: block;
-    max-height: 45vh;
-    overflow-y: auto;
-    -ms-overflow-style: -ms-autohiding-scrollbar;
-}
-
+  #components-layout-demo-custom-trigger .logo {
+    height: 32px;
+    background: rgba(255,255,255,.2);
+    margin: 16px;
+  }
 </style>

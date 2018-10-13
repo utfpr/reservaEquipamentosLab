@@ -23,7 +23,7 @@ import VerificarEmail from '@/pages/VerificarEmail'
 import actionHandler from '@/components/actionHandler'
 import RecuperarSenha from '@/pages/RecuperarSenha'
 import Calendario from '@/components/Calendar-event'
-import Aulas from '@/components/aulas/Aulas'
+import Aulas from '@/pages/aulas/Aulas'
 
 Vue.use(Router)
 
@@ -32,52 +32,52 @@ const router = new Router({
     {
       path: '/',
       redirect: '/login'
-    },
-    {
+    }, {
       path: '/home',
       name: 'Home',
       component: Home,
       meta: {
+        menuKey: 'home',
         requiresAuth: true
       }
-    },
-    {
+    }, {
       path: '/login',
       name: 'Login',
       component: Login,
       meta: {
+        menuKey: '',
         login: true
       }
-    },
-    {
+    }, {
       path: '/aulas',
       name: 'Aulas',
       component: Aulas,
       meta: {
+        menuKey: 'aulas',
         requiresAuth: true
       }
-    },
-    {
+    }, {
       path: '/perfil',
       name: 'Perfil',
       component: Perfil,
       meta: {
+        menuKey: '',
         requiresAuth: true
       }
-    },
-    {
+    }, {
       path: '/equipamentos',
       name: 'Equipamentos',
       component: Equipamentos,
       meta: {
+        menuKey: 'equipamentos',
         requiresAuth: true
       }
-    },
-    {
+    }, {
       path: '/equipamentos/cadastro',
       name: 'EquipamentoCadastro',
       component: EquipamentoCadastro,
       meta: {
+        menuKey: 'equipamentos',
         requiresAuth: true
       }
     },
@@ -86,145 +86,146 @@ const router = new Router({
       name: 'EquipamentoDetails',
       component: EquipamentoDetails,
       meta: {
+        menuKey: 'equipamentos',
         requiresAuth: true
       }
-    },
-    {
+    }, {
       path: '/reservas/equipamentos/:key/:action',
       name: 'ReservaDetails',
       component: ReservaDetails,
       meta: {
+        menuKey: 'equipamentos',
         requiresAuth: true
       }
-    },
-    {
+    }, {
       path: '/cadastro',
       name: 'Cadastro',
       component: Cadastro,
       meta: {
+        menuKey: '',
         requiresAuth: false,
         cadastro: true
       }
-    },
-    {
+    }, {
       path: '/verificar-email',
       name: 'VerificarEmail',
       component: VerificarEmail,
       meta: {
+        menuKey: '',
         requiresAuth: true
       }
-    },
-    {
+    }, {
       path: '/actionHandler',
       name: 'actionHandler',
       component: actionHandler,
       meta: {
+        menuKey: '',
         requiresAuth: false
       }
-    },
-    {
+    }, {
       path: '/RecuperarSenha',
       name: 'RecuperarSenha',
       component: RecuperarSenha,
       meta: {
+        menuKey: '',
         requiresAuth: false
       }
-    },
-    {
+    }, {
       path: '/locais',
       name: 'Locais',
       component: Locais,
       meta: {
+        menuKey: 'locais',
         requiresAuth: true
       }
-    },
-    {
+    }, {
       path: '/locais/cadastro',
       name: 'LocalCadastro',
       component: LocalCadastro,
       meta: {
+        menuKey: 'locais',
         requiresAuth: true
       }
-    },
-    {
+    }, {
       path: '/locais/:key/:action',
       name: 'LocalDetails',
       component: LocalDetails,
       meta: {
+        menuKey: 'locais',
         requiresAuth: true
       }
-    },
-    {
+    }, {
       path: '/reservas',
       name: 'Reservas',
       component: Reservas,
       meta: {
+        menuKey: 'reservas',
         requiresAuth: true
       }
-    },
-    {
+    }, {
       path: '/calendario',
       name: 'Calendario',
       component: Calendario,
       meta: {
+        menuKey: 'home',
         requiresAuth: false
       }
-    },
-    {
+    }, {
       path: '/reservar',
       component: novaReserva,
       meta: {
+        menuKey: 'reservas',
         requiresAuth: true
       },
-      children: [
-        {
-          path: '',
-          name: 'itemReserva',
-          component: itemReserva,
-          meta: {
-            requiresAuth: true
-          }
-        },
-        {
-          path: 'equipamento',
-          name: 'ListaEquipamentos',
-          component: listaEquipamentos,
-          meta: {
-            requiresAuth: true
-          }
-        },
-        {
-          path: 'laboratorio',
-          name: 'listaLocais',
-          component: listaLocais,
-          meta: {
-            requiresAuth: true
-          }
-        },
-        {
-          path: ':objetoReserva/:itemReserva',
-          name: 'periodoReserva',
-          component: ReservaCadastro,
-          meta: {
-            requiresAuth: true
-          }
+      children: [{
+        path: '',
+        name: 'itemReserva',
+        component: itemReserva,
+        meta: {
+          menuKey: 'reservas',
+          requiresAuth: true
         }
-      ]
-    },
-    {
+      }, {
+        path: 'equipamento',
+        name: 'ListaEquipamentos',
+        component: listaEquipamentos,
+        meta: {
+          menuKey: 'reservas',
+          requiresAuth: true
+        }
+      }, {
+        path: 'laboratorio',
+        name: 'listaLocais',
+        component: listaLocais,
+        meta: {
+          menuKey: 'reservas',
+          requiresAuth: true
+        }
+      }, {
+        path: ':objetoReserva/:itemReserva',
+        name: 'periodoReserva',
+        component: ReservaCadastro,
+        meta: {
+          menuKey: 'reservas',
+          requiresAuth: true
+        }
+      }]
+    }, {
       path: '/reservas/cadastro',
       name: 'Cadastro de reservas',
       component: ReservaCadastro,
       meta: {
+        menuKey: 'reservas',
         requiresAuth: true
       }
-    },
-    {
+    }, {
       path: '/p404',
       name: 'p404',
-      component: p404
-    },
-    {
+      component: p404,
+      meta: {
+        menuKey: ''
+      }
+    }, {
       path: '*',
       redirect: '/'
     }
