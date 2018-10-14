@@ -23,19 +23,21 @@
             <span> Baixar POP </span>
           </template>
 
-          <a-tag color = "blue" :key = "text" >
+          <a-tag @click = "downloadFile(text)" color = "blue" :key = "text" >
             <a-icon type = "file-pdf" />
           </a-tag>
         </a-tooltip>
 
         <a-tooltip placement = "top">
           <template slot = "title">
-            <span> Reservar Equipamento </span>
+            <span> Reservar </span>
           </template>
 
-          <a-tag color = "green" :key = "text" >
-            <a-icon type = "database" />
-          </a-tag>
+          <router-link :to = "{ name: 'periodoReserva', params: { objetoReserva: 'equipamento', itemReserva: text} }">
+            <a-tag color = "green" :key = "text" >
+             <a-icon type = "database" />
+            </a-tag>
+          </router-link>
         </a-tooltip>
 
         <a-tooltip v-if = "role === 'admin' || role === 'Supervisor'" placement = "top">
@@ -109,11 +111,11 @@
       :visible = "visibleConfirmModal"
       :footer = "null"
       @cancel = "closeConfirmModal()"
-      style = "padding: 32px 32px 24px;"
-    >
+      style = "padding: 32px 32px 24px;">
+
       <a-icon type = "question-circle-o" style = "color: #faad14; font-size: 22px; margin-right: 16px" />
       <span> <b> Cuidado! </b> </span> <br />
-      <span style = "margin-left: 38px;"> Realmente deseja deletar o equipamento: {{equipamento}}? </span> <br />
+      <span style = "margin-left: 38px;"> Realmente deseja deletar o equipamento: {{equipamento.patrimonio}}? </span> <br />
       <span style = "margin-left: 38px;"> <i> Esta ação não poderá ser desfeita. </i> </span> <br/>
 
       <div style = "text-align: right; margin-top: 20px;">
@@ -127,93 +129,95 @@
       :visible = "visibleEquipamentoModal"
       :footer = "null"
       @cancel = "closeEquipamentoModal()"
-      style = "padding: 32px 32px 24px; top: 20px;"
-    >
-    <div slot = "title">
-      <h5 v-if = "edit"> <b> {{equipamento.patrimonio}} </b> </h5>
-      <h5 v-else > <b> Novo Equipamento </b> </h5>
-    </div>
+      style = "top: 20px; width: 570px;">
 
-    <a-form layout = "vertical" @submit = "submitEquipamento">
-      <a-row :gutter = "16">
-        <a-col :span = "10">
-          <a-form-item label = "Patrimônio">
-            <a-input size = "large" placeholder = "Digite patrimônio" />
+      <div slot = "title">
+        <h5 v-if = "edit"> <b> {{equipamento.patrimonio}} </b> </h5>
+        <h5 v-else > <b> Novo Equipamento </b> </h5>
+      </div>
+
+      <a-form layout = "vertical" :autoFormCreate = "(form) => { this.form = form }">
+        <a-row :gutter = "16">
+          <a-col :span = "10">
+            <a-form-item label = "Patrimônio" fieldDecoratorId = "patrimonio" :fieldDecoratorOptions = "{ rules: [{ required: true, message: 'Campo Obrigatório' }, { validator: this.checkUnique }], initialValue: equipamento.patrimonio }">
+              <a-input size = "large" placeholder = "Digite patrimônio" @focus = "checkInput" />
+            </a-form-item>
+          </a-col>
+
+          <a-col :span = "14">
+            <a-form-item label = "Nome" fieldDecoratorId = "nome" :fieldDecoratorOptions = "{ rules: [{ required: true, message: 'Campo Obrigatório' }], initialValue: equipamento.nome }">
+              <a-input size = "large" placeholder = "Digite nome" @focus = "checkInput" />
+            </a-form-item>
+          </a-col>
+        </a-row>
+
+        <a-row :gutter = "16">
+          <a-col :span = "18">
+            <a-form-item label = "Cursos" fieldDecoratorId = "curso" :fieldDecoratorOptions = "{ rules: [{ required: true, message: 'Selecione Curso' }], initialValue: equipamento.curso }">
+              <a-select size = "large" placeholder = "Selecione curso" @focus = "checkSelect('curso')" showSearch notFoundContent = "Curso não Encontrado" :filterOption = "filterOption">
+                <a-select-option v-for = "curso in cursos" v-bind:key = "curso" :value = "curso"> {{curso}} </a-select-option>
+              </a-select>
+            </a-form-item>
+          </a-col>
+
+          <a-col :span = "6">
+            <a-form-item label = "Locais" fieldDecoratorId = "local" :fieldDecoratorOptions = "{ rules: [{ required: true, message: 'Selecione Local' }], initialValue: equipamento.local }">
+              <a-select size = "large" placeholder = "Locais" @focus = "checkSelect('local')" showSearch notFoundContent = "Local não Encontrado" :filterOption = "filterOption">
+                <a-select-option v-for = "local in locais" v-bind:key = "local" :value = "local"> {{local}} </a-select-option>
+              </a-select>
+            </a-form-item>
+          </a-col>
+        </a-row>
+
+        <a-row :gutter = "16">
+          <a-col :span = "10">
+            <a-form-item label = "Status" fieldDecoratorId = "status" :fieldDecoratorOptions = "{ rules: [{ required: true, message: 'Selecione Status' }], initialValue: equipamento.status }">
+              <a-select size = "large" placeholder = "Selecione status" @focus = "checkSelect('status')" showSearch notFoundContent = "Status não Encontrado" :filterOption = "filterOption">
+                <a-select-option value = "Normal"> Normal </a-select-option>
+                <a-select-option value = "Quebrado"> Quebrado </a-select-option>
+                <a-select-option value = "Em Manutenção"> Em Manutenção </a-select-option>
+              </a-select>
+            </a-form-item>
+          </a-col>
+
+          <a-col :span = "14">
+            <a-form-item label = "Marca" fieldDecoratorId = "marca" :fieldDecoratorOptions = "{ rules: [{ required: true, message: 'Campo Obrigatório' }], initialValue: equipamento.marca }">
+              <a-input size = "large" placeholder = "Digite marca" @focus = "checkInput" />
+            </a-form-item>
+          </a-col>
+        </a-row>
+
+        <a-row :gutter = "16">
+          <a-form-item label = "Especificação" fieldDecoratorId = "especificacao" :fieldDecoratorOptions = "{ rules: [{ required: true, message: 'Campo Obrigatório' }], initialValue: equipamento.especificacao }">
+            <a-textarea placeholder = "Digite especificação de uso" :autosize = "{ minRows: 3, maxRows: 6 }" @focus = "checkInput" />
           </a-form-item>
-        </a-col>
+        </a-row>
 
-        <a-col :span = "14">
-          <a-form-item label = "Nome">
-            <a-input size = "large" placeholder = "Digite nome" />
+        <a-row :gutter = "16">
+          <a-form-item label = "Arquivo POP" fieldDecoratorId = "pop">
+            <a-upload size = "large" :multiple = "false" :fileList = "pop" :beforeUpload = "beforeUpload">
+              <a-button icon = "file-pdf"> Enviar Arquivo </a-button>
+            </a-upload>
           </a-form-item>
-        </a-col>
-      </a-row>
+        </a-row>
 
-      <a-row :gutter = "16">
-        <a-col :span = "18">
-          <a-form-item label = "Cursos">
-            <a-select size = "large" placeholder = "Selecione curso">
-              <a-select-option v-for = "curso in cursos" v-bind:key = "curso" :value = "curso"> {{curso}} </a-select-option>
-            </a-select>
-          </a-form-item>
-        </a-col>
-
-        <a-col :span = "6">
-          <a-form-item label = "Locais">
-            <a-select size = "large" placeholder = "Locais">
-              <a-select-option v-for = "local in locais" v-bind:key = "local" :value = "local"> {{local}} </a-select-option>
-            </a-select>
-          </a-form-item>
-        </a-col>
-      </a-row>
-
-      <a-row :gutter = "16">
-        <a-col :span = "10">
-          <a-form-item label = "Status">
-            <a-select size = "large" placeholder = "Selecione status">
-              <a-select-option value = "Normal"> Normal </a-select-option>
-              <a-select-option value = "Quebrado"> Quebrado </a-select-option>
-              <a-select-option value = "Em Manutenção"> Em Manutenção </a-select-option>
-            </a-select>
-          </a-form-item>
-        </a-col>
-
-        <a-col :span = "14">
-          <a-form-item label = "Marca">
-            <a-input size = "large" placeholder = "Digite marca" />
-          </a-form-item>
-        </a-col>
-      </a-row>
-
-      <a-row :gutter = "16">
-        <a-form-item label = "Especificação">
-          <a-textarea placeholder = "Digite especificação" :autosize = "{ minRows: 3, maxRows: 6 }" />
-        </a-form-item>
-      </a-row>
-
-      <a-row :gutter = "16">
-        <a-form-item label = "Arquivo POP">
-          <a-upload size = "large" :multiple = "false" :fileList = "pop" :beforeUpload = "beforeUpload">
-            <a-button icon = "file-pdf"> Enviar Arquivo </a-button>
-          </a-upload>
-        </a-form-item>
-      </a-row>
-
-      <a-row style = "text-align: right; margin-bottom: 5px;">
-        <a-button size = "large" @click = "closeEquipamentoModal()" style = "margin-right: 15px;"> Cancelar </a-button>
-        
-        <a-button size = "large" type = "primary" htmlType = 'submit'> Cadastrar </a-button>
-      </a-row>
-    </a-form>
-
+        <a-row style = "text-align: right; margin-bottom: 5px;">
+          <a-button size = "large" @click = "closeEquipamentoModal()" style = "margin-right: 15px;"> Cancelar </a-button>
+          
+          <a-button v-if = "edit" size = "large" type = "primary" @click = "atualizaEquipamento"> Atualizar </a-button>
+          <a-button v-else size = "large" type = "primary" @click = "cadastraEquipamento"> Cadastrar </a-button>
+        </a-row>
+      </a-form>
     </a-modal>
   </a-row>
 </template>
 
 <script>
   import firebaseApp from '../../firebase-controller.js'
+  import firebase from 'firebase'
 
   const db = firebaseApp.database()
+  const storage = firebase.storage()
   const auth = firebaseApp.auth()
 
   export default {
@@ -284,7 +288,7 @@
           onFilter: (value, record) => record.status === value
         }, {
           title: 'Ações',
-          dataIndex: 'patrimonio',
+          dataIndex: 'id',
           key: 'acoes',
           align: 'center',
           scopedSlots: { customRender: 'actions' }
@@ -302,13 +306,15 @@
 
         snapshot.forEach(function (item) {
           _this.equipamentos.push({
-            'patrimonio': item.key,
+            'id': item.key,
+            'patrimonio': item.val().Patrimonio,
             'nome': item.val().Nome,
             'local': item.val().Local,
             'status': item.val().Status,
             'curso': item.val().Curso,
             'marca': item.val().Marca,
-            'especificacao': item.val().Especificacao
+            'especificacao': item.val().Especificacao,
+            'pop': item.val().Pop
           })
         })
       })
@@ -355,8 +361,8 @@
 
         return locais
       },
-      showConfirmModal (equipamento) {
-        this.equipamento = equipamento
+      showConfirmModal (id) {
+        this.equipamento = this.equipamentos[this.equipamentos.map(function (e) { return e.id }).indexOf(id)]
         this.visibleConfirmModal = true
       },
       closeConfirmModal () {
@@ -364,10 +370,11 @@
         this.equipamento = ''
       },
       showEquipamentoModal () {
+        this.pop = []
         this.visibleEquipamentoModal = true
       },
-      showAtualizaModal (equipamento) {
-        this.equipamento = this.equipamentos[this.equipamentos.map(function (e) { return e.patrimonio }).indexOf(equipamento)]
+      showAtualizaModal (id) {
+        this.equipamento = this.equipamentos[this.equipamentos.map(function (e) { return e.id }).indexOf(id)]
         this.edit = true
         this.showEquipamentoModal()
       },
@@ -375,37 +382,164 @@
         this.visibleEquipamentoModal = false
         this.edit = false
         this.equipamento = ''
+        this.form.resetFields()
       },
-      submitEquipamento () {
-        console.log('oioioioioi')
+      checkUnique (rule, value, callback) {
+        let resposta = 'Equipamento já existe!'
+        if (value && this.equipamentos.some(e => e.patrimonio === value) && this.equipamento.patrimonio !== value) {
+          callback(resposta)
+        } else {
+          callback()
+        }
+      },
+      checkInput (e) {
+        this.form.validateFields([e.target.id])
+      },
+      checkSelect (name) {
+        this.form.validateFields([name])
+      },
+      filterOption (input, option) {
+        return option.componentOptions.children[0].text.toLowerCase().indexOf(input.toLowerCase()) >= 0
+      },
+      async cadastraEquipamento () {
+        let _this = this
+        this.form.validateFields(async (err, values) => {
+          if (!err) {
+            db.ref('Equipamentos').push({
+              'Patrimonio': values.patrimonio,
+              'Curso': values.curso,
+              'Nome': values.nome,
+              'Marca': values.marca,
+              'Especificacao': values.especificacao,
+              'Local': values.local,
+              'Status': values.status,
+              'Pop': values.pop ? 'true' : 'false'
+            }).then((data) => {
+              const key = values.patrimonio
+              _this.$notification.success({
+                key,
+                message: 'Yey!..',
+                description: 'Equipamento ' + values.patrimonio + ' cadastrado com sucesso.'
+              }, 1500)
+
+              if (values.pop) {
+                var pdfRef = storage.ref().child(data.key + '.pdf')
+                pdfRef.put(values.pop.file).then((data) => {
+                  _this.$notification.info({
+                    key,
+                    message: 'Yey!.. De novo',
+                    description: 'POP armazenado com sucesso.'
+                  })
+                })
+              }
+              this.closeEquipamentoModal()
+            }).catch((err) => {
+              _this.$notification.error({
+                message: 'Opps..',
+                description: 'Equipamento não cadastrado. Erro: ' + err
+              })
+              this.closeEquipamentoModal()
+            })
+          }
+        })
+      },
+      async atualizaEquipamento () {
+        let _this = this
+        this.form.validateFields(async (err, values) => {
+          if (!err) {
+            db.ref('Equipamentos').child(_this.equipamento.id).update({
+              'Patrimonio': values.patrimonio,
+              'Curso': values.curso,
+              'Nome': values.nome,
+              'Marca': values.marca,
+              'Especificacao': values.especificacao,
+              'Local': values.local,
+              'Status': values.status,
+              'Pop': values.pop ? 'true' : 'false'
+            }).then(() => {
+              const key = _this.equipamento.id
+              _this.$notification.success({
+                key,
+                message: 'Yey!..',
+                description: 'Equipamento atualizado com sucesso.'
+              }, 1500)
+
+              if (values.pop) {
+                var pdfRef = storage.ref().child(_this.equipamento.id + '.pdf')
+                pdfRef.put(values.pop.file).then((data) => {
+                  _this.$notification.info({
+                    key,
+                    message: 'Yey!.. De novo',
+                    description: 'POP atualizado com sucesso.'
+                  })
+                })
+              }
+              this.closeEquipamentoModal()
+            }).catch((err) => {
+              _this.$notification.error({
+                message: 'Opps..',
+                description: 'Equipamento não atualizado. Erro: ' + err
+              })
+              this.closeEquipamentoModal()
+            })
+          }
+        })
       },
       deletaEquipamento () {
         let _this = this
         _this.visibleConfirmModal = false
 
-        db.ref('Equipamentos').child(_this.equipamento).remove().then(function () {
-          _this.$notify({
-            group: 'notify',
-            type: 'success',
-            title: 'Yey!',
-            text: 'Equipamento  <strong>' + _this.equipamento + '</strong> deletado com sucesso'
+        db.ref('Equipamentos').child(_this.equipamento.id).remove().then(function () {
+          _this.$notification.success({
+            message: 'Yey!..',
+            description: 'Equipamento deletado com sucesso.'
           })
-        }).catch(() => {
-          _this.$notify({
-            group: 'notify',
-            type: 'error',
-            title: 'Yey!',
-            text: 'Falha ao deletar Equipamento ' + _this.equipamento
+        }).catch((err) => {
+          _this.$notification.error({
+            message: 'Opps..',
+            description: 'Equipamento não deletado. Erro: ' + err
           })
         })
 
+        if (_this.equipamento.pop) {
+          storage.ref(_this.equipamento.id + '.pdf').delete()
+        }
+
         _this.equipamento = ''
       },
+      downloadFile (equipamento) {
+        var _this = this
+        var pathReference = storage.ref(equipamento + '.pdf')
+
+        pathReference.getDownloadURL().then((url) => {
+          window.open(url, '_blank')
+        }).catch((err) => {
+          switch (err.code) {
+            case 'storage/object-not-found':
+              _this.$notification.error({
+                message: 'Opps..',
+                description: 'POP não armazenado para este equipamento.'
+              })
+              break
+            default:
+              _this.$notification.error({
+                message: 'Opps..',
+                description: 'Não foi possível vizualizar POP. Erro: ' + err
+              })
+              break
+          }
+        })
+      },
       beforeUpload (file) {
-        if (this.pop.length === 1) {
-          this.pop = this.pop[0]
+        if (file.type === 'application/pdf') {
+          if (this.pop.length === 1) {
+            this.pop = this.pop[0]
+          }
+          this.pop = [...this.pop, file]
+        } else {
+          this.$message.error("Extensão Inválida! Permitido apenas PDF's")
+          this.pop = []
         }
-        this.pop = [...this.pop, file]
 
         return false
       }
