@@ -92,7 +92,7 @@ import datePicker from 'vue-bootstrap-datetimepicker'
 import 'pc-bootstrap4-datetimepicker/build/css/bootstrap-datetimepicker.css'
 import {sendEmail} from '../../emailAPI.js'
 import RingLoader from 'vue-spinner/src/RingLoader.vue'
-import Alert from '../../components/Alert.vue'
+import Alert from '../utility/Alert.vue'
 import firebaseApp from '../../firebase-controller.js'
 const db = firebaseApp.database()
 const auth = firebaseApp.auth()

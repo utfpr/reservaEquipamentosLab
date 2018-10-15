@@ -24,7 +24,6 @@ import actionHandler from '@/components/actionHandler'
 import RecuperarSenha from '@/pages/RecuperarSenha'
 import Calendario from '@/components/Calendar-event'
 import Aulas from '@/pages/aulas/Aulas'
-import Usuarios from '@/pages/usuarios/Usuarios'
 
 Vue.use(Router)
 
@@ -229,14 +228,6 @@ const router = new Router({
     }, {
       path: '*',
       redirect: '/'
-    }, {
-      path: '/usuarios',
-      name: 'Usuarios',
-      component: Usuarios,
-      meta: {
-        menuKey: 'usuarios',
-        requiresAuth: true
-      }
     }
   ]
 })
