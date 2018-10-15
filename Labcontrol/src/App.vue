@@ -57,11 +57,7 @@
       <a-layout-header v-if = "isUser" style = "background: #fff; padding: 0">
         <a-row>
           <a-col :span = "20">
-            <a-icon
-              class = "trigger"
-              :type = "collapsed ? 'menu-unfold' : 'menu-fold'"
-              @click = "() => collapsed = !collapsed"
-            />
+            <a-icon class = "trigger" :type = "collapsed ? 'menu-unfold' : 'menu-fold'" @click = "() => collapsed = !collapsed" />
           </a-col>
           
           <a-col :span = "4">

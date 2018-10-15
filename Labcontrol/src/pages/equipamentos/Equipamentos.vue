@@ -221,6 +221,7 @@
   const auth = firebaseApp.auth()
 
   export default {
+    nome: 'Equipamentos',
     data () {
       return {
         role: null,
