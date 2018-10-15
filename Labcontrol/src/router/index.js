@@ -6,8 +6,6 @@ import Login from '@/pages/Login'
 import p404 from '@/pages/p404'
 import Perfil from '@/pages/perfil/Perfil.vue'
 import Equipamentos from '@/pages/equipamentos/Equipamentos'
-import EquipamentoCadastro from '@/pages/equipamentos/EquipamentoCadastro'
-import EquipamentoDetails from '@/pages/equipamentos/EquipamentoDetails'
 import ReservaDetails from '@/pages/reservas/ReservaDetails'
 import Locais from '@/pages/locais/Locais'
 import LocalCadastro from '@/pages/locais/LocalCadastro'
@@ -68,23 +66,6 @@ const router = new Router({
       path: '/equipamentos',
       name: 'Equipamentos',
       component: Equipamentos,
-      meta: {
-        menuKey: 'equipamentos',
-        requiresAuth: true
-      }
-    }, {
-      path: '/equipamentos/cadastro',
-      name: 'EquipamentoCadastro',
-      component: EquipamentoCadastro,
-      meta: {
-        menuKey: 'equipamentos',
-        requiresAuth: true
-      }
-    },
-    {
-      path: '/equipamentos/:key/:action',
-      name: 'EquipamentoDetails',
-      component: EquipamentoDetails,
       meta: {
         menuKey: 'equipamentos',
         requiresAuth: true
