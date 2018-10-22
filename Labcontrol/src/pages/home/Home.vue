@@ -5,58 +5,7 @@
         <ring-loader :loading="loader.loading" :color="loader.color" :size="loader.size"></ring-loader>
       </div>
       <div v-if="!loader.loading && role !== 'Comum'" class="container">
-        <div class="row">
-          <div class="col-sm-12">
-            <div class="card border-secondary mb-3">
-              <div class="card-header text-center"><h1>Resumo do dia</h1></div>
-              <div class="card-body  justify-content-center">
-                <div class="row" style="min-height: 8rem;">
-                  <div class="col-sm-12 col-md-6 d-flex justify-content-center justify-content-sm-center justify-content-md-end">
-                    <div class="card text-white bg-primary mb-3 text-center vertical-center" style="max-width: 5rem; min-width: 5rem; max-height:5rem; min-height:5rem">
-                      <div class="card-header" style="padding:0;">{{ month }}</div>
-                      <div class="card-body" style="padding:0;">
-                        <h3>{{ day }}</h3>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="col-sm-12 col-md-6 d-flex justify-content-center justify-content-sm-center justify-content-md-start">
-                    <h3 class="card-title text-sm-center text-md-left vertical-center">
-                      <span style="font-size: 1.5rem;">
-                        <i class="far fa-clock"></i>
-                      </span> {{ time }}
-                    </h3>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="row">
-          <div class="col-md-6">
-            <div class="card border-primary mb-3">
-              <div class="card-header text-center">
-                <h3><router-link to="/equipamento" class="text-dark">Reservas de equipamentos</router-link></h3>
-              </div>
-              <div class="card-body text-primary">
-                <h5 class="card-title">Confirmadas: <span class="text-dark">{{ reservas.confirmadas.length }}</span> </h5>
-                <br>
-                <h5 class="card-title">Pendentes: <span class="text-dark">{{ reservas.pendentes.length }}</span></h5>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-6">
-            <div class="card border-primary mb-3">
-              <div class="card-header text-center">
-                <h3><router-link to="/equipamento" class="text-dark">Equipamentos</router-link></h3>
-              </div>
-              <div class="card-body text-primary">
-                <h5 class="card-title">Quebrados: <span class="text-dark">{{ equipamentos.quebrados.length }}</span></h5>
-                <br>
-                <h5 class="card-title">Em Manutenção: <span class="text-dark">{{ equipamentos.manutencao.length }}</span></h5>
-              </div>
-            </div>
-          </div>
-        </div>
+        <resumo-supervisor :month="resumo.month" :day="resumo.day" :time="resumo.time" :reservasConfirmadasLength="resumo.reservas_confirmadas_length" :reservasPendentesLength="resumo.reservas_pendentes_length" :equipamentosQuebradosLength="resumo.equipamentos_quebrados_length" :equipamentosManutencaoLength="resumo.equipamentos_manutencao_length"></resumo-supervisor>
       </div>
       <div v-if="!loader.loading && role === 'Comum'" class="container">
         <vue-event-calendar :events="reservasCalendar"></vue-event-calendar>
@@ -67,7 +16,8 @@
 
 <script>
 import RingLoader from 'vue-spinner/src/RingLoader.vue'
-import firebaseApp from '../firebase-controller.js'
+import ResumoSupervisor from './ResumoSupervisor.vue'
+import firebaseApp from '../../firebase-controller.js'
 const auth = firebaseApp.auth()
 const db = firebaseApp.database()
 export default {
@@ -95,11 +45,18 @@ export default {
         loading: true,
         color: '#007bff',
         size: '100px'
+      },
+      resumo: {
+        reservas_confirmadas_length: 0,
+        reservas_pendentes_length: 0,
+        equipamentos_quebrados_length: 0,
+        equipamentos_manutencao_length: 0
       }
     }
   },
   components: {
-    RingLoader
+    RingLoader,
+    ResumoSupervisor
   },
   created: function () {
     var _this = this
@@ -150,35 +107,43 @@ export default {
       db.ref('Reservas/equipamentos').orderByChild('Status').equalTo('Pendente').on('value', function (snapshot) {
         _this.loader.loading = true
         _this.reservas.pendentes = []
+        _this.resumo.reservas_pendentes_length = 0
         snapshot.forEach(function (childSnapshot) {
           _this.reservas.pendentes.push(childSnapshot.key)
+          _this.resumo.reservas_pendentes_length = _this.resumo.reservas_pendentes_length + 1
         })
         _this.loader.loading = false
       })
       db.ref('Reservas/equipamentos').orderByChild('Status').equalTo('Confirmada').on('value', function (snapshot) {
         _this.loader.loading = true
         _this.reservas.confirmadas = []
+        _this.resumo.reservas_confirmadas_length = 0
         snapshot.forEach(function (childSnapshot) {
           // TODO filtrar apenas as reservas cujo o periodo abranja a data atual
           // Usar comparação this.$moment().isBetween e this.$moment().isSame
           // assim como foi feito para filtrar datas válidas no momento da criação de uma reserva
           _this.reservas.confirmadas.push(childSnapshot.key)
+          _this.resumo.reservas_confirmadas_length = _this.resumo.reservas_confirmadas_length + 1
         })
         _this.loader.loading = false
       })
       db.ref('Equipamentos').orderByChild('Status').equalTo('Em Manutenção').on('value', function (snapshot) {
         _this.loader.loading = true
         _this.equipamentos.manutencao = []
+        _this.resumo.equipamentos_manutencao_length = 0
         snapshot.forEach(function (childSnapshot) {
           _this.equipamentos.manutencao.push(childSnapshot.key)
+          _this.resumo.equipamentos_manutencao_length = _this.resumo.equipamentos_manutencao_length + 1
         })
         _this.loader.loading = false
       })
       db.ref('Equipamentos').orderByChild('Status').equalTo('Quebrado').on('value', function (snapshot) {
         _this.loader.loading = true
         _this.equipamentos.quebrados = []
+        _this.resumo.equipamentos_quebrados_length = 0
         snapshot.forEach(function (childSnapshot) {
           _this.equipamentos.quebrados.push(childSnapshot.key)
+          _this.resumo.equipamentos_quebrados_length = _this.resumo.equipamentos_quebrados_length + 1
         })
         _this.loader.loading = false
       })
@@ -192,6 +157,7 @@ export default {
           })
         })
       })
+      console.log('oi')
       this.reservasUser.forEach(function (reserva) {
         let ReservaInicio = {
           date: _this.$moment(new Date(reserva[1].Inicio)).format('YYYY/MM/DD'),
@@ -203,6 +169,7 @@ export default {
           title: 'Fim de reserva: Equipamento ' + reserva[2].Nome + ' - ' + reserva[1].Status,
           desc: 'Reserva do equipamento ' + reserva[1].Equipamento + ' - ' + reserva[2].Nome + ' no laboratório ' + reserva[2].Local + 'se encerra às ' + _this.$moment(new Date(reserva[1].Fim)).format('HH:mm')
         }
+        console.log('Teste')
         _this.reservasCalendar.push(ReservaInicio)
         _this.reservasCalendar.push(ReservaFim)
       })
