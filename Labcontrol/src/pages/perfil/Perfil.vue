@@ -1,502 +1,371 @@
 <template>
-  <div id="perfilUser">
-    <div v-if="!editing" class="container-fluid">
-      <div v-if="loader.loading" class="row justify-content-center">
-        <ring-loader :loading="loader.loading" :color="loader.color" :size="loader.size"></ring-loader>
-      </div>
-      <div v-if="!loader.loading" class="container">
-        <v-dialog/>
-        <div class="row">
-          <div class="col-sm-12 col-md-6">
-            <h5><strong>Nome:</strong> {{user.Nome}} {{user.Sobrenome}}</h5>
-          </div>
-          <div class="col-sm-12 col-md-6">
-            <h5><strong>RA:</strong> {{user.ra}}</h5>
-          </div>
-        </div>
-        <hr />
-        <div class="row">
-          <div class="col-sm-12 col-md-6">
-            <p><strong>Curso</strong><br />{{user.Curso}}</p>
-          </div>
-          <div class="col-sm-12 col-md-6">
-            <p><strong>E-mail</strong><br />{{user.Email}}</p>
-          </div>
-        </div>
-        <hr />
-        <div class="row">
-          <div class="col-12 text-right">
-            <ul class="list-inline d-inline-flex">
-              <li>
-                <span v-on:click="editReauthentication()" class="mr-2 list-inline-item btn btn-primary btn-sm">Editar</span>
-                <!-- <router-link to="/peril/edit" class="mr-2 list-inline-item btn btn-primary btn-sm">Editar</router-link> -->
-              </li>
-              <li>
-                <span v-on:click="confirmarExclusao()" class="list-inline-item btn btn-danger btn-sm">Excluir conta</span>
-              </li>
-            </ul>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div v-if="editing" class="container-fluid">
-      <div v-if="loader.loading" class="row justify-content-center">
-        <ring-loader :loading="loader.loading" :color="loader.color" :size="loader.size"></ring-loader>
-      </div>
-      <div v-if="!loader.loading" class="row justify-content-center">
-        <alert :showAlert="alert.showAlert" :dismissible="alert.dismissible" :type="alert.type" :title="alert.title" :msg="alert.msg"></alert>
-        <form id="editProfile" class="needs-validation-perfil" v-on:submit.prevent novalidate>
-          <div class="form-row">
-            <div class="col-md-6 mb-3">
-              <label for="nome">Nome</label>
-              <div class="input-group">
-                <div class="input-group-prepend">
-                  <span class="input-group-text" id="nomePrepend"><i class="fas fa-user"></i></span>
-                </div>
-                <input id="nome" type="text" class="form-control" placeholder="Digite seu nome" autocomplete="given-name" aria-describedby="nomePrepend" v-model = "user.Nome" required>
-                <div class="invalid-feedback">
-                  Por favor informe seu nome.
+  <a-tabs size = "large" @change = "alteraTab">
+    <a-tab-pane key = "perfil">
+      <span slot = "tab">
+        <a-icon type = "smile-o" /> Perfil
+      </span>
+      
+      <a-row style = "margin-top: 50px;">
+        <a-col :span = "20" :offset = "2">
+          <a-form layout = "inline" :autoFormCreate = "(form) => { this.form = form }">
+            <a-row style = "display: -webkit-inline-box;">
+              <a-avatar v-if = "usuario.role === 'Comum'" :size = "50" style = "background-color: #007bff;" icon = "user" />
+              <a-avatar v-else-if = "usuario.role === 'Comum'" :size = "50" style = "background-color: #ffc107;" icon = "star" />
+              <a-avatar v-else :size = "50" style = "background-color: #28a745;" icon = "star" />
+              
+              <div v-if = "editable" style = "margin-top: 8px; margin-left: 15px;">
+                <a-form-item class = "input-perfil" fieldDecoratorId = "nome" :fieldDecoratorOptions = "{ rules: [{ required: true, message: 'Campo Obrigatório' }], initialValue: usuario.nome }">
+                  <a-input size = "large" @focus = "checkInput" placeholder = "Digite nome" />
+                </a-form-item>
+
+                <a-form-item class = "input-perfil" fieldDecoratorId = "sobrenome" :fieldDecoratorOptions = "{ rules: [{ required: true, message: 'Campo Obrigatório' }], initialValue: usuario.sobrenome }">
+                  <a-input size = "large" @focus = "checkInput" placeholder = "Digite sobrenome" />
+                </a-form-item>
+              </div>
+
+              <div v-else style = "display: -webkit-box; width: 100%;">
+                <h3 style = "margin-top: 8px; margin-left: 15px;"> {{usuario.nome}} {{usuario.sobrenome}} </h3>
+                <h5 style = "margin-top: 14px; margin-left: 5px;"> <i> ({{usuario.role}}) </i> </h5>
+
+                <div style = "width: 100%; text-align: right; margin-top: 6px;">
+                  <a-button size = "large" type = "primary" icon = "edit" @click = "() => {this.editable = !this.editable}"> Editar </a-button>
                 </div>
               </div>
-            </div>
-            <div class="col-md-6 mb-3">
-              <label for="sobrenome">Sobrenome</label>
-              <div class="input-group">
-                <div class="input-group-prepend">
-                  <span class="input-group-text" id="sobrenomePrepend"><i class="fas fa-user"></i></span>
+            </a-row>
+            
+            <hr />
+            <a-row class = "row-perfil">
+              <a-col class = "titulo-perfil" :span = "4" :offset = "1">
+                <b> RA: </b>
+              </a-col>
+
+              <a-col :span = "5">
+                <a-form-item class = "input-perfil" v-if = "editable" fieldDecoratorId = "ra" :fieldDecoratorOptions = "{ rules: [{ required: true, message: 'Campo Obrigatório' }, { validator: this.checkUniqueRA }], initialValue: usuario.ra }">
+                  <a-input size = "large" @focus = "checkInput" placeholder = "Digite RA" />
+                </a-form-item>
+
+                <div class = "text-perfil" v-else>
+                  <span> {{usuario.ra}} </span>
                 </div>
-                <input id="sobrenome" type="text" class="form-control" placeholder="Digite seu sobrenome" autocomplete="family-name" aria-describedby="sobrenomePrepend" v-model = "user.Sobrenome" required>
-                <div class="invalid-feedback">
-                  Por favor informe seu sobrenome.
+              </a-col>
+            </a-row>
+
+            <a-row class = "row-perfil">
+              <a-col class = "titulo-perfil" :span = "4" :offset = "1">
+                <b> Curso: </b>
+              </a-col>
+
+              <a-col :span = "7">
+                <a-form-item v-if = "editable" style = "width: 100%;" fieldDecoratorId = "curso" :fieldDecoratorOptions = "{ rules: [{ required: true, message: 'Selecione Curso' }], initialValue: usuario.curso }">
+                  <a-select size = "large" placeholder = "Selecione curso" showSearch notFoundContent = "Curso não Encontrado" :filterOption = "filterOption">
+                    <a-select-option v-for = "curso in cursos" @focus = "checkSelect('curso')" v-bind:key = "curso" :value = "curso"> {{curso}} </a-select-option>
+                  </a-select>
+                </a-form-item>
+
+                <div class = "text-perfil" v-else>
+                  <span> {{usuario.curso}} </span>
                 </div>
-              </div>
-            </div>
-          </div>
-          <div class="form-row">
-            <div class="col-md-6 mb-3">
-              <label for="ra">Registro Academico</label>
-              <div class="input-group">
-                <div class="input-group-prepend">
-                  <span class="input-group-text" id="raPrepend"><i class="fas fa-address-card"></i></span>
+              </a-col>
+            </a-row>
+
+            <a-row class = "row-perfil">
+              <a-col class = "titulo-perfil" :span = "4" :offset = "1">
+                <b> E-mail: </b>
+              </a-col>
+
+              <a-col :span = "10">
+                <a-form-item class = "input-perfil" v-if = "editable" style = "width: 100%;" fieldDecoratorId = "email" :fieldDecoratorOptions = "{ rules: [{ required: true, message: 'Campo Obrigatório' }, { type: 'email', message: 'Digite e-mail válido' }, { validator: this.checkUniqueEmail }], initialValue: usuario.email }">
+                  <a-input size = "large" @focus = "checkInput" placeholder = "Digite e-mail" />
+                </a-form-item>
+
+                <div class = "text-perfil" v-else>
+                  <span> {{usuario.email}} </span>
                 </div>
-                <input v-on:change="checkUnique()" id="ra" type="number" class="form-control" placeholder="Digite seu RA" autocomplete="RA" aria-describedby="raPrepend" min="0" v-model = "user.ra" required>
-                <div class="invalid-feedback">
-                  Por favor informe um RA válido.
-                </div>
-              </div>
-            </div>
-            <div class="col-md-6 mb-3">
-              <label for="curso">Curso</label>
-              <div class="input-group">
-                <div class="input-group-prepend">
-                  <span class="input-group-text" id="cursoPrepend"><i class="fas fa-graduation-cap"></i></span>
-                </div>
-                <select id="curso" class="form-control" aria-describedby="cursoPrepend" v-model = "user.Curso" required>
-                  <option value="" disabled selected>Selecione seu curso</option>
-                  <option>Engenharia Ambiental</option>
-                  <option>Engenharia de Alimentos</option>
-                  <option>Quimica</option>
-                </select>
-                <div class="invalid-feedback">
-                  Por favor selecione um curso.
-                </div>
-              </div>
-            </div>
-          </div>
-          <hr />
-          <div class="form-row">
-            <div class="col-md-12 mb-3">
-              <label for="email">E-mail</label>
-              <div class="input-group">
-                <div class="input-group-prepend">
-                  <span class="input-group-text" id="emailPrepend"><i class="fas fa-envelope"></i></span>
-                </div>
-                <input id="email" type="email" class="form-control" placeholder="Digite um E-mail válido" autocomplete="email" aria-describedby="emailPrepend" v-model = "user.newEmail" required>
-                <div class="invalid-feedback">
-                  Por favor informe um E-mail válido (exemplo@exemplo.com).
-                </div>
-              </div>
-            </div>
-            <div class="form-check mb-3">
-              <input type="checkbox" class="form-check-input" id="changePassword" v-model = "changePassword">
-              <label class="form-check-label" for="changePassword">Alterar Senha</label>
-            </div>
-          </div>
-          <div v-if="changePassword" class="form-row">
-            <div class="col-md-6 mb-3">
-              <label for="senha">Senha</label>
-              <div class="input-group">
-                <div class="input-group-prepend">
-                  <span class="input-group-text" id="senhaPrepend"><i class="fas fa-lock"></i></span>
-                </div>
-                <input id="senha" v-on:keyup="validatePassword" type="password" class="form-control" autocomplete="new-password" placeholder="Digite sua senha (Min. 6 caracteres)" aria-describedby="senhaPrepend" minlength=6 v-model = "password" required>
-                <div class="invalid-feedback">
-                  Por favor informe uma senha válida (Mínimo de 6 caracteres).
-                </div>
-              </div>
-            </div>
-            <div class="col-md-6 mb-3">
-              <label for="senhaConfirma">Confirme sua senha</label>
-              <div class="input-group">
-                <div class="input-group-prepend">
-                  <span class="input-group-text" id="senhaConfirmaPrepend"><i class="fas fa-lock"></i></span>
-                </div>
-                <input id="senhaConfirma" v-on:keyup="validatePassword" type="password" class="form-control" autocomplete="new-password" placeholder="Digite sua senha novamente" aria-describedby="senhaConfirmaPrepend" v-model = "reenteredPassword" required>
-                <div class="invalid-feedback">
-                  As senhas diferem.
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="row">
-            <div class="col-12 col-md-6 mb-3">
-              <button type="submit" class="btn btn-primary btn-block">Atualizar Perfil</button>
-            </div>
-            <div class="col-12 col-md-6 mb-3">
-              <span v-on:click="cancelEdit()" class="btn btn-danger btn-block">Cancelar</span>
-            </div>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
+              </a-col>
+            </a-row>
+            <hr />
+
+            <a-row v-if = "editable" style = "text-align: right;">
+              <a-button size = "large" style = "margin-right: 15px;" icon = "rollback" @click = "closeEdicao"> Cancelar </a-button>
+              <a-button size = "large" type = "primary" icon = "check" @click = "atualizaPerfil"> Atualizar </a-button>
+            </a-row>
+          </a-form>
+        </a-col>
+      </a-row>
+    </a-tab-pane>
+
+    <a-tab-pane key = "senha">
+      <span slot = "tab">
+        <a-icon type = "lock" /> Alterar Senha
+      </span>
+      
+      <a-row style = "margin-top: 50px;">
+        <a-form :autoFormCreate = "(form) => { this.formSenha = form }">
+          <a-form-item :labelCol = "{ span: 6 }" :wrapperCol = "{ span: 12 }" label = "Senha" fieldDecoratorId = "senha" :fieldDecoratorOptions = "{ rules: [{ required: true, message: 'Campo Obrigatório' }, { validator: this.validateToNextPassword }] }">
+            <a-input type = "password" size = "large" @focus = "checkSenha" placeholder = "Digite senha" />
+          </a-form-item>
+
+          <a-form-item :labelCol = "{ span: 6 }" :wrapperCol = "{ span: 12 }"  label = "Confirmar Senha" fieldDecoratorId = "confirmarSenha" :fieldDecoratorOptions = "{ rules: [{ required: true, message: 'Campo Obrigatório' }, { validator: this.compareToFirstPassword }] }">
+            <a-input type = "password" size = "large" @focus = "checkSenha" placeholder = "Confirme senha" />
+          </a-form-item>
+
+          <a-row style = "text-align: right;">
+            <a-button size = "large" style = "margin-right: 15px;" icon = "rollback" @click = "closeSenha"> Cancelar </a-button>
+            <a-button size = "large" type = "primary" icon = "check" @click = "alteraSenha"> Alterar Senha </a-button>
+          </a-row>
+        </a-form>
+      </a-row>
+    </a-tab-pane>
+
+    <a-popconfirm slot = "tabBarExtraContent" placement = "bottomRight" okText = "Confirmar" cancelText = "Cancelar" @confirm = "deletarConta">
+      <template slot = "title">
+        <b> <i> Atenção! </i> </b> <br />
+        Realmente deseja deletar sua conta? <br />
+        Esta ação não poderá ser desfeita. 
+      </template>
+      
+      <a-button icon = "delete" type = "danger"> Deletar Conta </a-button>
+    </a-popconfirm>
+  </a-tabs>
 </template>
 
 <script>
-import RingLoader from 'vue-spinner/src/RingLoader.vue'
-import firebaseApp from '../../firebase-controller.js'
-import Alert from '../../components/Alert.vue'
-const db = firebaseApp.database()
-const auth = firebaseApp.auth()
-export default {
-  nome: 'Perfil',
-  data () {
-    return {
-      action: null,
-      changePassword: false,
-      editing: false,
-      uid: auth.currentUser.uid,
-      userData: null,
-      user: {
-        ra: null,
-        Nome: null,
-        Sobrenome: null,
-        Curso: null,
-        Email: auth.currentUser.email,
-        newEmail: auth.currentUser.email
-      },
-      password: '',
-      reenteredPassword: '',
-      loader: {
-        loading: true,
-        color: '#007bff',
-        size: '100px'
-      },
-      alert: {
-        showAlert: false,
-        dismissible: false,
-        type: '',
-        title: '',
-        msg: ''
-      }
-    }
-  },
-  components: {
-    Alert,
-    RingLoader
-  },
-  mounted: function () {
-    this.loader.loading = true
-    let _this = this
-    db.ref('Usuarios/' + auth.currentUser.uid).on('value', function (snapshot) {
-      _this.userData = snapshot.val()
-      _this.user.ra = _this.userData.RA
-      _this.user.Nome = _this.userData.Nome
-      _this.user.Sobrenome = _this.userData.Sobrenome
-      _this.user.Curso = _this.userData.Curso
-      _this.loader.loading = false
-    })
-  },
-  methods: {
-    cancelEdit () {
-      this.editing = false
-      let _this = this
-      db.ref('Usuarios/' + auth.currentUser.uid).once('value', function (snapshot) {
-        _this.userData = snapshot.val()
-        _this.user.ra = _this.userData.RA
-        _this.user.Nome = _this.userData.Nome
-        _this.user.Sobrenome = _this.userData.Sobrenome
-        _this.user.Curso = _this.userData.Curso
-      })
-    },
-    deleteAccount () {
-      let uid = auth.currentUser.uid
-      let _this = this
-      auth.currentUser.delete().then(function () {
-        _this.$notify({
-          group: 'notify',
-          type: 'success',
-          title: 'Yey!',
-          text: 'Conta deletada com sucesso.'
-        })
-        db.ref('Usuarios').child(uid).remove().then(function () {
-          setTimeout(function () {
-            _this.$parent.logout()
-          }, 1000)
-        })
-      }).catch((err) => {
-        _this.$notify({
-          group: 'notify',
-          type: 'error',
-          title: 'Oops!',
-          text: 'Falha ao deletar conta'
-        })
-        console.log('Falha ao deletar conta.' + err)
-      })
-    },
-    editProfile () {
-      this.$modal.hide('reauthenticate-modal')
-      this.editing = true
-      let _this = this
-      setTimeout(function () {
-        _this.validate()
-      }, 500)
-    },
-    editReauthentication () {
-      this.$notify({
-        group: 'notify',
-        type: 'warn',
-        title: 'Cuidado!',
-        text: 'Esta ação requer autenticação recente!'
-      })
-      this.action = 'editProfile'
-      this.$modal.show('reauthenticate-modal')
-      let _this = this
-      setTimeout(function () {
-        _this.$parent.validate()
-      }, 500)
-    },
-    resendEmail: function () {
-      this.loader.loading = true
-      this.alert.showAlert = false
+  import firebaseApp from '../../firebase-controller.js'
+  
+  const db = firebaseApp.database()
+  const auth = firebaseApp.auth()
 
+  export default {
+    nome: 'Perfil',
+    data () {
+      return {
+        usuario: '',
+        usuarios: [],
+        cursos: [],
+        editable: false
+      }
+    },
+    beforeMount () {
       let _this = this
-      auth.currentUser.sendEmailVerification().then(function () {
-        _this.$notify({
-          group: 'notify',
-          type: 'success',
-          title: 'Yey!',
-          text: 'E-mail de verificação enviado com sucesso! Confirme seu E-mail para utilizar o sistema.'
+      _this.populaUsuario()
+
+      db.ref('Controle/Cursos').orderByKey().on('value', function (snapshot) {
+        _this.cursos = []
+
+        snapshot.forEach(function (item) {
+          _this.cursos.push(item.key)
         })
-        _this.loader.loading = false
-        _this.alert.showAlert = true
-        console.log('E-mail de verificação enviado com sucesso!')
-      }).catch((err) => {
-        _this.alert.type = 'alert-danger'
-        _this.alert.dismissible = true
-        _this.alert.title = 'Oops!'
-        _this.alert.msg = 'Falha ao enviar E-mail de verificação de conta para o endereço ' + _this.user.email + '. Não foi possivel atualizar seu perfil. Verifique sua conexão com a internet ou tente novamente mais tarde.'
-        _this.loader.loading = false
-        _this.alert.showAlert = true
-        console.log('Falha ao enviar E-mail de verificação de conta: ' + err)
+      })
+
+      db.ref('Usuarios').on('value', function (snapshot) {
+        _this.usuarios = []
+
+        snapshot.forEach(function (item) {
+          _this.usuarios.push({
+            'ra': item.val().RA,
+            'nome': item.val().Nome,
+            'sobrenome': item.val().Sobrenome,
+            'curso': item.val().Curso,
+            'email': item.val().Email,
+            'role': item.val().role
+          })
+        })
       })
     },
-    updateProfile () {
-      this.loader.loading = true
-      let _this = this
-      let update = true
-      if (this.user.Email !== this.user.newEmail) {
-        auth.currentUser.updateEmail(this.user.newEmail).then(function () {
-          _this.user.Email = _this.user.newEmail
-          update = true
-          _this.resendEmail()
-        }).catch((err) => {
-          update = false
-          console.log('Falha ao atualizar E-mail: ' + err.code)
-          switch (err.code) {
-            case 'auth/email-already-in-use': {
-              this.$notify({
-                group: 'notify',
-                type: 'error',
-                title: 'Oops!',
-                text: 'Endereço de E-mail já está em uso'
-              })
-              this.loader.loading = false
-              break
-            }
-            case 'auth/requires-recent-login': {
-              this.$notify({
-                group: 'notify',
-                type: 'error',
-                title: 'Oops!',
-                text: 'Operação sensível, necessário confirmar informações de login'
-              })
-              this.loader.loading = false
-              break
-            }
-            case 'auth/user-token-expired': {
-              this.$notify({
-                group: 'notify',
-                type: 'error',
-                title: 'Oops!',
-                text: 'Sua sessão expirou! Por favor, logue novamente'
-              })
-              this.loader.loading = false
-              break
-            }
-            case 'auth/invalid-email': {
-              this.$notify({
-                group: 'notify',
-                type: 'error',
-                title: 'Oops!',
-                text: 'Endereço de E-mail informado é inválido'
-              })
-              this.loader.loading = false
-              break
-            }
-            default: {
-              this.$notify({
-                group: 'notify',
-                type: 'error',
-                title: 'Oops!',
-                text: 'Parece que algo deu errado.<br>Por favor, tente novamente'
-              })
-              break
-            }
-          }
+    methods: {
+      populaUsuario () {
+        let _this = this
+        db.ref('Usuarios/' + auth.currentUser.uid).once('value', function (snapshot) {
+          _this.usuario = {}
+          _this.usuario.id = snapshot.key
+          _this.usuario.ra = snapshot.val().RA
+          _this.usuario.nome = snapshot.val().Nome
+          _this.usuario.sobrenome = snapshot.val().Sobrenome
+          _this.usuario.curso = snapshot.val().Curso
+          _this.usuario.email = snapshot.val().Email
+          _this.usuario.role = snapshot.val().role
         })
-      }
-      if (this.changePassword) {
-        auth.currentUser.updatePassword(this.password).then(function () {
-          _this.$notify({
-            group: 'notify',
-            type: 'success',
-            title: 'Yey!',
-            text: 'Senha atualizada com sucesso.'
+      },
+      deletarConta () {
+        let uid = auth.currentUser.uid
+        let _this = this
+        auth.currentUser.delete().then(function () {
+          _this.$notification.success({
+            message: 'Yey!..',
+            description: 'Conta deletada com sucesso.'
+          })
+          db.ref('Usuarios').child(uid).remove().then(function () {
+            setTimeout(function () {
+              _this.$parent.logout()
+            }, 1000)
           })
         }).catch((err) => {
-          this.$notify({
-            group: 'notify',
-            type: 'error',
-            title: 'Oops!',
-            text: 'Falha ao atualizar senha.'
-          })
-          update = false
-          console.log('Falha ao atualizar senha: ' + err)
-        })
-      }
-      if (update) {
-        db.ref('Usuarios').child(auth.currentUser.uid).update({
-          'RA': _this.user.ra,
-          'Nome': _this.user.Nome,
-          'Email': auth.currentUser.email,
-          'Sobrenome': _this.user.Sobrenome,
-          'Curso': _this.user.Curso
-        }).then(function () {
-          _this.$notify({
-            group: 'notify',
-            type: 'success',
-            title: 'Yey!',
-            text: 'Perfil atualizado com sucesso!'
-          })
-          _this.editing = false
-          _this.loader.loading = false
-        }).catch((err) => {
-          console.log('Falha ao escrever no BD: ' + err)
-          auth.currentUser.delete().then(function () {
-            _this.alert.type = 'alert-danger'
-            _this.alert.dismissible = true
-            _this.alert.title = 'Oops!'
-            _this.alert.msg = 'Falha na comunicação com nosso Banco de Dados.'
-            _this.loader.loading = false
-            _this.alert.showAlert = true
+          _this.$notification.error({
+            message: 'Opps..',
+            description: 'Falha ao deletar conta. Erro: ' + err
           })
         })
-      }
-    },
-    confirmarExclusao () {
-      let _this = this
-      this.$modal.show('dialog', {
-        title: 'Cuidado!',
-        text: 'Ao excluir sua conta <b>todas</b> as suas reservas serão canceladas. <br> Realmente deseja excluir sua conta? <br> <i>Essa ação não poderá ser desfeita</i>',
-        buttons: [
-          {
-            title: 'Deletar',
-            handler: () => {
-              _this.$notify({
-                group: 'notify',
-                type: 'warn',
-                title: 'Cuidado!',
-                text: 'Esta ação requer autenticação recente!'
-              })
-              this.$modal.hide('dialog')
-              this.action = 'deleteAccount'
-              this.$modal.show('reauthenticate-modal')
-              setTimeout(function () {
-                _this.$parent.validate()
-              }, 500)
-            }
-          },
-          {
-            title: 'Cancelar',
-            default: true
-          }
-        ]
-      })
-    },
-    validate: function () {
-      let _this = this
-      var forms = document.getElementsByClassName('needs-validation-perfil')
-      Array.prototype.filter.call(forms, function (form) {
-        form.addEventListener('submit', function (event) {
-          if (form.checkValidity() === false) {
-            event.preventDefault()
-            event.stopPropagation()
-          } else {
-            _this.updateProfile()
-          }
-          form.classList.add('was-validated')
-        }, false)
-      })
-    },
-    validatePassword: function () {
-      var confirmPassword = document.getElementById('senhaConfirma')
-      if (this.password === this.reenteredPassword) {
-        confirmPassword.setCustomValidity('')
-      } else {
-        confirmPassword.setCustomValidity('As senhas diferem')
-      }
-    },
-    checkUnique: function () {
-      let _this = this
-      var ra
-      var unique = true
-      db.ref('Usuarios').orderByChild('RA').once('value', function (snapshot) {
-        ra = document.getElementById('ra')
-        snapshot.forEach(function (childSnapshot) {
-          if ((childSnapshot.val().RA === ra.value) && (ra.value !== _this.userData.RA)) {
-            unique = false
-          }
-        })
-        if (unique) {
-          ra.setCustomValidity('')
-          _this.alert.showAlert = false
+      },
+      checkUniqueRA (rule, value, callback) {
+        let resposta = 'RA já cadastrado!'
+        if (value && this.usuarios.some(e => e.ra === value) && this.usuario.ra !== value) {
+          callback(resposta)
         } else {
-          ra.setCustomValidity('RA já está cadastrado')
-          _this.alert.type = 'alert-danger'
-          _this.alert.dismissible = false
-          _this.alert.title = 'Oops!'
-          _this.alert.msg = 'O RA ' + _this.user.ra + ' já se encontra cadastrado!'
-          _this.alert.showAlert = true
+          callback()
         }
-      })
+      },
+      checkUniqueEmail (rule, value, callback) {
+        let resposta = 'Email já utilizado!'
+        if (value && this.usuarios.some(e => e.email === value) && this.usuario.email !== value) {
+          callback(resposta)
+        } else {
+          callback()
+        }
+      },
+      closeEdicao () {
+        this.editable = false
+        this.form.resetFields()
+      },
+      closeSenha () {
+        this.formSenha.resetFields()
+      },
+      checkInput (e) {
+        this.form.validateFields([e.target.id])
+      },
+      checkSenha (e) {
+        this.formSenha.validateFields([e.target.id])
+      },
+      checkSelect (name) {
+        this.form.validateFields([name])
+      },
+      filterOption (input, option) {
+        return option.componentOptions.children[0].text.toLowerCase().indexOf(input.toLowerCase()) >= 0
+      },
+      compareToFirstPassword  (rule, value, callback) {
+        let resposta = 'Duas senhas incompatíveis'
+        const form = this.formSenha
+        if (value && value !== form.getFieldValue('senha')) {
+          callback(resposta)
+        } else {
+          callback()
+        }
+      },
+      validateToNextPassword  (rule, value, callback) {
+        const form = this.formSenha
+        if (value && this.confirmDirty) {
+          form.validateFields(['confirmarSenha'], { force: true })
+        }
+        callback()
+      },
+      atualizaPerfil () {
+        let _this = this
+        this.form.validateFields(async (err, values) => {
+          if (!err) {
+            db.ref('Usuarios').child(_this.usuario.id).update({
+              'Nome': values.nome,
+              'Sobrenome': values.sobrenome,
+              'Curso': values.curso,
+              'RA': values.ra
+            }).then(() => {
+              _this.$notification.success({
+                message: 'Yey!..',
+                description: 'Perfil atualizado com sucesso.'
+              }, 1500)
+
+              if (values.email !== _this.usuario.email) {
+                auth.currentUser.updateEmail(values.email).then(function () {
+                  _this.usuario.email = values.email
+                  _this.resendEmail(values.email)
+                }).catch((err) => {
+                  switch (err.code) {
+                    case 'auth/invalid-email': {
+                      _this.$notification.error({
+                        message: 'Opps..',
+                        description: 'Email inválido'
+                      })
+                      break
+                    }
+                    default: {
+                      _this.$notification.error({
+                        message: 'Opps..',
+                        description: 'Algo não deu certo. Erro: ' + err.code
+                      })
+                      break
+                    }
+                  }
+                })
+              }
+              this.populaUsuario()
+              this.closeEdicao()
+            }).catch((err) => {
+              _this.$notification.error({
+                message: 'Opps..',
+                description: 'Equipamento não atualizado. Erro: ' + err
+              })
+              this.closeEdicao()
+            })
+          }
+        })
+      },
+      alteraSenha () {
+        let _this = this
+        this.formSenha.validateFields(async (err, values) => {
+          if (!err) {
+            auth.currentUser.updatePassword(values.senha).then(() => {
+              _this.$notification.success({
+                message: 'Yey!..',
+                description: 'Senha Alterada.'
+              })
+              this.closeSenha()
+            }).catch((err) => {
+              _this.$notification.error({
+                message: 'Opps..',
+                description: 'Senha não alterada. Erro: ' + err
+              })
+              this.closeSenha()
+            })
+          }
+        })
+      },
+      resendEmail (newEmail) {
+        let _this = this
+        auth.currentUser.sendEmailVerification().then(() => {
+          _this.$notification.info({
+            message: 'Yey!.. De novo',
+            description: 'E-mail de verificação enviado com sucesso! Confirme seu E-mail para utilizar o sistema.'
+          })
+          db.ref('Usuarios').child(_this.usuario.id).update({
+            'Email': newEmail
+          })
+        }).catch((err) => {
+          _this.$notification.error({
+            message: 'Opps..',
+            description: 'Email de verificação não enviado. Erro: ' + err
+          })
+        })
+      },
+      alteraTab (activeKey) {
+        if (activeKey === 'senha') {
+          this.closeEdicao()
+        } else {
+          this.closeSenha()
+        }
+      }
     }
   }
-}
 </script>
 
 <style>
-  #editProfile {
-    width: 100vw;
+  .titulo-perfil {
+    margin-top: 8px;
+    font-size: 16px;
   }
+
+  .text-perfil {
+    margin-top: 6px;
+    font-size: 16px;
+  }
+
+  .row-perfil { margin-bottom: 15px; }
+  .input-perfil .ant-form-item-control-wrapper { width: 100%; }
 </style>

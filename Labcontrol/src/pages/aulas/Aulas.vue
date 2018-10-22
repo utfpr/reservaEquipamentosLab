@@ -1,10 +1,4 @@
 <template>
-<<<<<<< HEAD
-  <div id="Aulas">
-
-  </div>
-</template>
-=======
   <div class="container">
     <div class="row" style = "margin-top: 20px;">
       <div class="col-md-1 offset-2">
@@ -41,7 +35,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="agendamento in agendamentos">
+          <tr v-for = "agendamento in agendamentos">
             <td> {{ agendamento.dia }} </td>
             <td> {{ agendamento.local }} </td>
             <td> {{ periodoFormatado(agendamento.horaInicio, agendamento.horaFim) }} </td>
@@ -211,4 +205,3 @@
     }
   }
 </script> 
->>>>>>> 76a004382e9b76cd2303f672c4e49c436c6b072d
