@@ -41,6 +41,41 @@
         <a-button @click = "() => handleReset('searchRA', clearFilters)"> Resetar </a-button>
       </div>
 
+      <div slot = "filterDropdownNome" slot-scope = "{ setSelectedKeys, selectedKeys, confirm, clearFilters }" class = 'custom-filter-dropdown'>
+        <a-input
+          ref = "nomeInput"
+          placeholder = 'Buscar nome...'
+          :value = "selectedKeys[0]"
+          @change = "e => setSelectedKeys(e.target.value ? [e.target.value] : [])"
+          @pressEnter = "() => handleSearch('searchNome', selectedKeys, confirm)"
+        />
+        <a-button type = 'primary' @click = "() => handleSearch('searchNome', selectedKeys, confirm)"> Buscar </a-button>
+        <a-button @click = "() => handleReset('searchNome', clearFilters)"> Resetar </a-button>
+      </div>
+
+      <div slot = "filterDropdownSobrenome" slot-scope = "{ setSelectedKeys, selectedKeys, confirm, clearFilters }" class = 'custom-filter-dropdown'>
+        <a-input
+          ref = "sobrenomeInput"
+          placeholder = 'Buscar sobrenome...'
+          :value = "selectedKeys[0]"
+          @change = "e => setSelectedKeys(e.target.value ? [e.target.value] : [])"
+          @pressEnter = "() => handleSearch('searchSobrenome', selectedKeys, confirm)"
+        />
+        <a-button type = 'primary' @click = "() => handleSearch('searchSobrenome', selectedKeys, confirm)"> Buscar </a-button>
+        <a-button @click = "() => handleReset('searchSobrenome', clearFilters)"> Resetar </a-button>
+      </div>
+
+      <div slot = "filterDropdownCurso" slot-scope = "{ setSelectedKeys, selectedKeys, confirm, clearFilters }" class = 'custom-filter-dropdown'>
+        <a-input
+          ref = "cursoInput"
+          :value = "selectedKeys[0]"
+          @change = "e => setSelectedKeys(e.target.value ? [e.target.value] : [])"
+          @pressEnter = "() => handleSearch('searchCurso', selectedKeys, confirm)"
+        />
+        <a-button type = 'primary' @click = "() => handleSearch('searchCurso', selectedKeys, confirm)"> Buscar </a-button>
+        <a-button @click = "() => handleReset('searchCurso', clearFilters)"> Resetar </a-button>
+      </div>
+
     </a-table>
 
     <a-modal
@@ -85,7 +120,7 @@
             filterDropdown: 'filterDropdownRA',
             filterIcon: 'filterIcon'
           },
-          onFilter: (value, record) => record.ratoLowerCase().includes(value.toLowerCase()),
+          onFilter: (value, record) => record.ra.toLowerCase().includes(value.toLowerCase()),
           onFilterDropdownVisibleChange: (visible) => {
             if (visible) {
               setTimeout(() => {
@@ -94,8 +129,46 @@
             }
           }
         }, {
+          title: 'Nome',
+          dataIndex: 'nome',
+          key: 'nome',
+          scopedSlots: {
+            filterDropdown: 'filterDropdownNome',
+            filterIcon: 'filterIcon'
+          },
+          onFilter: (value, record) => record.nome.toLowerCase().includes(value.toLowerCase()),
+          onFilterDropdownVisibleChange: (visible) => {
+            if (visible) {
+              setTimeout(() => {
+                this.$refs.nomeInput.focus()
+              })
+            }
+          }
+        }, {
+          title: 'Sobrenome',
+          dataIndex: 'sobrenome',
+          key: 'sobrenome',
+          scopedSlots: {
+            filterDropdown: 'filterDropdownSobrenome',
+            filterIcon: 'filterIcon'
+          },
+          onFilter: (value, record) => record.sobrenome.toLowerCase().includes(value.toLowerCase()),
+          onFilterDropdownVisibleChange: (visible) => {
+            if (visible) {
+              setTimeout(() => {
+                this.$refs.sobrenomeInput.focus()
+              })
+            }
+          }
+        }, {
+          title: 'Curso',
+          dataIndex: 'curso',
+          key: 'curso',
+          filters: this.populaFiltroCursos(),
+          onFilter: (value, record) => record.curso === value
+        }, {
           title: 'Ações',
-          dataIndex: 'ra',
+          dataIndex: 'id',
           key: 'acoes',
           align: 'center',
           scopedSlots: { customRender: 'actions' }
@@ -111,7 +184,13 @@
 
         snapshot.forEach(function (item) {
           _this.usuarios.push({
-            'ra': item.val().RA
+            'id': item.key,
+            'ra': item.val().RA,
+            'email': item.val().Email,
+            'type': item.val().role,
+            'nome': item.val().Nome,
+            'sobrenome': item.val().Sobrenome,
+            'curso': item.val().Curso
           })
         })
       })
@@ -137,24 +216,33 @@
         this.visibleConfirmModal = false
         this.usuario = ''
       },
+      populaFiltroCursos () {
+        var cursos = []
+        db.ref('Controle/Cursos').orderByKey().on('value', function (snapshot) {
+          snapshot.forEach(function (item) {
+            cursos.push({
+              'text': item.key,
+              'value': item.key
+            })
+          })
+        })
+
+        return cursos
+      },
       deletaUsuario () {
         let _this = this
         _this.visibleConfirmModal = false
 
-        console.log(_this.usuario)
+        console.log(_this.usuario.id)
         db.ref('Usuarios').child(_this.usuario).remove().then(function () {
-          _this.$notify({
-            group: 'notify',
-            type: 'success',
-            title: 'Yey!',
-            text: 'Usuário  <strong>' + _this.usuario + '</strong> deletado com sucesso'
+          _this.$notification.success({
+            message: 'Yey!',
+            description: 'Usuário deletado com sucesso.'
           })
         }).catch(() => {
-          _this.$notify({
-            group: 'notify',
-            type: 'error',
-            title: 'Yey!',
-            text: 'Falha ao deletar Usuário ' + _this.usuario
+          _this.$notification.error({
+            message: 'Yey!',
+            description: 'Falha ao deletar Usuário ' + _this.usuario
           })
         })
 
