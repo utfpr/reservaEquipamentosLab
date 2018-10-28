@@ -8,8 +8,6 @@ import Perfil from '@/pages/perfil/Perfil.vue'
 import Equipamentos from '@/pages/equipamentos/Equipamentos'
 import ReservaDetails from '@/pages/reservas/ReservaDetails'
 import Locais from '@/pages/locais/Locais'
-import LocalCadastro from '@/pages/locais/LocalCadastro'
-import LocalDetails from '@/pages/locais/LocalDetails'
 import Reservas from '@/pages/reservas/Reservas'
 import listaEquipamentos from '@/pages/reservas/ListaEquipamentos'
 import listaLocais from '@/pages/reservas/ListaLocais'
@@ -116,22 +114,6 @@ const router = new Router({
       path: '/locais',
       name: 'Locais',
       component: Locais,
-      meta: {
-        menuKey: 'locais',
-        requiresAuth: true
-      }
-    }, {
-      path: '/locais/cadastro',
-      name: 'LocalCadastro',
-      component: LocalCadastro,
-      meta: {
-        menuKey: 'locais',
-        requiresAuth: true
-      }
-    }, {
-      path: '/locais/:key/:action',
-      name: 'LocalDetails',
-      component: LocalDetails,
       meta: {
         menuKey: 'locais',
         requiresAuth: true

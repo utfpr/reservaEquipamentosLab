@@ -1,5 +1,5 @@
 <template>
-  <a-row>
+  <a-spin :spinning = "loading">
     <a-row style = "margin-bottom: 30px;">
       <a-col :span = "16" :offset = "4" style = "text-align: center">
         <h1> Equipamentos </h1>
@@ -30,14 +30,14 @@
 
         <a-tooltip placement = "top">
           <template slot = "title">
-            <span> Reservar </span>
+            <span> Reservar Equipamento </span>
           </template>
 
-          <router-link :to = "{ name: 'periodoReserva', params: { objetoReserva: 'equipamento', itemReserva: text} }">
-            <a-tag color = "green" :key = "text" >
-             <a-icon type = "database" />
-            </a-tag>
-          </router-link>
+          <a-tag color = "green" :key = "text" >
+            <router-link :to = "{ name: 'periodoReserva', params: { objetoReserva: 'equipamento', itemReserva: text} }">
+             <a-icon style = "color: #52c41a" type = "database" />
+            </router-link>
+          </a-tag>
         </a-tooltip>
 
         <a-tooltip v-if = "role === 'admin' || role === 'Supervisor'" placement = "top">
@@ -73,18 +73,6 @@
         />
         <a-button type = 'primary' @click = "() => handleSearch('searchNome', selectedKeys, confirm)"> Buscar </a-button>
         <a-button @click = "() => handleReset('searchNome', clearFilters)"> Resetar </a-button>
-      </div>
-      
-      <div slot = "filterDropdownLocal" slot-scope = "{ setSelectedKeys, selectedKeys, confirm, clearFilters }" class = 'custom-filter-dropdown'>
-        <a-input
-          ref = "localInput"
-          placeholder = 'Buscar local...'
-          :value = "selectedKeys[0]"
-          @change = "e => setSelectedKeys(e.target.value ? [e.target.value] : [])"
-          @pressEnter = "() => handleSearch('searchLocal', selectedKeys, confirm)"
-        />
-        <a-button type = 'primary' @click = "() => handleSearch('searchLocal', selectedKeys, confirm)"> Buscar </a-button>
-        <a-button @click = "() => handleReset('searchLocal', clearFilters)"> Resetar </a-button>
       </div>
       
       <div slot = "filterDropdownPatrimonio" slot-scope = "{ setSelectedKeys, selectedKeys, confirm, clearFilters }" class = 'custom-filter-dropdown'>
@@ -209,7 +197,7 @@
         </a-row>
       </a-form>
     </a-modal>
-  </a-row>
+  </a-spin>
 </template>
 
 <script>
@@ -225,6 +213,7 @@
     data () {
       return {
         role: null,
+        loading: true,
         equipamentos: [],
         locais: [],
         cursos: [],
@@ -232,7 +221,6 @@
         pop: [],
         searchPatrimonio: '',
         searchNome: '',
-        searchLocal: '',
         columns: [{
           title: 'Patrimônio',
           dataIndex: 'patrimonio',
@@ -301,6 +289,7 @@
     },
     beforeMount: function () {
       let _this = this
+      _this.loading = true
 
       db.ref('Equipamentos').orderByKey().on('value', function (snapshot) {
         _this.equipamentos = []
@@ -338,6 +327,7 @@
 
       db.ref('Usuarios/' + auth.currentUser.uid + '/role').on('value', function (snapshot) {
         _this.role = snapshot.val()
+        _this.loading = false
       })
     },
     methods: {
@@ -563,9 +553,5 @@
 
   .custom-filter-dropdown button {
     margin-right: 8px;
-  }
-
-  .highlight {
-    color: #f50;
   }
 </style>

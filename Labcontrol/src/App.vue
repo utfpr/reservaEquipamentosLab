@@ -4,8 +4,8 @@
       :trigger = "null"
       collapsible
       v-model = "collapsed"
-      v-if = "isUser"
-    >
+      v-if = "isUser">
+
       <div class = "logo"/>
 
       <a-menu theme = "dark" mode = "inline" :selectedKeys = "[this.menuKey]">

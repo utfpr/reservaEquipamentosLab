@@ -1,5 +1,5 @@
 <template>
-  <a-row>
+  <a-spin :spinning = "loading">
     <a-row style = "margin-bottom: 30px;">
       <a-col :span = "16" :offset = "4" style = "text-align: center">
         <h1> Locais </h1>
@@ -11,14 +11,24 @@
     </a-row>
 
     <a-table :dataSource = "locais" :columns = "columns" :locale = "{ filterConfirm: 'Ok', filterReset: 'Resetar', emptyText: 'Nenhum Local Cadastrado' }">
-      <!--Alterar, adicionar todos os equipamentos deste local-->
-      <!-- <span slot = "expandedRowRender" slot-scope = "record" style = "margin: 0">
-        <p> <b> Marca: </b> {{ record.marca }} </p>
-        <p> <b> Curso: </b> {{ record.curso }} </p>
-        <p> <b> Especificação: </b> {{ record.especificacao }} </p>
-      </span> -->
+      <span slot = "expandedRowRender" slot-scope = "record" style = "margin: 0">
+        <p> <b> Descrição: </b> {{ record.descricao }} </p>
+        <p>
+          <b> Equipamentos: </b>
+          <template v-for = "equipamento in equipamentos" v-if = "equipamento.local === record.nome">
+            <a-popover v-bind:key = "equipamento.patrimonio">
+              <template slot = "content">
+                <p> <b> Nome: </b> {{ equipamento.nome }} </p>
+                <span> <b> Status: </b> {{ equipamento.status }} </span>
+              </template>
 
-      <!--Coluna Acoes inicia aqui-->
+              <a-tag color = "blue"> {{ equipamento.patrimonio }} </a-tag>
+            </a-popover>
+          </template>
+          <span v-if = "!equipamentos[equipamentos.map(function(e) { return e.local }).indexOf(record.nome)]"> Nenhum equipamento cadastrado ainda... </span>
+        </p>
+      </span>
+
       <span slot = "actions" slot-scope = "text">
         <a-tooltip placement = "top">
           <template slot = "title">
@@ -26,7 +36,9 @@
           </template>
 
           <a-tag color = "green" :key = "text" >
-            <a-icon type = "database" />
+            <router-link :to = "{ name: 'periodoReserva', params: { objetoReserva: 'laboratorio', itemReserva: text} }">
+             <a-icon style = "color: #52c41a" type = "database" />
+            </router-link>
           </a-tag>
         </a-tooltip>
 
@@ -51,11 +63,9 @@
 
         </a-tooltip>
       </span>
-      <!--Coluna Acoes Finaliza aqui-->
 
       <a-icon slot = "filterIcon" slot-scope = "filtered" type='search' :style = "{ color: filtered ? '#108ee9' : '#aaa' }" />
       
-      <!--Inicio do Filtro para Nome-->
       <div slot = "filterDropdownNome" slot-scope = "{ setSelectedKeys, selectedKeys, confirm, clearFilters }" class = 'custom-filter-dropdown'>
         <a-input
           ref = "nomeInput"
@@ -67,37 +77,7 @@
         <a-button type = 'primary' @click = "() => handleSearch('searchNome', selectedKeys, confirm)"> Buscar </a-button>
         <a-button @click = "() => handleReset('searchNome', clearFilters)"> Resetar </a-button>
       </div>
-      <!--Final do Filtro para Nome-->
       
-      <!--Inicio do Filtro para Descricao-->
-      <div slot = "filterDropdownDescricao" slot-scope = "{ setSelectedKeys, selectedKeys, confirm, clearFilters }" class = 'custom-filter-dropdown'>
-        <a-input
-          ref = "descricaoInput"
-          placeholder = 'Buscar Descrição...'
-          :value = "selectedKeys[0]"
-          @change = "e => setSelectedKeys(e.target.value ? [e.target.value] : [])"
-          @pressEnter = "() => handleSearch('searchDescricao', selectedKeys, confirm)"
-        />
-        <a-button type = 'primary' @click = "() => handleSearch('searchDescricao', selectedKeys, confirm)"> Buscar </a-button>
-        <a-button @click = "() => handleReset('searchDescricao', clearFilters)"> Resetar </a-button>
-      </div>
-      <!--Final do Filtro para Descricao-->
-
-      <!--Inicio do Filtro para Curso-->
-      <div slot = "filterDropdownCurso" slot-scope = "{ setSelectedKeys, selectedKeys, confirm, clearFilters }" class = 'custom-filter-dropdown'>
-        <a-input
-          ref = "cursoInput"
-          placeholder = 'Buscar curso...'
-          :value = "selectedKeys[0]"
-          @change = "e => setSelectedKeys(e.target.value ? [e.target.value] : [])"
-          @pressEnter = "() => handleSearch('searchCurso', selectedKeys, confirm)"
-        />
-        <a-button type = 'primary' @click = "() => handleSearch('searchCurso', selectedKeys, confirm)"> Buscar </a-button>
-        <a-button @click = "() => handleReset('searchCurso', clearFilters)"> Resetar </a-button>
-      </div>
-      <!--Final do Filtro para Curso-->
-
-      <!--Inicio do Filtro para Supervisor-->
       <div slot = "filterDropdownSupervisor" slot-scope = "{ setSelectedKeys, selectedKeys, confirm, clearFilters }" class = 'custom-filter-dropdown'>
         <a-input
           ref = "supervisorInput"
@@ -109,8 +89,6 @@
         <a-button type = 'primary' @click = "() => handleSearch('searchSupervisor', selectedKeys, confirm)"> Buscar </a-button>
         <a-button @click = "() => handleReset('searchSupervisor', clearFilters)"> Resetar </a-button>
       </div>
-      <!--Final do Filtro para Supervisor-->
-
     </a-table>
 
     <a-modal
@@ -118,16 +96,16 @@
       :visible = "visibleConfirmModal"
       :footer = "null"
       @cancel = "closeConfirmModal()"
-      style = "padding: 32px 32px 24px;"
-    >
+      style = "padding: 32px 32px 24px;">
+
       <a-icon type = "question-circle-o" style = "color: #faad14; font-size: 22px; margin-right: 16px" />
       <span> <b> Cuidado! </b> </span> <br />
-      <span style = "margin-left: 38px;"> Realmente deseja deletar o equipamento: {{equipamento}}? </span> <br />
+      <span style = "margin-left: 38px;"> Realmente deseja deletar o local: {{local}}? </span> <br />
       <span style = "margin-left: 38px;"> <i> Esta ação não poderá ser desfeita. </i> </span> <br/>
 
       <div style = "text-align: right; margin-top: 20px;">
         <a-button @click = "closeConfirmModal()"> Cancelar </a-button>
-        <a-button @click = "deletaEquipamento()" type = "danger"> Deletar </a-button>
+        <a-button @click = "deletaLocal()" type = "danger"> Deletar </a-button>
       </div> 
     </a-modal>
 
@@ -139,83 +117,56 @@
       style = "padding: 32px 32px 24px; top: 20px;"
     >
       <div slot = "title">
-        <h5 v-if = "edit"> <b> {{equipamento.patrimonio}} </b> </h5>
-        <h5 v-else > <b> Novo Equipamento </b> </h5>
+        <h5 v-if = "edit"> <b> {{local.nome}} </b> </h5>
+        <h5 v-else > <b> Novo Local </b> </h5>
       </div>
 
-      <a-form layout = "vertical" @submit = "submitLocal">
+      <a-form layout = "vertical" :autoFormCreate = "(form) => { this.form = form }">
         <a-row :gutter = "16">
-          <a-col :span = "10">
-            <a-form-item label = "Patrimônio">
-              <a-input size = "large" placeholder = "Digite patrimônio" />
-            </a-form-item>
-          </a-col>
-
-          <a-col :span = "14">
-            <a-form-item label = "Nome">
-              <a-input size = "large" placeholder = "Digite nome" />
+          <a-col :span = "24">
+            <a-form-item label = "Sala" fieldDecoratorId = "nome" :fieldDecoratorOptions = "{ rules: [{ required: true, message: 'Campo Obrigatório' }, { validator: this.checkUnique }], initialValue: local.nome }">
+              <a-input size = "large" placeholder = "Digite bloco e sala" @focus = "checkInput" />
             </a-form-item>
           </a-col>
         </a-row>
 
         <a-row :gutter = "16">
-          <a-col :span = "18">
-            <a-form-item label = "Cursos">
-              <a-select size = "large" placeholder = "Selecione curso">
+          <a-col :span = "24">
+            <a-form-item label = "Supervisor" fieldDecoratorId = "supervisor" :fieldDecoratorOptions = "{ rules: [{ required: true, message: 'Selecione Supervisor' }], initialValue: local.supervisor }">
+              <a-select size = "large" placeholder = "Selecione supervisor" @focus = "checkSelect('supervisor')" showSearch notFoundContent = "Supervisor não Encontrado" :filterOption = "filterOption">
+                <a-select-option v-for = "supervisor in supervisores" v-bind:key = "supervisor" :value = "supervisor"> {{supervisor}} </a-select-option>
+              </a-select>
+            </a-form-item>
+          </a-col>
+        </a-row>
+
+        <a-row :gutter = "16">
+          <a-col :span = "24">
+            <a-form-item label = "Cursos" fieldDecoratorId = "curso" :fieldDecoratorOptions = "{ rules: [{ required: true, message: 'Selecione Curso' }], initialValue: local.curso }">
+              <a-select size = "large" placeholder = "Selecione curso" @focus = "checkSelect('curso')" showSearch notFoundContent = "Curso não Encontrado" :filterOption = "filterOption">
                 <a-select-option v-for = "curso in cursos" v-bind:key = "curso" :value = "curso"> {{curso}} </a-select-option>
               </a-select>
             </a-form-item>
           </a-col>
-
-          <a-col :span = "6">
-            <a-form-item label = "Locais">
-              <a-select size = "large" placeholder = "Locais">
-                <a-select-option v-for = "local in locais" v-bind:key = "local" :value = "local"> {{local}} </a-select-option>
-              </a-select>
-            </a-form-item>
-          </a-col>
         </a-row>
 
         <a-row :gutter = "16">
-          <a-col :span = "10">
-            <a-form-item label = "Status">
-              <a-select size = "large" placeholder = "Selecione status">
-                <a-select-option value = "Normal"> Normal </a-select-option>
-                <a-select-option value = "Quebrado"> Quebrado </a-select-option>
-                <a-select-option value = "Em Manutenção"> Em Manutenção </a-select-option>
-              </a-select>
+          <a-col :span = "24">
+            <a-form-item label = "Descrição" fieldDecoratorId = "descricao" :fieldDecoratorOptions = "{ rules: [{ required: true, message: 'Campo Obrigatório' }], initialValue: local.descricao }">
+              <a-textarea placeholder = "Digite descrição do laboratório" :autosize = "{ minRows: 3, maxRows: 6 }" @focus = "checkInput" />
             </a-form-item>
           </a-col>
-
-          <a-col :span = "14">
-            <a-form-item label = "Marca">
-              <a-input size = "large" placeholder = "Digite marca" />
-            </a-form-item>
-          </a-col>
-        </a-row>
-
-        <a-row :gutter = "16">
-          <a-form-item label = "Especificação">
-            <a-textarea placeholder = "Digite especificação" :autosize = "{ minRows: 3, maxRows: 6 }" />
-          </a-form-item>
-        </a-row>
-
-        <a-row :gutter = "16">
-          <a-form-item label = "Arquivo POP">
-            <a-upload size = "large" :multiple = "false" :fileList = "pop" :beforeUpload = "beforeUpload">
-              <a-button icon = "file-pdf"> Enviar Arquivo </a-button>
-            </a-upload>
-          </a-form-item>
         </a-row>
 
         <a-row style = "text-align: right; margin-bottom: 5px;">
           <a-button size = "large" @click = "closeLocalModal()" style = "margin-right: 15px;"> Cancelar </a-button>
           
-          <a-button size = "large" type = "primary" htmlType = 'submit'> Cadastrar </a-button>
+          <a-button v-if = "edit" size = "large" type = "primary" @click = "atualizaLocal"> Atualizar </a-button>
+          <a-button v-else size = "large" type = "primary" @click = "cadastraLocal"> Cadastrar </a-button>
         </a-row>
       </a-form>
     </a-modal>
-  </a-row>
+  </a-spin>
 </template>
 
 <script>
@@ -228,14 +179,14 @@
     data () {
       return {
         role: null,
-        equipamentos: [],
+        loading: true,
         locais: [],
         cursos: [],
-        equipamento: '',
-        pop: [],
-        searchPatrimonio: '',
+        supervisores: [],
+        equipamentos: [],
+        local: '',
         searchNome: '',
-        searchLocal: '',
+        searchSupervisor: '',
         columns: [{
           title: 'Nome',
           dataIndex: 'nome',
@@ -249,22 +200,6 @@
             if (visible) {
               setTimeout(() => {
                 this.$refs.nomeInput.focus()
-              })
-            }
-          }
-        }, {
-          title: 'Descrição',
-          dataIndex: 'descricao',
-          key: 'descricao',
-          scopedSlots: {
-            filterDropdown: 'filterDropdownDescricao',
-            filterIcon: 'filterIcon'
-          },
-          onFilter: (value, record) => record.descricao.toLowerCase().includes(value.toLowerCase()),
-          onFilterDropdownVisibleChange: (visible) => {
-            if (visible) {
-              setTimeout(() => {
-                this.$refs.descricaoInput.focus()
               })
             }
           }
@@ -304,6 +239,7 @@
     },
     beforeMount: function () {
       let _this = this
+      _this.loading = true
 
       db.ref('Locais').orderByKey().on('value', function (snapshot) {
         _this.locais = []
@@ -317,21 +253,39 @@
           })
         })
       })
-      // db.ref('Locais').orderByKey().on('value', function (snapshot) {
-      //   _this.locais = []
-      //   snapshot.forEach(function (item) {
-      //     _this.locais.push(item.key)
-      //   })
-      // })
-      // db.ref('Controle/Cursos').orderByKey().on('value', function (snapshot) {
-      //   _this.cursos = []
-      //   snapshot.forEach(function (item) {
-      //     _this.cursos.push(item.key)
-      //   })
-      // })
+
+      db.ref('Controle/Cursos').orderByKey().on('value', function (snapshot) {
+        _this.cursos = []
+
+        snapshot.forEach(function (item) {
+          _this.cursos.push(item.key)
+        })
+      })
+
+      db.ref('Equipamentos').orderByKey().on('value', function (snapshot) {
+        _this.equipamentos = []
+
+        snapshot.forEach(function (item) {
+          _this.equipamentos.push({
+            'patrimonio': item.val().Patrimonio,
+            'nome': item.val().Nome,
+            'local': item.val().Local,
+            'status': item.val().Status
+          })
+        })
+      })
+
+      db.ref('Usuarios').orderByChild('role').equalTo('Supervisor').on('value', (snapshot) => {
+        _this.supervisores = []
+
+        snapshot.forEach(function (supervisor) {
+          _this.supervisores.push(supervisor.val().Nome + ' ' + supervisor.val().Sobrenome)
+        })
+      })
 
       db.ref('Usuarios/' + auth.currentUser.uid + '/role').on('value', function (snapshot) {
         _this.role = snapshot.val()
+        _this.loading = false
       })
     },
     methods: {
@@ -356,59 +310,113 @@
 
         return cursos
       },
-      showConfirmModal (equipamento) {
-        this.equipamento = equipamento
+      showConfirmModal (local) {
+        this.local = local
         this.visibleConfirmModal = true
       },
       closeConfirmModal () {
         this.visibleConfirmModal = false
-        this.equipamento = ''
+        this.local = ''
       },
       showLocalModal () {
         this.visibleLocalModal = true
       },
-      showAtualizaModal (equipamento) {
-        this.equipamento = this.equipamentos[this.equipamentos.map(function (e) { return e.patrimonio }).indexOf(equipamento)]
+      showAtualizaModal (local) {
+        this.local = this.locais[this.locais.map(function (e) { return e.nome }).indexOf(local)]
         this.edit = true
         this.showLocalModal()
       },
       closeLocalModal () {
         this.visibleLocalModal = false
         this.edit = false
-        this.equipamento = ''
+        this.local = ''
+        this.form.resetFields()
       },
-      submitLocal () {
-        console.log('oioioioioi')
+      checkUnique (rule, value, callback) {
+        let resposta = 'Local já existe!'
+        if (value && this.locais.some(e => e.nome === value) && this.local.nome !== value) {
+          callback(resposta)
+        } else {
+          callback()
+        }
       },
-      deletaEquipamento () {
+      checkInput (e) {
+        this.form.validateFields([e.target.id])
+      },
+      checkSelect (name) {
+        this.form.validateFields([name])
+      },
+      filterOption (input, option) {
+        return option.componentOptions.children[0].text.toLowerCase().indexOf(input.toLowerCase()) >= 0
+      },
+      async cadastraLocal () {
+        let _this = this
+        this.form.validateFields(async (err, values) => {
+          if (!err) {
+            db.ref('Locais').child(values.nome).update({
+              'Supervisor': values.supervisor,
+              'Curso': values.curso,
+              'Descricao': values.descricao
+            }).then((data) => {
+              _this.$notification.success({
+                message: 'Yey!..',
+                description: 'Local ' + values.nome + ' cadastrado com sucesso.'
+              }, 1500)
+              this.closeLocalModal()
+            }).catch((err) => {
+              _this.$notification.error({
+                message: 'Opps..',
+                description: 'Local não cadastrado. Erro: ' + err
+              })
+              this.closeLocalModal()
+            })
+          }
+        })
+      },
+      async atualizaLocal () {
+        let _this = this
+        this.form.validateFields(async (err, values) => {
+          if (!err) {
+            db.ref('Locais').child(values.nome).update({
+              'Supervisor': values.supervisor,
+              'Curso': values.curso,
+              'Descricao': values.descricao
+            }).then(() => {
+              if (values.nome !== _this.local.nome) {
+                db.ref('Locais').child(_this.local.nome).remove()
+              }
+              _this.$notification.success({
+                message: 'Yey!..',
+                description: 'Local atualizado com sucesso.'
+              }, 1500)
+              this.closeLocalModal()
+            }).catch((err) => {
+              _this.$notification.error({
+                message: 'Opps..',
+                description: 'Local não atualizado. Erro: ' + err
+              })
+              this.closeLocalModal()
+            })
+          }
+        })
+      },
+      deletaLocal () {
         let _this = this
         _this.visibleConfirmModal = false
 
-        db.ref('Equipamentos').child(_this.equipamento).remove().then(function () {
-          _this.$notify({
-            group: 'notify',
-            type: 'success',
-            title: 'Yey!',
-            text: 'Equipamento  <strong>' + _this.equipamento + '</strong> deletado com sucesso'
+        db.ref('Locais').child(_this.local).remove().then(function () {
+          _this.$notification.success({
+            message: 'Yey!..',
+            description: 'Local deletado com sucesso.'
           })
-        }).catch(() => {
-          _this.$notify({
-            group: 'notify',
-            type: 'error',
-            title: 'Yey!',
-            text: 'Falha ao deletar Equipamento ' + _this.equipamento
+        }).catch((err) => {
+          _this.$notification.error({
+            message: 'Opps..',
+            description: 'Local não deletado. Erro: ' + err
           })
         })
 
         _this.equipamento = ''
-      },
-      beforeUpload (file) {
-        if (this.pop.length === 1) {
-          this.pop = this.pop[0]
-        }
-        this.pop = [...this.pop, file]
-
-        return false
       }
     }
   }
@@ -429,9 +437,5 @@
 
   .custom-filter-dropdown button {
     margin-right: 8px;
-  }
-
-  .highlight {
-    color: #f50;
   }
 </style>
