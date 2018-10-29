@@ -5,10 +5,17 @@
         <ring-loader :loading="loader.loading" :color="loader.color" :size="loader.size"></ring-loader>
       </div>
       <div v-if="!loader.loading && role !== 'Comum'" class="container">
+<<<<<<< HEAD
         <resumo-supervisor :month="resumo.month" :day="resumo.day" :time="resumo.time" :reservasEquipConfirmadasLength="resumo.reservas_equip_confirmadas_length" :reservasEquipPendentesLength="resumo.reservas_equip_pendentes_length" :equipamentosQuebradosLength="resumo.equipamentos_quebrados_length" :equipamentosManutencaoLength="resumo.equipamentos_manutencao_length" :reservasLocalConfirmadasLength="resumo.reservas_local_confirmadas_length" :reservasLocalPendentesLength="resumo.reservas_local_pendentes_length" :reservas="resumo.reservados" :diaResumo="resumo.dia"></resumo-supervisor>
       </div>
       <div v-if="!loader.loading && role === 'Comum'" class="container">
         <resumo-comum :month="resumo.month" :reservasUser="resumo.reservasUser"></resumo-comum>
+=======
+        <resumo-supervisor :month="resumo.month" :day="resumo.day" :time="resumo.time" :reservasEquipConfirmadasLength="resumo.reservas_equip_confirmadas_length" :reservasEquipPendentesLength="resumo.reservas_equip_pendentes_length" :equipamentosQuebradosLength="resumo.equipamentos_quebrados_length" :equipamentosManutencaoLength="resumo.equipamentos_manutencao_length" :reservasLocalConfirmadasLength="resumo.reservas_local_confirmadas_length" :reservasLocalPendentesLength="resumo.reservas_local_pendentes_length"></resumo-supervisor>
+      </div>
+      <div v-if="!loader.loading && role === 'Comum'" class="container">
+        <resumo-comum :month="resumo.month" :day="resumo.day" :time="resumo.time" :reservasEquipConfirmadasLength="resumo.reservas_equip_confirmadas_length" :reservasEquipPendentesLength="resumo.reservas_equip_pendentes_length" :equipamentosQuebradosLength="resumo.equipamentos_quebrados_length" :equipamentosManutencaoLength="resumo.equipamentos_manutencao_length" :reservasLocalConfirmadasLength="resumo.reservas_local_confirmadas_length" :reservasLocalPendentesLength="resumo.reservas_local_pendentes_length"></resumo-comum>
+>>>>>>> Arrumando variáveis reserva local
       </div>
     </div>
   </div>
@@ -56,9 +63,13 @@ export default {
         equipamentos_quebrados_length: 0,
         equipamentos_manutencao_length: 0,
         reservas_local_confirmadas_length: 0,
+<<<<<<< HEAD
         reservas_local_pendentes_length: 0,
         reservados: [],
         dia: moment()
+=======
+        reservas_local_pendentes_length: 0
+>>>>>>> Arrumando variáveis reserva local
       }
     }
   },
@@ -116,9 +127,16 @@ export default {
       db.ref('Reservas/equipamentos').orderByChild('Status').equalTo('Pendente').on('value', function (snapshot) {
         _this.loader.loading = true
         _this.reservas.equipPendentes = []
+<<<<<<< HEAD
         snapshot.forEach(function (childSnapshot) {
           _this.reservas.equipPendentes.push(childSnapshot.key)
           // _this.resumo.reservas_pendentes_length = _this.resumo.reservas_pendentes_length + 1
+=======
+        _this.resumo.reservas_pendentes_length = 0
+        snapshot.forEach(function (childSnapshot) {
+          _this.reservas.equipPendentes.push(childSnapshot.key)
+          _this.resumo.reservas_pendentes_length = _this.resumo.reservas_pendentes_length + 1
+>>>>>>> Arrumando variáveis reserva local
         })
         _this.resumo.reservas_equip_pendentes_length = _this.reservas.equipPendentes.length
         // console.log('Lista Pendentes:' + _this.reservas.equipPendentes)
@@ -128,6 +146,7 @@ export default {
       db.ref('Reservas/equipamentos').orderByChild('Status').equalTo('Confirmada').on('value', function (snapshot) {
         _this.loader.loading = true
         _this.reservas.equipConfirmadas = []
+<<<<<<< HEAD
         // Percorre todos os equipamentos confirmados
         snapshot.forEach(function (childSnapshot) {
           // console.log('Solicitante:' + childSnapshot.val().Solicitante)
@@ -158,6 +177,15 @@ export default {
             })
           })
           // _this.resumo.reservados.push(childSnapshot.key)
+=======
+        _this.resumo.reservas_confirmadas_length = 0
+        snapshot.forEach(function (childSnapshot) {
+          // TODO filtrar apenas as reservas cujo o periodo abranja a data atual
+          // Usar comparação this.$moment().isBetween e this.$moment().isSame
+          // assim como foi feito para filtrar datas válidas no momento da criação de uma reserva
+          _this.reservas.equipConfirmadas.push(childSnapshot.key)
+          _this.resumo.reservas_confirmadas_length = _this.resumo.reservas_confirmadas_length + 1
+>>>>>>> Arrumando variáveis reserva local
         })
       })
       db.ref('Equipamentos').orderByChild('Status').equalTo('Em Manutenção').on('value', function (snapshot) {
@@ -193,6 +221,7 @@ export default {
         _this.resumo.reservas_local_pendentes_length = _this.reservas.localPendentes.length
         _this.loader.loading = false
       })
+<<<<<<< HEAD
       db.ref('Reservas/locais').orderByChild('Status').equalTo('Confirmada').on('value', function (snapshot) {
         _this.loader.loading = true
         _this.reservas.localConfirmadas = []
@@ -217,6 +246,30 @@ export default {
             console.log('Lista Confirmados L:' + _this.reservas.localConfirmadas.length)
           })
         })
+=======
+      db.ref('Reservas/locais').orderByChild('Status').equalTo('Pendente').on('value', function (snapshot) {
+        _this.loader.loading = true
+        _this.reservas.localPendentes = []
+        _this.resumo.reservas_local_pendentes_length = 0
+        snapshot.forEach(function (childSnapshot) {
+          _this.reservas.localPendentes.push(childSnapshot.key)
+          _this.resumo.reservas_local_pendentes_length = _this.resumo.reservas_local_pendentes_length + 1
+        })
+        _this.loader.loading = false
+      })
+      db.ref('Reservas/locais').orderByChild('Status').equalTo('Confirmada').on('value', function (snapshot) {
+        _this.loader.loading = true
+        _this.reservas.localConfirmadas = []
+        _this.resumo.reservas_local_confirmadas_length = 0
+        snapshot.forEach(function (childSnapshot) {
+          // TODO filtrar apenas as reservas cujo o periodo abranja a data atual
+          // Usar comparação this.$moment().isBetween e this.$moment().isSame
+          // assim como foi feito para filtrar datas válidas no momento da criação de uma reserva
+          _this.reservas.localConfirmadas.push(childSnapshot.key)
+          _this.resumo.reservas_local_confirmadas_length = _this.resumo.reservas_local_confirmadas_length + 1
+        })
+        _this.loader.loading = false
+>>>>>>> Arrumando variáveis reserva local
       })
     } else if (this.role === 'Comum') {
       db.ref('Reservas/equipamentos').orderByChild('Solicitante').equalTo(auth.currentUser.uid).on('value', function (snapshot) {
