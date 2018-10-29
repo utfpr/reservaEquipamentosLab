@@ -2,49 +2,19 @@
   <a-spin :spinning = "loading">
     <a-row style = "margin-bottom: 30px;">
       <a-col :span = "16" :offset = "4" style = "text-align: center">
-        <h1> Locais </h1>
+        <h1> Cursos </h1>
       </a-col>
       
       <a-col :span = "4">
-        <a-button type = "primary" v-if = "role === 'admin' || role === 'Supervisor'" @click = "showLocalModal()" size = "large" icon = "plus" style = "width: 100%; margin-top: 8px;"> Novo </a-button>
+        <a-button type = "primary" v-if = "role === 'admin' || role === 'Supervisor'" @click = "showCursoModal()" size = "large" icon = "plus" style = "width: 100%; margin-top: 8px;"> Novo </a-button>
       </a-col>
     </a-row>
 
-    <a-table :dataSource = "locais" :columns = "columns" :locale = "{ filterConfirm: 'Ok', filterReset: 'Resetar', emptyText: 'Nenhum Local Cadastrado' }">
-      <span slot = "expandedRowRender" slot-scope = "record" style = "margin: 0">
-        <p> <b> Descrição: </b> {{ record.descricao }} </p>
-        <p>
-          <b> Equipamentos: </b>
-          <template v-for = "equipamento in equipamentos" v-if = "equipamento.local === record.nome">
-            <a-popover v-bind:key = "equipamento.patrimonio">
-              <template slot = "content">
-                <p> <b> Nome: </b> {{ equipamento.nome }} </p>
-                <span> <b> Status: </b> {{ equipamento.status }} </span>
-              </template>
-
-              <a-tag color = "blue"> {{ equipamento.patrimonio }} </a-tag>
-            </a-popover>
-          </template>
-          <span v-if = "!equipamentos[equipamentos.map(function(e) { return e.local }).indexOf(record.nome)]"> Nenhum equipamento cadastrado ainda... </span>
-        </p>
-      </span>
-
+    <a-table :dataSource = "cursos" :columns = "columns" :locale = "{ filterConfirm: 'Ok', filterReset: 'Resetar', emptyText: 'Nenhum Curso Cadastrado' }">
       <span slot = "actions" slot-scope = "text">
-        <a-tooltip placement = "top">
-          <template slot = "title">
-            <span> Reservar Local </span>
-          </template>
-
-          <a-tag color = "green" :key = "text" >
-            <router-link :to = "{ name: 'periodoReserva', params: { objetoReserva: 'laboratorio', itemReserva: text} }">
-             <a-icon style = "color: #52c41a" type = "database" />
-            </router-link>
-          </a-tag>
-        </a-tooltip>
-
         <a-tooltip v-if = "role === 'admin' || role === 'Supervisor'" placement = "top">
           <template slot = "title">
-            <span> Editar Local </span>
+            <span> Editar Curso </span>
           </template>
 
           <a-tag @click = "showAtualizaModal(text)" color = "orange" :key = "text" >
@@ -54,7 +24,7 @@
 
         <a-tooltip v-if = "role === 'admin' || role === 'Supervisor'" placement = "top">
           <template slot = "title">
-            <span> Deletar Local </span>
+            <span> Deletar Curso </span>
           </template>
 
           <a-tag @click = "showConfirmModal(text)" color = "red" :key = "text" >
@@ -100,39 +70,39 @@
 
       <a-icon type = "question-circle-o" style = "color: #faad14; font-size: 22px; margin-right: 16px" />
       <span> <b> Cuidado! </b> </span> <br />
-      <span style = "margin-left: 38px;"> Realmente deseja deletar o local: {{local}}? </span> <br />
+      <span style = "margin-left: 38px;"> Realmente deseja deletar o curso: {{curso}}? </span> <br />
       <span style = "margin-left: 38px;"> <i> Esta ação não poderá ser desfeita. </i> </span> <br/>
 
       <div style = "text-align: right; margin-top: 20px;">
         <a-button @click = "closeConfirmModal()"> Cancelar </a-button>
-        <a-button @click = "deletaLocal()" type = "danger"> Deletar </a-button>
+        <a-button @click = "deletaCurso()" type = "danger"> Deletar </a-button>
       </div> 
     </a-modal>
 
     <a-modal
       v-if = "role === 'admin' || role === 'Supervisor'"
-      :visible = "visibleLocalModal"
+      :visible = "visibleCursoModal"
       :footer = "null"
-      @cancel = "closeLocalModal()"
+      @cancel = "closeCursoModal()"
       style = "padding: 32px 32px 24px; top: 20px;">
-      
+
       <div slot = "title">
-        <h5 v-if = "edit"> <b> {{local.nome}} </b> </h5>
-        <h5 v-else > <b> Novo Local </b> </h5>
+        <h5 v-if = "edit"> <b> {{curso.nome}} </b> </h5>
+        <h5 v-else > <b> Novo Curso </b> </h5>
       </div>
 
       <a-form layout = "vertical" :autoFormCreate = "(form) => { this.form = form }">
         <a-row :gutter = "16">
           <a-col :span = "24">
-            <a-form-item label = "Sala" fieldDecoratorId = "nome" :fieldDecoratorOptions = "{ rules: [{ required: true, message: 'Campo Obrigatório' }, { validator: this.checkUnique }], initialValue: local.nome }">
-              <a-input size = "large" placeholder = "Digite bloco e sala" @focus = "checkInput" />
+            <a-form-item label = "Curso" fieldDecoratorId = "nome" :fieldDecoratorOptions = "{ rules: [{ required: true, message: 'Campo Obrigatório' }, { validator: this.checkUnique }], initialValue: curso.nome }">
+              <a-input size = "large" placeholder = "Digite nome do curso" @focus = "checkInput" />
             </a-form-item>
           </a-col>
         </a-row>
 
         <a-row :gutter = "16">
           <a-col :span = "24">
-            <a-form-item label = "Supervisor" fieldDecoratorId = "supervisor" :fieldDecoratorOptions = "{ rules: [{ required: true, message: 'Selecione Supervisor' }], initialValue: local.supervisor }">
+            <a-form-item label = "Supervisor" fieldDecoratorId = "supervisor" :fieldDecoratorOptions = "{ rules: [{ required: true, message: 'Selecione Supervisor' }], initialValue: curso.supervisor }">
               <a-select size = "large" placeholder = "Selecione supervisor" @focus = "checkSelect('supervisor')" showSearch notFoundContent = "Supervisor não Encontrado" :filterOption = "filterOption">
                 <a-select-option v-for = "supervisor in supervisores" v-bind:key = "supervisor" :value = "supervisor"> {{supervisor}} </a-select-option>
               </a-select>
@@ -140,29 +110,11 @@
           </a-col>
         </a-row>
 
-        <a-row :gutter = "16">
-          <a-col :span = "24">
-            <a-form-item label = "Cursos" fieldDecoratorId = "curso" :fieldDecoratorOptions = "{ rules: [{ required: true, message: 'Selecione Curso' }], initialValue: local.curso }">
-              <a-select size = "large" placeholder = "Selecione curso" @focus = "checkSelect('curso')" showSearch notFoundContent = "Curso não Encontrado" :filterOption = "filterOption">
-                <a-select-option v-for = "curso in cursos" v-bind:key = "curso" :value = "curso"> {{curso}} </a-select-option>
-              </a-select>
-            </a-form-item>
-          </a-col>
-        </a-row>
-
-        <a-row :gutter = "16">
-          <a-col :span = "24">
-            <a-form-item label = "Descrição" fieldDecoratorId = "descricao" :fieldDecoratorOptions = "{ rules: [{ required: true, message: 'Campo Obrigatório' }], initialValue: local.descricao }">
-              <a-textarea placeholder = "Digite descrição do laboratório" :autosize = "{ minRows: 3, maxRows: 6 }" @focus = "checkInput" />
-            </a-form-item>
-          </a-col>
-        </a-row>
-
         <a-row style = "text-align: right; margin-bottom: 5px;">
-          <a-button size = "large" @click = "closeLocalModal()" style = "margin-right: 15px;"> Cancelar </a-button>
+          <a-button size = "large" @click = "closeCursoModal()" style = "margin-right: 15px;"> Cancelar </a-button>
           
-          <a-button v-if = "edit" size = "large" type = "primary" @click = "atualizaLocal"> Atualizar </a-button>
-          <a-button v-else size = "large" type = "primary" @click = "cadastraLocal"> Cadastrar </a-button>
+          <a-button v-if = "edit" size = "large" type = "primary" @click = "atualizaCurso"> Atualizar </a-button>
+          <a-button v-else size = "large" type = "primary" @click = "cadastraCurso"> Cadastrar </a-button>
         </a-row>
       </a-form>
     </a-modal>
@@ -180,11 +132,9 @@
       return {
         role: null,
         loading: true,
-        locais: [],
         cursos: [],
         supervisores: [],
-        equipamentos: [],
-        local: '',
+        curso: '',
         searchNome: '',
         searchSupervisor: '',
         columns: [{
@@ -203,12 +153,6 @@
               })
             }
           }
-        }, {
-          title: 'Curso',
-          dataIndex: 'curso',
-          key: 'curso',
-          filters: this.populaFiltroCursos(),
-          onFilter: (value, record) => record.curso === value
         }, {
           title: 'Supervisor',
           dataIndex: 'supervisor',
@@ -233,7 +177,7 @@
           scopedSlots: { customRender: 'actions' }
         }],
         visibleConfirmModal: false,
-        visibleLocalModal: false,
+        visibleCursoModal: false,
         edit: false
       }
     },
@@ -241,41 +185,14 @@
       let _this = this
       _this.loading = true
 
-      db.ref('Locais').orderByKey().on('value', function (snapshot) {
-        _this.loading = true
-        _this.locais = []
-
-        snapshot.forEach(function (item) {
-          _this.locais.push({
-            'nome': item.key,
-            'curso': item.val().Curso,
-            'descricao': item.val().Descricao,
-            'supervisor': item.val().Supervisor
-          })
-        })
-        _this.loading = false
-      })
-
       db.ref('Controle/Cursos').orderByKey().on('value', function (snapshot) {
         _this.loading = true
         _this.cursos = []
 
         snapshot.forEach(function (item) {
-          _this.cursos.push(item.key)
-        })
-        _this.loading = false
-      })
-
-      db.ref('Equipamentos').orderByKey().on('value', function (snapshot) {
-        _this.loading = true
-        _this.equipamentos = []
-
-        snapshot.forEach(function (item) {
-          _this.equipamentos.push({
-            'patrimonio': item.val().Patrimonio,
-            'nome': item.val().Nome,
-            'local': item.val().Local,
-            'status': item.val().Status
+          _this.cursos.push({
+            'nome': item.key,
+            'supervisor': item.val().Supervisor
           })
         })
         _this.loading = false
@@ -306,44 +223,31 @@
         clearFilters()
         this[inputText] = ''
       },
-      populaFiltroCursos () {
-        var cursos = []
-        db.ref('Controle/Cursos').orderByKey().on('value', function (snapshot) {
-          snapshot.forEach(function (item) {
-            cursos.push({
-              'text': item.key,
-              'value': item.key
-            })
-          })
-        })
-
-        return cursos
-      },
-      showConfirmModal (local) {
-        this.local = local
+      showConfirmModal (curso) {
+        this.curso = curso
         this.visibleConfirmModal = true
       },
       closeConfirmModal () {
         this.visibleConfirmModal = false
-        this.local = ''
+        this.curso = ''
       },
-      showLocalModal () {
-        this.visibleLocalModal = true
+      showCursoModal () {
+        this.visibleCursoModal = true
       },
-      showAtualizaModal (local) {
-        this.local = this.locais[this.locais.map(function (e) { return e.nome }).indexOf(local)]
+      showAtualizaModal (curso) {
+        this.curso = this.cursos[this.cursos.map(function (e) { return e.nome }).indexOf(curso)]
         this.edit = true
-        this.showLocalModal()
+        this.showCursoModal()
       },
-      closeLocalModal () {
-        this.visibleLocalModal = false
+      closeCursoModal () {
+        this.visibleCursoModal = false
         this.edit = false
-        this.local = ''
+        this.curso = ''
         this.form.resetFields()
       },
       checkUnique (rule, value, callback) {
-        let resposta = 'Local já existe!'
-        if (value && this.locais.some(e => e.nome === value) && this.local.nome !== value) {
+        let resposta = 'Curso já existe!'
+        if (value && this.cursos.some(e => e.nome === value) && this.curso.nome !== value) {
           callback(resposta)
         } else {
           callback()
@@ -358,74 +262,70 @@
       filterOption (input, option) {
         return option.componentOptions.children[0].text.toLowerCase().indexOf(input.toLowerCase()) >= 0
       },
-      async cadastraLocal () {
+      async cadastraCurso () {
         let _this = this
         this.form.validateFields(async (err, values) => {
           if (!err) {
-            db.ref('Locais').child(values.nome).update({
-              'Supervisor': values.supervisor,
-              'Curso': values.curso,
-              'Descricao': values.descricao
+            db.ref('Controle/Cursos').child(values.nome).update({
+              'Supervisor': values.supervisor
             }).then((data) => {
               _this.$notification.success({
                 message: 'Yey!..',
-                description: 'Local ' + values.nome + ' cadastrado com sucesso.'
+                description: 'Curso ' + values.nome + ' cadastrado com sucesso.'
               }, 1500)
-              this.closeLocalModal()
+              this.closeCursoModal()
             }).catch((err) => {
               _this.$notification.error({
                 message: 'Opps..',
-                description: 'Local não cadastrado. Erro: ' + err
+                description: 'Curso não cadastrado. Erro: ' + err
               })
-              this.closeLocalModal()
+              this.closeCursoModal()
             })
           }
         })
       },
-      async atualizaLocal () {
+      async atualizaCurso () {
         let _this = this
         this.form.validateFields(async (err, values) => {
           if (!err) {
-            db.ref('Locais').child(values.nome).update({
-              'Supervisor': values.supervisor,
-              'Curso': values.curso,
-              'Descricao': values.descricao
+            db.ref('Controle/Cursos').child(values.nome).update({
+              'Supervisor': values.supervisor
             }).then(() => {
-              if (values.nome !== _this.local.nome) {
-                db.ref('Locais').child(_this.local.nome).remove()
+              if (values.nome !== _this.curso.nome) {
+                db.ref('Controle/Cursos').child(_this.curso.nome).remove()
               }
               _this.$notification.success({
                 message: 'Yey!..',
-                description: 'Local atualizado com sucesso.'
+                description: 'Curso atualizado com sucesso.'
               }, 1500)
-              this.closeLocalModal()
+              this.closeCursoModal()
             }).catch((err) => {
               _this.$notification.error({
                 message: 'Opps..',
-                description: 'Local não atualizado. Erro: ' + err
+                description: 'Curso não atualizado. Erro: ' + err
               })
-              this.closeLocalModal()
+              this.closeCursoModal()
             })
           }
         })
       },
-      deletaLocal () {
+      deletaCurso () {
         let _this = this
         _this.visibleConfirmModal = false
 
-        db.ref('Locais').child(_this.local).remove().then(function () {
+        db.ref('Controle/Cursos').child(_this.curso).remove().then(function () {
           _this.$notification.success({
             message: 'Yey!..',
-            description: 'Local deletado com sucesso.'
+            description: 'Curso deletado com sucesso.'
           })
         }).catch((err) => {
           _this.$notification.error({
             message: 'Opps..',
-            description: 'Local não deletado. Erro: ' + err
+            description: 'Curso não deletado. Erro: ' + err
           })
         })
 
-        _this.equipamento = ''
+        _this.curso = ''
       }
     }
   }

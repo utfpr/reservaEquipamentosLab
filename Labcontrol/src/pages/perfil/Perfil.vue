@@ -150,18 +150,20 @@
     },
     beforeMount () {
       let _this = this
-      _this.loading = true
       _this.populaUsuario()
 
       db.ref('Controle/Cursos').orderByKey().on('value', function (snapshot) {
+        _this.loading = true
         _this.cursos = []
 
         snapshot.forEach(function (item) {
           _this.cursos.push(item.key)
         })
+        _this.loading = false
       })
 
       db.ref('Usuarios').on('value', function (snapshot) {
+        _this.loading = true
         _this.usuarios = []
 
         snapshot.forEach(function (item) {

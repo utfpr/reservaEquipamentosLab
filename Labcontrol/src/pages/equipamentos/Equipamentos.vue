@@ -292,6 +292,7 @@
       _this.loading = true
 
       db.ref('Equipamentos').orderByKey().on('value', function (snapshot) {
+        _this.loading = true
         _this.equipamentos = []
 
         snapshot.forEach(function (item) {
@@ -307,25 +308,31 @@
             'pop': item.val().Pop
           })
         })
+        _this.loading = false
       })
 
       db.ref('Locais').orderByKey().on('value', function (snapshot) {
+        _this.loading = true
         _this.locais = []
 
         snapshot.forEach(function (item) {
           _this.locais.push(item.key)
         })
+        _this.loading = false
       })
 
       db.ref('Controle/Cursos').orderByKey().on('value', function (snapshot) {
+        _this.loading = true
         _this.cursos = []
 
         snapshot.forEach(function (item) {
           _this.cursos.push(item.key)
         })
+        _this.loading = false
       })
 
       db.ref('Usuarios/' + auth.currentUser.uid + '/role').on('value', function (snapshot) {
+        _this.loading = true
         _this.role = snapshot.val()
         _this.loading = false
       })

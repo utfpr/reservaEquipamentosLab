@@ -8,6 +8,7 @@ import Perfil from '@/pages/perfil/Perfil.vue'
 import Equipamentos from '@/pages/equipamentos/Equipamentos'
 import ReservaDetails from '@/pages/reservas/ReservaDetails'
 import Locais from '@/pages/locais/Locais'
+import Cursos from '@/pages/cursos/Cursos'
 import Reservas from '@/pages/reservas/Reservas'
 import listaEquipamentos from '@/pages/reservas/ListaEquipamentos'
 import listaLocais from '@/pages/reservas/ListaLocais'
@@ -51,6 +52,14 @@ const router = new Router({
       component: Aulas,
       meta: {
         menuKey: 'aulas',
+        requiresAuth: true
+      }
+    }, {
+      path: '/cursos',
+      name: 'Cursos',
+      component: Cursos,
+      meta: {
+        menuKey: 'cursos',
         requiresAuth: true
       }
     }, {
