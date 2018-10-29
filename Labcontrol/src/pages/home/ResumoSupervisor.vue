@@ -37,9 +37,9 @@
                 <br>
                 <h5 class="card-title">Em Manutenção: <span class="text-dark">{{ equipamentosManutencaoLength }}</span></h5>
                 <br>
-                <h5 class="card-title">Reservas confirmadas: <span class="text-dark">{{ reservasConfirmadasLength }}</span> </h5>
+                <h5 class="card-title">Reservas confirmadas: <span class="text-dark">{{ reservasEquipConfirmadasLength }}</span> </h5>
                 <br>
-                <h5 class="card-title">Reservas pendentes: <span class="text-dark">{{ reservasPendentesLength }}</span></h5>
+                <h5 class="card-title">Reservas pendentes: <span class="text-dark">{{ reservasEquipPendentesLength }}</span></h5>
               </div>
             </div>
           </div>
@@ -49,9 +49,9 @@
                 <h3><router-link to="/equipamento" class="text-dark">Locais</router-link></h3>
               </div>
               <div class="card-body text-primary">
-                <h5 class="card-title">Reservas confirmadas: <span class="text-dark">{{ equipamentosQuebradosLength }}</span></h5>
+                <h5 class="card-title">Reservas confirmadas: <span class="text-dark">{{ reservasLocalConfirmadasLength }}</span></h5>
                 <br>
-                <h5 class="card-title">Reservas pendentes: <span class="text-dark">{{ equipamentosManutencaoLength }}</span></h5>
+                <h5 class="card-title">Reservas pendentes: <span class="text-dark">{{ reservasLocalConfirmadasLength }}</span></h5>
               </div>
             </div>
           </div>
@@ -66,10 +66,12 @@ export default {
     month: {type: String, default: 'Jan', required: true},
     day: {type: Number, default: 1, required: true},
     time: {type: Number, default: 2018, required: true},
-    reservasConfirmadasLength: {type: Number, default: 0, required: true},
-    reservasPendentesLength: {type: Number, default: 0, required: true},
+    reservasEquipConfirmadasLength: {type: Number, default: 0, required: true},
+    reservasEquipPendentesLength: {type: Number, default: 0, required: true},
     equipamentosQuebradosLength: {type: Number, default: 0, required: true},
-    equipamentosManutencaoLength: {type: Number, default: 0, required: true}
+    equipamentosManutencaoLength: {type: Number, default: 0, required: true},
+    reservasLocalConfirmadasLength: {type: Number, default: 0, required: true},
+    reservasLocalPendentesLength: {type: Number, default: 0, required: true}
   }
 }
 </script>
