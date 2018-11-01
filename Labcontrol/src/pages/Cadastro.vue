@@ -170,9 +170,10 @@
       },
       cadastro () {
         let _this = this
-        _this.loading = true
+
         this.form.validateFields(async (err, values) => {
           if (!err) {
+            _this.loading = true
             auth.createUserWithEmailAndPassword(values.email, values.password).then(function () {
               auth.currentUser.sendEmailVerification().then(function () {
                 db.ref('Usuarios').child(auth.currentUser.uid).update({
