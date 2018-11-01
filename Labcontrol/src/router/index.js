@@ -3,7 +3,6 @@ import Router from 'vue-router'
 import firebaseApp from '../firebase-controller.js'
 import Home from '@/pages/home/Home'
 import Login from '@/pages/Login'
-import p404 from '@/pages/p404'
 import Perfil from '@/pages/perfil/Perfil.vue'
 import Equipamentos from '@/pages/equipamentos/Equipamentos'
 import ReservaDetails from '@/pages/reservas/ReservaDetails'
@@ -190,13 +189,6 @@ const router = new Router({
       meta: {
         menuKey: 'reservas',
         requiresAuth: true
-      }
-    }, {
-      path: '/p404',
-      name: 'p404',
-      component: p404,
-      meta: {
-        menuKey: ''
       }
     }, {
       path: '*',
