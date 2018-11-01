@@ -8,7 +8,7 @@
         <resumo-supervisor :month="resumo.month" :day="resumo.day" :time="resumo.time" :reservasEquipConfirmadasLength="resumo.reservas_equip_confirmadas_length" :reservasEquipPendentesLength="resumo.reservas_equip_pendentes_length" :equipamentosQuebradosLength="resumo.equipamentos_quebrados_length" :equipamentosManutencaoLength="resumo.equipamentos_manutencao_length" :reservasLocalConfirmadasLength="resumo.reservas_local_confirmadas_length" :reservasLocalPendentesLength="resumo.reservas_local_pendentes_length"></resumo-supervisor>
       </div>
       <div v-if="!loader.loading && role === 'Comum'" class="container">
-        <resumo-comum :month="resumo.month" :day="resumo.day" :time="resumo.time" :reservasEquipConfirmadasLength="resumo.reservas_equip_confirmadas_length" :reservasEquipPendentesLength="resumo.reservas_equip_pendentes_length" :equipamentosQuebradosLength="resumo.equipamentos_quebrados_length" :equipamentosManutencaoLength="resumo.equipamentos_manutencao_length" :reservasLocalConfirmadasLength="resumo.reservas_local_confirmadas_length" :reservasLocalPendentesLength="resumo.reservas_local_pendentes_length"></resumo-comum>
+        <resumo-comum :month="resumo.month"></resumo-comum>
       </div>
     </div>
   </div>
@@ -17,6 +17,7 @@
 <script>
 import RingLoader from 'vue-spinner/src/RingLoader.vue'
 import ResumoSupervisor from './ResumoSupervisor.vue'
+import ResumoComum from './ResumoComum.vue'
 import firebaseApp from '../../firebase-controller.js'
 const auth = firebaseApp.auth()
 const db = firebaseApp.database()
@@ -60,7 +61,8 @@ export default {
   },
   components: {
     RingLoader,
-    ResumoSupervisor
+    ResumoSupervisor,
+    ResumoComum
   },
   created: function () {
     var _this = this
