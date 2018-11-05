@@ -26,36 +26,44 @@
             </div>
           </div>
         </div>
+
+<!-- Parte cards -->
         <div class="row">
+          <div class="col-md-6">
+            <a-card title="Equipamentos">
+              <h5 class="card-title">Quebrados: <span class="text-dark">{{ equipamentosQuebradosLength }}</span></h5>
+              <br>
+              <h5 class="card-title">Em Manutenção: <span class="text-dark">{{ equipamentosManutencaoLength }}</span></h5>
+              <br>
+              <h5 class="card-title">Reservas confirmadas: <span class="text-dark">{{ reservasEquipConfirmadasLength }}</span> </h5>
+              <br>
+              <h5 class="card-title">Reservas pendentes: <span class="text-dark">{{ reservasEquipPendentesLength }}</span></h5>
+            </a-card>
+          </div>
+
+          <div class="col-md-6">
+            <a-card title="Equipamentos">
+              <h5 class="card-title">Reservas confirmadas: <span class="text-dark">{{ reservasLocalConfirmadasLength }}</span></h5>
+              <br>
+              <h5 class="card-title">Reservas pendentes: <span class="text-dark">{{ reservasLocalConfirmadasLength }}</span></h5>
+            </a-card>
+          </div>
+        </div>
+
+
+        <!--<div class="row">
           <div class="col-md-6">
             <div class="card border-primary mb-3">
               <div class="card-header text-center">
                 <h3><router-link to="/equipamento" class="text-dark">Equipamentos</router-link></h3>
               </div>
               <div class="card-body text-primary">
-                <h5 class="card-title">Quebrados: <span class="text-dark">{{ equipamentosQuebradosLength }}</span></h5>
-                <br>
-                <h5 class="card-title">Em Manutenção: <span class="text-dark">{{ equipamentosManutencaoLength }}</span></h5>
-                <br>
-                <h5 class="card-title">Reservas confirmadas: <span class="text-dark">{{ reservasEquipConfirmadasLength }}</span> </h5>
-                <br>
-                <h5 class="card-title">Reservas pendentes: <span class="text-dark">{{ reservasEquipPendentesLength }}</span></h5>
+                
               </div>
             </div>
           </div>
-          <div class="col-md-6">
-            <div class="card border-primary mb-3">
-              <div class="card-header text-center">
-                <h3><router-link to="/equipamento" class="text-dark">Locais</router-link></h3>
-              </div>
-              <div class="card-body text-primary">
-                <h5 class="card-title">Reservas confirmadas: <span class="text-dark">{{ reservasLocalConfirmadasLength }}</span></h5>
-                <br>
-                <h5 class="card-title">Reservas pendentes: <span class="text-dark">{{ reservasLocalConfirmadasLength }}</span></h5>
-              </div>
-            </div>
-          </div>
-        </div>
+        </div>-->
+
       </div>
 </template>
 
@@ -75,3 +83,19 @@ export default {
   }
 }
 </script>
+<style>
+.ant-card-bordered {
+  border: 2px solid #1890ff;
+}
+.ant-card-head {
+  font-size: 24px;
+  background: #f7f7f7;
+  border-bottom: 1px solid #1890ff;
+}
+.ant-card-head-title {
+  font-size: 24px;
+  text-align: center;
+}
+
+</style>
+>
