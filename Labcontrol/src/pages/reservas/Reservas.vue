@@ -25,7 +25,7 @@
               </template>
 
               <a-tag color = "green" :key = "text" >
-                <router-link :to = "{ name: 'periodoReserva', params: { objetoReserva: 'equipamento', itemReserva: text} }">
+                <router-link :to = "{ name: 'periodoReserva', params: { item: 'equipamento', valorItem: text} }">
                 <a-icon style = "color: #52c41a" type = "check" />
                 </router-link>
               </a-tag>
@@ -99,7 +99,7 @@
                 </template>
 
                 <a-tag color = "green" :key = "text" >
-                  <router-link :to = "{ name: 'periodoReserva', params: { objetoReserva: 'laboratorio', itemReserva: text} }">
+                  <router-link :to = "{ name: 'periodoReserva', params: { item: 'local', valorItem: text} }">
                   <a-icon style = "color: #52c41a" type = "database" />
                   </router-link>
                 </a-tag>
@@ -155,9 +155,9 @@
               <a-button @click = "() => handleReset('searchSupervisor', clearFilters)"> Resetar </a-button>
             </div> -->
             <span slot = "statusTag" slot-scope = "tag">
-              <a-tag v-if = "tag == 'Confirmada'" color = "green" :key = "tag"> {{tag}} </a-tag>
-              <a-tag v-if = "tag == 'Cancelada'" color = "red" :key = "tag"> {{tag}} </a-tag>
-              <a-tag v-if = "tag == 'Pendente'" color = "blue" :key = "tag"> {{tag}} </a-tag>
+              <a-tag v-if = "tag === 'Confirmada'" color = "green" :key = "tag"> {{tag}} </a-tag>
+              <a-tag v-if = "tag === 'Cancelada'" color = "red" :key = "tag"> {{tag}} </a-tag>
+              <a-tag v-if = "tag === 'Pendente'" color = "blue" :key = "tag"> {{tag}} </a-tag>
             </span>
           </a-table>
       </a-tab-pane>
