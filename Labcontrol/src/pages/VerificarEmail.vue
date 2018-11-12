@@ -1,243 +1,150 @@
 <template>
-  <div class="verificarEmail">
-    <div class="container">
-      <div class="row justify-content-center">
-        <ring-loader :loading="loader.loading" :color="loader.color" :size="loader.size"></ring-loader>
-        <div class="col-sm-12">
+  <a-row>
+    <a-row style = "margin-bottom: 30px;" v-if = "visibleAlert">
+      <a-alert :type = "alert.type" showIcon>
+        <span slot = "description" v-html = "alert.message"> {{ alert.message }} </span>
+        <span slot = "message"> <i> {{ alert.title }} </i> </span>
+      </a-alert>
+    </a-row>
 
-          <alert :showAlert="alert.showAlert" :dismissible="alert.dismissible" :type="alert.type" :title="alert.title" :msg="alert.msg"></alert>
+    <a-row v-if = "visible">
+      <a-form layout = "vertical" :autoFormCreate = "(form) => { this.form = form }">
+        <a-row :gutter = "16">
+          <a-col :span = "20">
+            <a-form-item fieldDecoratorId = "email" :fieldDecoratorOptions = "{ rules: [{ required: true, message: 'Campo Obrigatório' }, { type: 'email', message: 'E-mail Inválido' }, { validator: this.checkUniqueEmail }] }">
+              <a-input placeholder = "Digite um novo e-mail"> 
+                <a-icon slot = "prefix" type = "mail" style = "color: 'rgba(0,0,0,.25)'" />
+              </a-input>
+            </a-form-item>
+          </a-col>
 
-          <form id="changeEmail" class="hideOn needs-validation" v-on:submit.prevent novalidate>
-            <fieldset class="form-group">
-              <label for="emailResend">Novo E-mail</label>
-              <div class="input-group">
-                <div class="input-group-prepend">
-                  <span class="input-group-text" id="emailPrepend"><i class="fas fa-envelope"></i></span>
-                </div>
-                <input id="email" type="email" class="form-control" placeholder="Digite um E-mail válido" autocomplete="email" aria-describedby="emailPrepend" v-model = "user.newEmail" required>
-                <div class="invalid-feedback">
-                  Por favor informe um E-mail válido (exemplo@exemplo.com).
-                </div>
-              </div>
-            </fieldset>
-            <button  class="btn btn-primary btn-block" v-on:click="validate">Alterar E-mail</button>
-          </form>
+          <a-col :span = "4">
+            <a-button style = "width: 100%;" type = "primary" :loading = "loading" @click = "alterarEmail"> Alterar </a-button>
+          </a-col>
+        </a-row>
+      </a-form>
+    </a-row>
+    
+    <a-row :gutter = "16">
+      <a-col :span = "12">
+        <a-button style = "width: 100%;" type = "primary" @click = "resendEmail" size = "large"> Reenviar E-mail </a-button>
+      </a-col>
 
-          <hr />
-
-          <button name="resendEmail" type="button" class="btn btn-primary btn-block" v-on:click="resendEmail">Reenviar E-mail</button>
-          <button name="resendEmail" type="button" class="btn btn-primary btn-block" v-on:click="showForm">Alterar E-mail</button>
-          <router-link to="/home" id="homeBtn" class="btn btn-dark btn-block hideOn">Ir para Home</router-link>
-        </div>
-      </div>
-    </div>
-  </div>
+      <a-col :span = "12">
+        <a-button style = "width: 100%;" type = "primary" size = "large" @click = "showForm"> Alterar E-mail </a-button>
+      </a-col>
+    </a-row>
+  </a-row>
 </template>
 
 <script>
-import RingLoader from 'vue-spinner/src/RingLoader.vue'
-import Alert from '../components/Alert.vue'
-import firebaseApp from '../firebase-controller.js'
-const db = firebaseApp.database()
-const auth = firebaseApp.auth()
-export default {
-  name: 'verificarEmail',
-  data () {
-    return {
-      user: {
-        email: auth.currentUser.email,
-        newEmail: ''
-      },
-      loader: {
+  import firebaseApp from '../firebase-controller.js'
+
+  const db = firebaseApp.database()
+  const auth = firebaseApp.auth()
+
+  export default {
+    name: 'verificarEmail',
+    data () {
+      return {
+        visible: false,
+        visibleAlert: false,
         loading: false,
-        color: '#007bff',
-        size: '100px'
-      },
-      alert: {
-        showAlert: false,
-        dismissible: false,
-        type: '',
-        title: '',
-        msg: ''
-      }
-    }
-  },
-  components: {
-    Alert,
-    RingLoader
-  },
-  mounted: function () {
-    if (auth.currentUser.emailVerified) {
-      let home = document.getElementById('homeBtn')
-      let btn = document.getElementsByName('resendEmail')
-      for (let i = 0; i < btn.length; i++) {
-        btn[i].classList.add('hideOn')
-      }
-      home.classList.remove('hideOn')
-      this.alert.type = 'alert-success'
-      this.alert.dismissible = false
-      this.alert.title = 'E-mail confirmado com sucesso!'
-      this.alert.msg = 'Você pode utilizar o sistema de reservas normalmente!'
-      this.alert.showAlert = true
-      console.log('E-mail verificado!')
-    } else {
-      this.alert.type = 'alert-warning'
-      this.alert.dismissible = false
-      this.alert.title = 'Confirme seu E-mail!'
-      this.alert.msg = 'Para utilizar o sistema abra o link de verificação de conta enviado para o E-mail ' + this.user.email + '. Caso o E-mail não apareça em sua caixa de entrada verifique a pasta de Spam. '
-      this.alert.showAlert = true
-      console.log('E-mail não verificado!')
-    }
-  },
-  methods: {
-    resendEmail: function () {
-      let btn = document.getElementsByName('resendEmail')
-      for (let i = 0; i < btn.length; i++) {
-        btn[i].classList.add('hideOn')
-      }
-
-      this.loader.loading = true
-      this.alert.showAlert = false
-
-      let _this = this
-      auth.currentUser.sendEmailVerification().then(function () {
-        _this.alert.type = 'alert-success'
-        _this.alert.dismissible = false
-        _this.alert.title = 'Yey!'
-        _this.alert.msg = 'Um E-mail de verificação de conta foi enviado para o endereço ' + _this.user.email + '. Caso o E-mail não apareça em sua caixa de entrada verifique a pasta de Spam. '
-        _this.loader.loading = false
-        _this.alert.showAlert = true
-        for (let i = 0; i < btn.length; i++) {
-          btn[i].classList.remove('hideOn')
+        user: {
+          email: auth.currentUser.email
+        },
+        alert: {
+          type: 'info',
+          title: '',
+          message: ''
         }
-        console.log('E-mail de verificação reenviado com sucesso!')
-      }).catch((err) => {
-        _this.alert.type = 'alert-danger'
-        _this.alert.dismissible = true
-        _this.alert.title = 'Oops!'
-        _this.alert.msg = 'Falha ao enviar E-mail de verificação de conta para o endereço ' + _this.user.email + '. Verifique sua conexão com a internet ou tente novamente mais tarde.'
-        _this.loader.loading = false
-        _this.alert.showAlert = true
-        for (let i = 0; i < btn.length; i++) {
-          btn[i].classList.remove('hideOn')
-        }
-        console.log('Falha ao enviar E-mail de verificação de conta: ' + err)
-      })
-    },
-    showForm () {
-      var form = document.getElementById('changeEmail')
-      form.classList.remove('hideOn')
-      let btn = document.getElementsByName('resendEmail')
-      for (let i = 0; i < btn.length; i++) {
-        btn[i].classList.add('hideOn')
       }
-      this.alert.showAlert = false
     },
-    changeEmail () {
-      let btn = document.getElementsByName('resendEmail')
-      for (let i = 0; i < btn.length; i++) {
-        btn[i].classList.add('hideOn')
+    mounted: function () {
+      this.visibleAlert = true
+      if (auth.currentUser.emailVerified) {
+        this.alert.type = 'success'
+        this.alert.title = 'E-mail confirmado com sucesso!'
+        this.alert.message = 'Você pode utilizar o sistema de reservas normalmente!'
+      } else {
+        this.alert.type = 'warning'
+        this.alert.title = 'Confirme seu e-mail'
+        this.alert.message = 'Para utilizar o sistema abra o link de verificação de conta enviado para o e-mail: <b> ' + this.user.email + ' </b>. Caso o e-mail não apareça em sua caixa de entrada verifique a pasta de Spam.'
       }
-      this.alert.showAlert = false
-      this.loader.loading = true
-      let _this = this
-      auth.currentUser.updateEmail(this.user.newEmail).then(function () {
-        _this.user.email = _this.user.newEmail
-        db.ref('Usuarios').child(auth.currentUser.uid).update({
-          'Email': auth.currentUser.email
-        }).then(function () {
-          console.log('E-mail alterado com sucesso!')
-          _this.resendEmail()
+    },
+    methods: {
+      resendEmail: function () {
+        let _this = this
+        _this.visible = false
+
+        auth.currentUser.sendEmailVerification().then(function () {
+          _this.alert.type = 'success'
+          _this.alert.title = 'Yey!'
+          _this.alert.message = 'Um E-mail de verificação de conta foi enviado para o e-mail: <b> ' + _this.user.email + ' </b>. Caso o e-mail não apareça em sua caixa de entrada verifique a pasta de Spam.'
+          _this.visibleAlert = true
+        }).catch(() => {
+          _this.alert.type = 'error'
+          _this.alert.title = 'Oops!'
+          _this.alert.message = 'Falha ao enviar E-mail de verificação de conta para o e-mail: <b> ' + _this.user.email + ' </b>. Verifique sua conexão com a internet ou tente novamente mais tarde.'
+          _this.visibleAlert = true
         })
-      }).catch((err) => {
-        var forms = document.getElementsByClassName('needs-validation')
-        switch (err.code) {
-          case 'auth/email-already-in-use': {
-            this.$notify({
-              group: 'notify',
-              type: 'error',
-              title: 'Oops!',
-              text: 'Endereço de E-mail já está em uso'
-            })
-            this.loader.loading = false
-            Array.prototype.filter.call(forms, function (form) {
-              form.classList.remove('hideOn')
-            })
-            break
-          }
-          case 'auth/requires-recent-login': {
-            this.$notify({
-              group: 'notify',
-              type: 'error',
-              title: 'Oops!',
-              text: 'Operação sensível, necessário confirmar informações de login'
-            })
-            this.loader.loading = false
-            Array.prototype.filter.call(forms, function (form) {
-              form.classList.remove('hideOn')
-            })
-            this.$modal.show('reauthenticate-modal')
-            break
-          }
-          case 'auth/user-token-expired': {
-            this.$notify({
-              group: 'notify',
-              type: 'error',
-              title: 'Oops!',
-              text: 'Sua sessão expirou! Por favor, logue novamente'
-            })
-            this.loader.loading = false
-            Array.prototype.filter.call(forms, function (form) {
-              form.classList.remove('hideOn')
-            })
-            break
-          }
-          case 'auth/invalid-email': {
-            this.$notify({
-              group: 'notify',
-              type: 'error',
-              title: 'Oops!',
-              text: 'Endereço de E-mail informado é inválido'
-            })
-            this.loader.loading = false
-            Array.prototype.filter.call(forms, function (form) {
-              form.classList.remove('hideOn')
-            })
-            break
-          }
-          default: {
-            this.$notify({
-              group: 'notify',
-              type: 'error',
-              title: 'Oops!',
-              text: 'Parece que algo deu errado.<br>Por favor, tente novamente'
-            })
-            break
-          }
+
+        _this.loading = false
+      },
+      showForm () {
+        this.visible = true
+        this.visibleAlert = false
+      },
+      checkUniqueEmail (rule, value, callback) {
+        let resposta = 'E-mail já utilizado anteriormente!'
+        if (this.user.email === value) {
+          callback(resposta)
+        } else {
+          callback()
         }
-        console.log(err.code)
-      })
-    },
-    validate: function () {
-      let _this = this
-      var forms = document.getElementsByClassName('needs-validation')
-      Array.prototype.filter.call(forms, function (form) {
-        form.addEventListener('submit', function (event) {
-          if (form.checkValidity() === false) {
-            event.preventDefault()
-            event.stopPropagation()
-          } else {
-            form.classList.remove('hideOn')
-            _this.changeEmail()
-            form.classList.add('hideOn')
+      },
+      alterarEmail () {
+        let _this = this
+
+        this.form.validateFields(async (err, values) => {
+          if (!err) {
+            _this.loading = true
+            auth.currentUser.updateEmail(values.email).then(function () {
+              _this.user.email = values.email
+              db.ref('Usuarios').child(auth.currentUser.uid).update({
+                'Email': auth.currentUser.email
+              }).then(function () {
+                _this.resendEmail()
+              })
+            }).catch((err) => {
+              let erro
+              switch (err.code) {
+                case 'auth/email-already-in-use': {
+                  erro = 'Endereço de E-mail já está em uso'
+                  break
+                }
+                case 'auth/requires-recent-login' || 'auth/user-token-expired': {
+                  erro = 'Sua sessão expirou! Por favor, logue novamente'
+                  break
+                }
+                case 'auth/invalid-email': {
+                  erro = 'Endereço de E-mail informado é inválido'
+                  break
+                }
+                default: {
+                  erro = 'Parece que algo deu errado. Por favor, tente novamente. Erro: ' + err.code
+                  break
+                }
+              }
+              _this.$notification.error({
+                message: 'Opps..',
+                description: erro
+              })
+              _this.loading = false
+            })
           }
-          form.classList.add('was-validated')
-        }, false)
-      })
+        })
+      }
     }
   }
-}
 </script>
-
-<style>
-</style>

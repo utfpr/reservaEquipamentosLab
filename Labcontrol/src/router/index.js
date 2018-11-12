@@ -5,20 +5,15 @@ import Home from '@/pages/home/Home'
 import Login from '@/pages/Login'
 import Perfil from '@/pages/perfil/Perfil.vue'
 import Equipamentos from '@/pages/equipamentos/Equipamentos'
-import ReservaDetails from '@/pages/reservas/ReservaDetails'
 import Locais from '@/pages/locais/Locais'
 import Cursos from '@/pages/cursos/Cursos'
 import Reservas from '@/pages/reservas/Reservas'
-import listaEquipamentos from '@/pages/reservas/ListaEquipamentos'
-import listaLocais from '@/pages/reservas/ListaLocais'
-import itemReserva from '@/pages/reservas/itemReserva'
 import novaReserva from '@/pages/reservas/novaReserva'
 import ReservaCadastro from '@/pages/reservas/ReservaCadastro'
 import Cadastro from '@/pages/Cadastro'
 import VerificarEmail from '@/pages/VerificarEmail'
 import actionHandler from '@/components/actionHandler'
 import RecuperarSenha from '@/pages/RecuperarSenha'
-import Calendario from '@/components/Calendar-event'
 import Aulas from '@/pages/aulas/Aulas'
 import Usuarios from '@/pages/usuarios/Usuarios'
 
@@ -78,14 +73,6 @@ const router = new Router({
         requiresAuth: true
       }
     }, {
-      path: '/reservas/equipamentos/:key/:action',
-      name: 'ReservaDetails',
-      component: ReservaDetails,
-      meta: {
-        menuKey: 'equipamentos',
-        requiresAuth: true
-      }
-    }, {
       path: '/cadastro',
       name: 'Cadastro',
       component: Cadastro,
@@ -135,14 +122,6 @@ const router = new Router({
         requiresAuth: true
       }
     }, {
-      path: '/calendario',
-      name: 'Calendario',
-      component: Calendario,
-      meta: {
-        menuKey: 'home',
-        requiresAuth: false
-      }
-    }, {
       path: '/reservar',
       component: novaReserva,
       meta: {
@@ -150,30 +129,6 @@ const router = new Router({
         requiresAuth: true
       },
       children: [{
-        path: '',
-        name: 'itemReserva',
-        component: itemReserva,
-        meta: {
-          menuKey: 'reservas',
-          requiresAuth: true
-        }
-      }, {
-        path: 'equipamento',
-        name: 'ListaEquipamentos',
-        component: listaEquipamentos,
-        meta: {
-          menuKey: 'reservas',
-          requiresAuth: true
-        }
-      }, {
-        path: 'laboratorio',
-        name: 'listaLocais',
-        component: listaLocais,
-        meta: {
-          menuKey: 'reservas',
-          requiresAuth: true
-        }
-      }, {
         path: ':objetoReserva/:itemReserva',
         name: 'periodoReserva',
         component: ReservaCadastro,

@@ -9,7 +9,7 @@
       <a-row>
         <a-col :span = "24">
           <a-form-item fieldDecoratorId = "email" :fieldDecoratorOptions = "{ rules: [{ required: true, message: 'Campo Obrigatório' }, { type: 'email', message: 'E-mail Inválido' }] }">
-            <a-input placeholder = "Digite seu email"> 
+            <a-input placeholder = "Digite seu e-mail"> 
               <a-icon slot = "prefix" type = "mail" style = "color: 'rgba(0,0,0,.25)'" />
             </a-input>
           </a-form-item>
