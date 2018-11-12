@@ -7,7 +7,9 @@
       </a-col>
 
       <a-col :span = "4">
-        <a-button type = "primary" @click = "showLocalModal()" size = "large" icon = "plus" style = "width: 100%; margin-top: 8px;"> Nova Reserva </a-button>
+        <router-link to = "/reservar">
+          <a-button type = "primary" size = "large" icon = "plus" style = "width: 100%; margin-top: 8px;"> Nova Reserva </a-button>
+        </router-link>
       </a-col>
     </a-row>
     <a-tabs defaultActiveKey="1">
@@ -17,36 +19,36 @@
           Equipamentos
         </span>
         <a-table :dataSource = "Reservaequip" :columns = "columnsEquip" :locale = "{ filterConfirm: 'Ok', filterReset: 'Resetar', emptyText: 'Nenhum Equipamento Cadastrado' }">
-          <span slot = "actions" slot-scope = "text">
-
-            <a-tooltip placement = "top">
+          <span slot = "actions" slot-scope = "text, record">
+            <a-tooltip v-if = "record.status === 'Pendente'" placement = "top">
               <template slot = "title">
                 <span> Confirmar Reserva</span>
               </template>
 
               <a-tag color = "green" :key = "text" >
-                <router-link :to = "{ name: 'periodoReserva', params: { item: 'equipamento', valorItem: text} }">
                 <a-icon style = "color: #52c41a" type = "check" />
-                </router-link>
               </a-tag>
             </a-tooltip>
 
-            <a-tooltip placement = "top">
+            <!-- Editar Reserva -->
+            <a-tooltip v-if = "record.status === 'Pendente' " placement = "top">
               <template slot = "title">
                 <span> Editar Reserva </span>
               </template>
 
-              <a-tag @click = "showConfirmModal(text)" color = "orange" :key = "text" >
-                <a-icon type = "edit" />
+              <a-tag color = "orange" :key = "text" >
+                <router-link :to = "{ name: 'periodoReserva', params: { item: 'equipamento', valorItem: text} }">
+                  <a-icon style = "color: #fa8c16;" type = "edit" />
+                </router-link>
               </a-tag>
             </a-tooltip>
 
-            <a-tooltip placement = "top">
+            <a-tooltip v-if = "record.status !== 'Cancelada'" placement = "top">
               <template slot = "title">
                 <span> Cancelar Reserva </span>
               </template>
 
-              <a-tag @click = "showConfirmModal(text)" color = "red" :key = "text" >
+              <a-tag @click = "showEquipamentoModal(text)" color = "red" :key = "text" >
                 <a-icon type = "close" />
               </a-tag>
             </a-tooltip>
@@ -110,7 +112,7 @@
                   <span> Cancelar Reserva </span>
                 </template>
 
-                <a-tag @click = "showConfirmModal(text)" color = "red" :key = "text" >
+                <a-tag @click = "showLocalModal(text)" color = "red" :key = "text" >
                   <a-icon type = "delete" />
                 </a-tag>
 
@@ -165,20 +167,20 @@
 
     
     <a-modal
-      v-if = "role === 'admin' || role === 'Supervisor'"
-      :visible = "visibleConfirmModal"
+      :visible = "visibleEquipamentoModal"
       :footer = "null"
-      @cancel = "closeConfirmModal()"
+      @cancel = "closeEquipamentoModal()"
       style = "padding: 32px 32px 24px;">
 
       <a-icon type = "question-circle-o" style = "color: #faad14; font-size: 22px; margin-right: 16px" />
-      <span> <b> Cuidado! </b> </span> <br />
-      <span style = "margin-left: 38px;"> Realmente deseja deletar o local: {{local}}? </span> <br />
-      <span style = "margin-left: 38px;"> <i> Esta ação não poderá ser desfeita. </i> </span> <br/>
+      <span> <b> Cuidado! </b> </span> <br/><br/>
+      <span > Realmente deseja cancelar esta Reserva do Equipamento: <b><i>{{modalEquip}}</i></b>? </span> <br/>
+      <a-textarea placeholder="Digite o motivo do cancelamento aqui" :autosize="{ minRows: 5, maxRows: 5 }" /><br/><br/>
+      <span > <i> Esta ação não poderá ser desfeita. </i> </span> <br/>
 
       <div style = "text-align: right; margin-top: 20px;">
-        <a-button @click = "closeConfirmModal()"> Cancelar </a-button>
-        <a-button @click = "deletaLocal()" type = "danger"> Deletar </a-button>
+        <a-button @click = "closeEquipamentoModal()"> Voltar </a-button>
+        <a-button @click = "deletaLocal()" type = "danger"> Cancelar </a-button>
       </div> 
     </a-modal>
 
@@ -353,7 +355,7 @@
           onFilter: (value, record) => record.status === value
         }, {
           title: 'Ações',
-          dataIndex: 'acoes',
+          dataIndex: 'id',
           key: 'acoes',
           align: 'center',
           scopedSlots: { customRender: 'actions' }
@@ -430,12 +432,13 @@
           onFilter: (value, record) => record.status === value
         }, {
           title: 'Ações',
-          dataIndex: 'acoes',
+          dataIndex: 'local',
           key: 'acoes',
           align: 'center',
           scopedSlots: { customRender: 'actions' }
         }],
-        visibleConfirmModal: false,
+        visibleEquipamentoModal: false,
+        modalEquip: '',
         visibleLocalModal: false,
         edit: false
       }
@@ -562,6 +565,7 @@
                 equipamento = _this.equipamento[_this.equipamento.map(function (e) { return e.key }).indexOf(item.val().Equipamento)].patrimonio
               }
               _this.Reservaequip.push({
+                'id': item.val().Equipamento,
                 'equipamento': equipamento,
                 'local': local,
                 'solicitante': solicitante,
@@ -574,7 +578,6 @@
           })
         } else {
           // Reservas dos Locais
-          console.log(auth.currentUser.uid)
           db.ref('Reservas/locais').orderByChild('Solicitante').equalTo(auth.currentUser.uid).on('value', function (snapshot) {
             // _this.loading = true
             console.log('entrou')
@@ -627,6 +630,7 @@
                 equipamento = _this.equipamento[_this.equipamento.map(function (e) { return e.key }).indexOf(item.val().Equipamento)].patrimonio
               }
               _this.Reservaequip.push({
+                'id': item.val().Equipamento,
                 'equipamento': equipamento,
                 'local': local,
                 'solicitante': solicitante,
@@ -649,13 +653,14 @@
         clearFilters()
         this[inputText] = ''
       },
-      showConfirmModal (local) {
-        this.local = local
-        this.visibleConfirmModal = true
+      showEquipamentoModal (equip) {
+        var _this = this
+        this.modalEquip = _this.equipamento[_this.equipamento.map(function (e) { return e.key }).indexOf(equip)].patrimonio
+        this.visibleEquipamentoModal = true
       },
-      closeConfirmModal () {
-        this.visibleConfirmModal = false
-        this.local = ''
+      closeEquipamentoModal () {
+        this.visibleEquipamentoModal = false
+        this.modalEquip = ''
       },
       showLocalModal () {
         this.visibleLocalModal = true
