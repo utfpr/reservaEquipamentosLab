@@ -130,6 +130,7 @@ const router = new Router({
       }
     }, {
       path: '/reservar',
+      name: 'novaReserva',
       component: novaReserva,
       meta: {
         menuKey: 'reservas',

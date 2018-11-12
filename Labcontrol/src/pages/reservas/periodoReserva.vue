@@ -18,6 +18,13 @@
       </a-col>
     </a-row>
 
+    <a-row style = "margin-bottom: 30px;">
+      <a-alert v-if = "alert.visible" type = "error" showIcon>
+        <span slot = "description"> {{ alert.message }} </span>
+        <span slot = "message"> <i> Opps! </i> </span>
+      </a-alert>
+    </a-row>
+
     <a-form layout = "inline" :autoFormCreate = "(form) => { this.form = form }">
       <a-row :gutter = "16" style = "text-align: center;">
         <a-col :span = "12">
@@ -60,11 +67,15 @@
     name: 'periodoReserva',
     data () {
       return {
+        role: null,
         parent: this.$parent.$parent.$parent,
         valorItem: this.$route.params.valorItem,
         item: this.$route.params.item,
         tempoMin: 0,
-        role: null
+        alert: {
+          visible: false,
+          message: ''
+        }
       }
     },
     beforeMount: function () {
@@ -137,6 +148,9 @@
         return this.range(0, 24).splice(0, 7) + this.range(0, 24).splice(23, 1)
       },
       verificaDados () {
+        let _this = this
+        _this.alert.visible = false
+
         this.form.validateFields(async (err, values) => {
           if (!err) {
             let dataInicial = this.$moment(values.dataInicial).set({
@@ -152,15 +166,26 @@
             })
 
             if (dataFinal < dataInicial || dataInicial < this.$moment()) {
-              this.$notification.error({
-                message: 'Opps..',
-                description: 'Período Inválido'
-              })
+              _this.alert.message = 'Período Inválido.'
+              _this.alert.visible = true
             } else if (this.role === 'Comum' && dataInicial < this.$moment().add(this.tempoMin, 'hours')) {
-              this.$notification.error({
-                message: 'Opps..',
-                description: 'Período Inválido. Horas Mínimas de Reserva: ' + this.tempoMin + 'h'
+              _this.alert.message = 'Período Inválido. Horas Mínimas de Reserva: ' + this.tempoMin + 'h.'
+              _this.alert.visible = true
+            }
+
+            if (this.item === 'equipamento') {
+              db.ref('Reservas/equipamentos').orderByChild('Equipamento').equalTo(this.valorItem).on('value', function (snapshot) {
+                snapshot.forEach(function (reservaEquip) {
+                  let dataInicialEquip = _this.$moment(reservaEquip.val().Inicio, 'DD/MM/YYYY HH:mm')
+                  let dataFinalEquip = _this.$moment(reservaEquip.val().Fim, 'DD/MM/YYYY HH:mm')
+                  if ((dataInicial <= dataFinalEquip) && (dataFinal >= dataInicialEquip) && (reservaEquip.val().Status !== 'Cancelada')) {
+                    _this.alert.message = 'Neste período já existem agendamentos marcados, consulte um supervisor para realizar sua reserva ou escolha outro horário.'
+                    _this.alert.visible = true
+                  }
+                })
               })
+            } else {
+              console.log('oi')
             }
           }
         })
