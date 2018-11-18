@@ -1,207 +1,119 @@
 <template>
-  <div class="container">
-    <div class="row" style = "margin-top: 20px;">
-      <div class="col-md-1 offset-2">
-        Início:
-      </div>
-      <div class="col-md-3">
-        <date-picker v-model="dateInicio" :config="optionsInicio"></date-picker>
-      </div>
-      <div class="col-md-1">
-        Fim:
-      </div>
-      <div class="col-md-3">
-        <date-picker v-model="dateFim" :config="optionsFim"></date-picker>
-      </div>
-    </div>
+  <a-spin :spinning = "loading">
+    <a-row style = "margin-bottom: 30px;">
+      <a-col :span = "16" :offset = "4" style = "text-align: center">
+        <h1> Aulas </h1>
+      </a-col>
+        
+      <a-col :span = "4">
+        <router-link to = "/agendamento">  
+          <a-button type = "primary" v-if = "role === 'admin' || role === 'Supervisor'" size = "large" icon = "plus" style = "width: 100%; margin-top: 8px;"> Novo Agendamento</a-button>
+        </router-link>    
+      </a-col>
+    </a-row>
 
-    <hr>
-
-    <div class = "row">
-      <div class="col-12 col-md-12 text-center">
-        <button type="button" class="btn btn-primary btn-lg col-md-12" data-toggle="modal" data-target="#exampleModal"> + </button>
-      </div>
-    </div>
-
-    <div class = "row" style = "margin: 40px 0">
-      <h4 v-if="agendamentos.length === 0" class=" text-center mt-5"> Nenhum agendamento cadastrado </h4>
-      <table v-else class="table table-responsive-md table-hover text-center">
-        <thead>
-          <tr>
-            <th scope="col"><span>Dia da Semana</span></th>
-            <th scope="col"><span>Local</span></th>
-            <th scope="col"><span>Hora Reservada</span></th>
-            <th scope="col">Ações</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for = "agendamento in agendamentos">
-            <td> {{ agendamento.dia }} </td>
-            <td> {{ agendamento.local }} </td>
-            <td> {{ periodoFormatado(agendamento.horaInicio, agendamento.horaFim) }} </td>
-            <td>
-              <ul class="list-inline d-inline-flex">
-                <li>
-                  <span class="list-inline-item btn btn-danger btn-sm" v-on:click="deleta(agendamento)"> Deletar </span>
-                </li>
-              </ul>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <div class = "row" v-if="agendamentos.length !== 0">
-      <div class = "col-md-2 offset-8">
-        <router-link :to="{ name: 'Home', params: {}}" class="btn btn-secondary btn-block" v-on:click="autocompleteHide()" > Voltar</router-link>
-      </div>
-
-      <div class = "col-md-2">
-        <span class="btn btn-primary btn-block" v-on:click="submit()"> Confirmar </span>
-      </div>
-    </div>
-
-    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-      <div class="modal-dialog" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="exampleModalLabel">Novo Agendamento</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
-          <div class="modal-body">
-            <div class = "row" style = "margin-bottom: 20px;">
-              <div class = "col-md-2 offset-2"> Dia: </div>
-              <div class = "col-md-6">
-                <select class="form-control" id = "dia">
-                  <option>Segunda-Feira</option>
-                  <option>Terça-Feira</option>
-                  <option>Quarta-Feira</option>
-                  <option>Quinta-Feira</option>
-                  <option>Sexta-Feira</option>
-                </select>
-              </div>
-            </div>
-            <div class = "row" style = "margin-bottom: 20px;">
-              <div class = "col-md-2 offset-2"> Local: </div>
-              <div class = "col-md-6">
-                <select class = "form-control" id = "local">
-                  <option v-for="local in locais"> {{local[0]}} </option>
-                </select>
-              </div> 
-            </div>
-            <div class = "row" style = "margin-bottom: 20px;">
-              <div class = "col-md-2 offset-2"> Hora: </div>
-              <div class = "col-md-3">
-                <date-picker v-model="horaInicio" :config="optionsHora"></date-picker>
-              </div>
-              <div class = "col-md-3">
-                <date-picker v-model="horaFim" :config="optionsHora"></date-picker>
-              </div>
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button id = "fechaModal" type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
-            <button type="button" class="btn btn-primary" v-on:click="adiciona()">Adicionar</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+    <a-table :dataSource = "aulas" :columns = "columns" :locale = "{ filterConfirm: 'Ok', filterReset: 'Resetar', emptyText: 'Nenhuma aula angendada' }">
+      
+      <span slot="diaSemana" slot-scope="text, record">
+        <span>{{$moment().day(record.diaSemana).format("dddd")}}</span>
+      </span>
+      <span slot="horas" slot-scope="text, record">
+        <span>{{record.horaInicio}} Até {{record.horaFim}}</span>
+      </span>
+    </a-table>  
+  </a-spin>    
 </template>
- 
 <script>
-  import datePicker from 'vue-bootstrap-datetimepicker'
   import firebaseApp from '../../firebase-controller.js'
+  const auth = firebaseApp.auth()
   const db = firebaseApp.database()
   export default {
     data () {
       return {
-        locais: [],
-        agendamentos: [],
-        dateInicio: new Date(),
-        dateFim: new Date(),
-        horaInicio: new Date(new Date(new Date().setHours(7)).setMinutes(30)),
-        horaFim: new Date(new Date(new Date().setHours(22)).setMinutes(59)),
-        optionsHora: {
-          format: 'HH:mm',
-          locale: 'pt-br',
-          disabledHours: [0, 1, 2, 3, 4, 5, 6, 23],
-          useCurrent: false
-        },
-        optionsInicio: {
-          format: 'DD/MM/YYYY',
-          locale: 'pt-br',
-          minDate: new Date(new Date().setDate(new Date().getDate() - 1)),
-          useCurrent: false
-        },
-        optionsFim: {
-          format: 'DD/MM/YYYY',
-          locale: 'pt-br',
-          minDate: new Date(new Date().setDate(new Date().getDate() - 1)),
-          useCurrent: false
+        usuarios: [],
+        role: null,
+        loading: true,
+        aulas: [],
+        columns: [{
+          title: 'Data Inicio',
+          dataIndex: 'inicio',
+          key: 'periodInicial'
+        }, {
+          title: 'Data Fim',
+          dataIndex: 'fim',
+          key: 'periodfinal'
+        }, {
+          title: 'Dia da semana',
+          dataIndex: 'diaSemana',
+          key: 'diaSemana',
+          scopedSlots: { customRender: 'diaSemana' }
+        }, {
+          title: 'Horario',
+          dataIndex: ['horaFim', 'horaInicio'],
+          key: 'horas',
+          scopedSlots: { customRender: 'horas' }
+        }, {
+          title: 'solicitante',
+          dataIndex: 'solicitante',
+          key: 'solicitante'
+        }, {
+          title: 'Local',
+          dataIndex: 'local',
+          key: 'local'
         }
+        ]
       }
     },
-    components: {
-      datePicker
-    },
-    mounted: function () {
+    beforeMount: function () {
       let _this = this
-      db.ref('Locais').orderByKey().on('value', function (snapshot) {
-        _this.locais = []
-        snapshot.forEach(function (childSnapshot) {
-          _this.locais.push([childSnapshot.key, childSnapshot.val()])
-        })
+      _this.loading = true
+
+      db.ref('Usuarios/' + auth.currentUser.uid + '/role').on('value', function (snapshot) {
+        _this.loading = true
+        _this.role = snapshot.val()
+        _this.loading = false
       })
-    },
-    methods: {
-      periodoFormatado (inicio, fim) {
-        return this.$moment(new Date(inicio)).format('[Das] HH:mm [até] ') + this.$moment(new Date(fim)).format(' HH:mm')
-      },
-      adiciona () {
-        let _this = this
-        var agendamento = []
 
-        let selectDia = document.getElementById('dia')
-        let selectLocal = document.getElementById('local')
-
-        let dia = selectDia.options[selectDia.selectedIndex].text
-        let local = selectLocal.options[selectLocal.selectedIndex].text
-
-        agendamento.dia = dia
-        agendamento.local = local
-        agendamento.horaInicio = _this.horaInicio
-        agendamento.horaFim = _this.horaFim
-
-        _this.agendamentos.push(agendamento)
-
-        _this.$notify({
-          group: 'notify',
-          type: 'success',
-          title: 'Yey!',
-          text: 'Agendamento inserido na lista com sucesso'
-        })
-        document.getElementById('fechaModal').click()
-        console.log(_this.agendamentos)
-      },
-      deleta (agendamento) {
-        this.agendamentos.splice(this.agendamentos.indexOf(agendamento), 1)
-      },
-      submit () {
-        let _this = this
-
-        if (this.$moment(_this.dateInicio) >= this.$moment(_this.dateFim)) {
-          this.$notify({
-            group: 'notify',
-            type: 'error',
-            title: 'Oops!',
-            text: 'Selecione um período válido!',
-            duration: 10000
+      db.ref('Usuarios').orderByKey().on('value', function (snapshot) {
+        _this.loading = true
+        snapshot.forEach(function (item) {
+          _this.usuarios.push({
+            'key': item.key,
+            'curso': item.val().Curso,
+            'email': item.val().Email,
+            'nome': item.val().Nome,
+            'RA': item.val().RA,
+            'sobrenome': item.val().Sobrenome,
+            'role': item.val().role
           })
-        }
-      }
+        })
+        _this.loading = false
+      })
+      db.ref('Reservas/aulas').orderByKey().on('value', function (snapshot) {
+        _this.loading = true
+        _this.equipamentos = []
+
+        snapshot.forEach(function (item) {
+          var solicitante
+          var val = _this.usuarios.map(function (e) { return e.key }).indexOf(item.val().Solicitante)
+          if (val === -1) {
+            solicitante = 'Error'
+          } else {
+            solicitante = _this.usuarios[_this.usuarios.map(function (e) { return e.key }).indexOf(item.val().Solicitante)].nome
+          }
+          _this.aulas.push({
+            'id': item.key,
+            'fim': item.val().Fim,
+            'inicio': item.val().Inicio,
+            'local': item.val().Local,
+            'solicitante': solicitante,
+            'diaSemana': item.val().diaSemana,
+            'horaFim': item.val().horaFim,
+            'horaInicio': item.val().horaInicio
+          })
+        })
+        _this.loading = false
+      })
     }
   }
-</script> 
+</script>    

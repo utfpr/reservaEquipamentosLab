@@ -15,6 +15,7 @@ import VerificarEmail from '@/pages/VerificarEmail'
 import actionHandler from '@/components/actionHandler'
 import RecuperarSenha from '@/pages/RecuperarSenha'
 import Aulas from '@/pages/aulas/Aulas'
+import Agendamento from '@/pages/aulas/AgendamentoAulas'
 import Usuarios from '@/pages/usuarios/Usuarios'
 
 Vue.use(Router)
@@ -46,6 +47,14 @@ const router = new Router({
       component: Aulas,
       meta: {
         menuKey: 'aulas',
+        requiresAuth: true
+      }
+    }, {
+      path: '/agendamento',
+      name: 'AgendamentoAulas',
+      component: Agendamento,
+      meta: {
+        menuKey: '',
         requiresAuth: true
       }
     }, {
