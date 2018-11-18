@@ -23,9 +23,8 @@ import Cadastro from '@/pages/Cadastro'
 import VerificarEmail from '@/pages/VerificarEmail'
 import actionHandler from '@/components/actionHandler'
 import RecuperarSenha from '@/pages/RecuperarSenha'
-import Aulas from '@/pages/aulas/Aulas'
+
 import Agendamento from '@/pages/aulas/AgendamentoAulas'
-import Usuarios from '@/pages/usuarios/Usuarios'
 
 Vue.use(Router)
 
