@@ -34,7 +34,7 @@
           </template>
 
           <a-tag color = "green" :key = "text" >
-            <router-link :to = "{ name: 'periodoReserva', params: { objetoReserva: 'equipamento', itemReserva: text} }">
+            <router-link :to = "{ name: 'periodoReserva', params: { item: 'equipamento', valorItem: text } }">
              <a-icon style = "color: #52c41a" type = "database" />
             </router-link>
           </a-tag>
@@ -88,9 +88,9 @@
       </div>
 
       <span slot = "statusTag" slot-scope = "tag">
-        <a-tag v-if = "tag == 'Normal'" color = "green" :key = "tag"> {{tag}} </a-tag>
-        <a-tag v-if = "tag == 'Quebrado'" color = "red" :key = "tag"> {{tag}} </a-tag>
-        <a-tag v-if = "tag == 'Em Manutenção'" color = "blue" :key = "tag"> {{tag}} </a-tag>
+        <a-tag v-if = "tag === 'Normal'" color = "green" :key = "tag"> {{tag}} </a-tag>
+        <a-tag v-if = "tag === 'Quebrado'" color = "red" :key = "tag"> {{tag}} </a-tag>
+        <a-tag v-if = "tag === 'Em Manutenção'" color = "blue" :key = "tag"> {{tag}} </a-tag>
       </span>
     </a-table>
 

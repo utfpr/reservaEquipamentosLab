@@ -1,16 +1,25 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import firebaseApp from '../firebase-controller.js'
+
 import Home from '@/pages/home/Home'
 import Login from '@/pages/Login'
 import Perfil from '@/pages/perfil/Perfil.vue'
+
 import Equipamentos from '@/pages/equipamentos/Equipamentos'
 import Locais from '@/pages/locais/Locais'
+
 import Cursos from '@/pages/cursos/Cursos'
+import Aulas from '@/pages/aulas/Aulas'
+import Usuarios from '@/pages/usuarios/Usuarios'
+
 import Reservas from '@/pages/reservas/Reservas'
 import novaReserva from '@/pages/reservas/novaReserva'
-import ReservaCadastro from '@/pages/reservas/ReservaCadastro'
+import itemReserva from '@/pages/reservas/itemReserva'
+import periodoReserva from '@/pages/reservas/periodoReserva'
+
 import Cadastro from '@/pages/Cadastro'
+
 import VerificarEmail from '@/pages/VerificarEmail'
 import actionHandler from '@/components/actionHandler'
 import RecuperarSenha from '@/pages/RecuperarSenha'
@@ -132,28 +141,29 @@ const router = new Router({
       }
     }, {
       path: '/reservar',
+      name: 'novaReserva',
       component: novaReserva,
       meta: {
         menuKey: 'reservas',
         requiresAuth: true
       },
       children: [{
-        path: ':objetoReserva/:itemReserva',
+        path: '',
+        name: 'itemReserva',
+        component: itemReserva,
+        meta: {
+          menuKey: 'reservas',
+          requiresAuth: true
+        }
+      }, {
+        path: ':item/:valorItem',
         name: 'periodoReserva',
-        component: ReservaCadastro,
+        component: periodoReserva,
         meta: {
           menuKey: 'reservas',
           requiresAuth: true
         }
       }]
-    }, {
-      path: '/reservas/cadastro',
-      name: 'Cadastro de reservas',
-      component: ReservaCadastro,
-      meta: {
-        menuKey: 'reservas',
-        requiresAuth: true
-      }
     }, {
       path: '*',
       redirect: '/'

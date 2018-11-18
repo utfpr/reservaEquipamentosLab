@@ -17,7 +17,7 @@
             <span> Editar Curso </span>
           </template>
 
-          <a-tag @click = "showAtualizaModal(text)" color = "orange" :key = "text" >
+          <a-tag @click = "showAtualizaModal(text)" color = "orange" :key = "text">
             <a-icon type = "edit" />
           </a-tag>
         </a-tooltip>
@@ -27,14 +27,14 @@
             <span> Deletar Curso </span>
           </template>
 
-          <a-tag @click = "showConfirmModal(text)" color = "red" :key = "text" >
+          <a-tag @click = "showConfirmModal(text)" color = "red" :key = "text">
             <a-icon type = "delete" />
           </a-tag>
 
         </a-tooltip>
       </span>
 
-      <a-icon slot = "filterIcon" slot-scope = "filtered" type='search' :style = "{ color: filtered ? '#108ee9' : '#aaa' }" />
+      <a-icon slot = "filterIcon" slot-scope = "filtered" type = "search" :style = "{ color: filtered ? '#108ee9' : '#aaa' }" />
       
       <div slot = "filterDropdownNome" slot-scope = "{ setSelectedKeys, selectedKeys, confirm, clearFilters }" class = 'custom-filter-dropdown'>
         <a-input
