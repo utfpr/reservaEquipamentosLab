@@ -1,6 +1,6 @@
 <template>
       <div class="container">
-        <div class="row">
+        <!-- <div class="row">
           <div class="col-sm-12">
             <div class="card border-secondary mb-3">
               <div class="card-header text-center"><h1>Resumo do dia</h1></div>
@@ -25,7 +25,7 @@
               </div>
             </div>
           </div>
-        </div>
+        </div> -->
 
 <!-- Parte cards -->
         <div class="row">
@@ -42,7 +42,7 @@
           </div>
 
           <div class="col-md-6">
-            <a-card title="Equipamentos">
+            <a-card title="Locais">
               <h5 class="card-title">Reservas confirmadas: <span class="text-dark">{{ reservasLocalConfirmadasLength }}</span></h5>
               <br>
               <h5 class="card-title">Reservas pendentes: <span class="text-dark">{{ reservasLocalConfirmadasLength }}</span></h5>
@@ -50,19 +50,37 @@
           </div>
         </div>
 
-
-        <!--<div class="row">
-          <div class="col-md-6">
-            <div class="card border-primary mb-3">
-              <div class="card-header text-center">
-                <h3><router-link to="/equipamento" class="text-dark">Equipamentos</router-link></h3>
-              </div>
-              <div class="card-body text-primary">
-                
-              </div>
+<!-- Parte tabs -->
+        <br/>
+        <div>
+          <a-carousel arrows>
+            <div
+              slot="prevArrow" slot-scope="props"
+              class="custom-slick-arrow"
+              style="left: 10px;zIndex: 1"
+            >
+              <a-icon type="left-circle" />
             </div>
-          </div>
-        </div>-->
+            <div
+              slot="nextArrow" slot-scope="props"
+              class="custom-slick-arrow"
+              style="right: 10px"
+            >
+              <a-icon type="right-circle" />
+            </div>
+            
+            <div>
+              <h3> {{ diaResumo }} </h3>
+
+              <ul>
+                <li> ccc </li>
+                <li v-for="reserva in reservas"> {{reserva}} </li>
+              </ul>
+            </div>
+          </a-carousel>
+        </div>
+
+
 
       </div>
 </template>
@@ -79,10 +97,48 @@ export default {
     equipamentosQuebradosLength: {type: Number, default: 0, required: true},
     equipamentosManutencaoLength: {type: Number, default: 0, required: true},
     reservasLocalConfirmadasLength: {type: Number, default: 0, required: true},
-    reservasLocalPendentesLength: {type: Number, default: 0, required: true}
+    reservasLocalPendentesLength: {type: Number, default: 0, required: true},
+    reservas: {type: Array, default: 'Não há reservas para este dia.', required: true},
+    diaResumo: {type: Date, default: '2018-11-11', required: true}
+  },
+  data () {
+    return {
+    }
+  },
+  methods: {
+    callback (key) {
+      console.log(key)
+    }
   }
 }
 </script>
+<style scoped>
+/* For demo */
+.ant-carousel >>> .slick-slide {
+  text-align: center;
+  background: #364d79;
+  overflow: hidden;
+}
+
+.ant-carousel >>> .custom-slick-arrow {
+  width: 25px;
+  height: 25px;
+  font-size: 25px;
+  color: #fff;
+  background-color: rgba(31,45,61,.11);
+  opacity: 0.3;
+}
+.ant-carousel >>> .custom-slick-arrow:before {
+  display: none;
+}
+.ant-carousel >>> .custom-slick-arrow:hover {
+  opacity: 0.5;
+}
+
+.ant-carousel >>> .slick-slide  h3 {
+  color: #fff;
+}
+</style>
 <style>
 .ant-card-bordered {
   border: 2px solid #1890ff;
