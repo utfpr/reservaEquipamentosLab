@@ -75,7 +75,7 @@
               <br/>
 
                 <div v-for="reserva in reservas">
-                  <h5>{{reserva[0]}} - Início: {{reserva[1].Inicio}} - Fim: {{reserva[1].Fim}}</h5>
+                  <h5>{{reserva[0]}} - Início: {{reserva[1].Inicio}} - Fim: {{reserva[1].Fim}} - Solicitante: {{reserva[2].Nome}} {{reserva[2].Sobrenome}}</h5>
                 </div>
 
             </div>
