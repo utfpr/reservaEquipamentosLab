@@ -12,10 +12,30 @@
     <a-table :dataSource = "usuarios" :columns = "columns" :locale = "{ filterConfirm: 'Ok', filterReset: 'Resetar', emptyText: 'Nenhum Usuário Cadastrado' }">
       <span slot = "expandedRowRender" slot-scope = "record" style = "margin: 0">
         <p> <b> E-mail: </b> {{ record.email }} </p>
-        <p> <b> Tipo de Usuário: </b> {{ record.type }} </p>
       </span>
 
       <span slot = "actions" slot-scope = "text">
+        <a-tooltip placement = "top">
+          <template slot = "title">
+            <span> Rebaixar Usuário </span>
+          </template>
+
+          <a-tag v-if = "type != 'Comum'" @click = "rebaixaUsuario(text)" color = "orange" :key = "text">
+            <a-icon type = "arrow-down" />
+          </a-tag>
+
+        </a-tooltip>
+        
+        <a-tooltip placement = "top">
+          <template slot = "title">
+            <span> Promover Usuário </span>
+          </template>
+
+          <a-tag @click = "promoveUsuario(text)" color = "green" :key = "text" >
+            <a-icon type = "arrow-up" />
+          </a-tag>
+        </a-tooltip>
+        
         <a-tooltip placement = "top">
           <template slot = "title">
             <span> Deletar Usuário </span>
@@ -53,28 +73,11 @@
         <a-button @click = "() => handleReset('searchNome', clearFilters)"> Resetar </a-button>
       </div>
 
-      <div slot = "filterDropdownSobrenome" slot-scope = "{ setSelectedKeys, selectedKeys, confirm, clearFilters }" class = 'custom-filter-dropdown'>
-        <a-input
-          ref = "sobrenomeInput"
-          placeholder = 'Buscar sobrenome...'
-          :value = "selectedKeys[0]"
-          @change = "e => setSelectedKeys(e.target.value ? [e.target.value] : [])"
-          @pressEnter = "() => handleSearch('searchSobrenome', selectedKeys, confirm)"
-        />
-        <a-button type = 'primary' @click = "() => handleSearch('searchSobrenome', selectedKeys, confirm)"> Buscar </a-button>
-        <a-button @click = "() => handleReset('searchSobrenome', clearFilters)"> Resetar </a-button>
-      </div>
-
-      <div slot = "filterDropdownCurso" slot-scope = "{ setSelectedKeys, selectedKeys, confirm, clearFilters }" class = 'custom-filter-dropdown'>
-        <a-input
-          ref = "cursoInput"
-          :value = "selectedKeys[0]"
-          @change = "e => setSelectedKeys(e.target.value ? [e.target.value] : [])"
-          @pressEnter = "() => handleSearch('searchCurso', selectedKeys, confirm)"
-        />
-        <a-button type = 'primary' @click = "() => handleSearch('searchCurso', selectedKeys, confirm)"> Buscar </a-button>
-        <a-button @click = "() => handleReset('searchCurso', clearFilters)"> Resetar </a-button>
-      </div>
+      <span slot = "statusTipo" slot-scope = "type">
+        <a-tag v-if = "type == 'Comum'" color = "blue" :key = "type"> {{type}} </a-tag>
+        <a-tag v-if = "type == 'admin'" color = "green" :key = "type"> {{type}} </a-tag>
+        <a-tag v-if = "type == 'Supervisor'" color = "yellow" :key = "type"> {{type}} </a-tag>
+      </span>
 
     </a-table>
 
@@ -86,7 +89,7 @@
     >
       <a-icon type = "question-circle-o" style = "color: #faad14; font-size: 22px; margin-right: 16px" />
       <span> <b> Cuidado! </b> </span> <br />
-      <span style = "margin-left: 38px;"> Realmente deseja deletar o usuário: {{usuario}}? </span> <br />
+      <span style = "margin-left: 38px;"> Realmente deseja deletar o usuário: {{usuario.nome}}? </span> <br />
       <span style = "margin-left: 38px;"> <i> Esta ação não poderá ser desfeita. </i> </span> <br/>
 
       <div style = "text-align: right; margin-top: 20px;">
@@ -144,28 +147,20 @@
               })
             }
           }
-        }, {
-          title: 'Sobrenome',
-          dataIndex: 'sobrenome',
-          key: 'sobrenome',
-          scopedSlots: {
-            filterDropdown: 'filterDropdownSobrenome',
-            filterIcon: 'filterIcon'
-          },
-          onFilter: (value, record) => record.sobrenome.toLowerCase().includes(value.toLowerCase()),
-          onFilterDropdownVisibleChange: (visible) => {
-            if (visible) {
-              setTimeout(() => {
-                this.$refs.sobrenomeInput.focus()
-              })
-            }
-          }
-        }, {
+        },
+        {
           title: 'Curso',
           dataIndex: 'curso',
           key: 'curso',
           filters: this.populaFiltroCursos(),
           onFilter: (value, record) => record.curso === value
+        }, {
+          title: 'Tipo de Usuário',
+          dataIndex: 'type',
+          scopedSlots: { customRender: 'statusTipo' },
+          key: 'type',
+          filters: [{'text': 'admin', 'value': 'admin'}, {'text': 'Comum', 'value': 'Comum'}, {'text': 'Supervisor', 'value': 'Supervisor'}],
+          onFilter: (value, record) => record.type === value
         }, {
           title: 'Ações',
           dataIndex: 'id',
@@ -183,15 +178,16 @@
         _this.usuarios = []
 
         snapshot.forEach(function (item) {
-          _this.usuarios.push({
-            'id': item.key,
-            'ra': item.val().RA,
-            'email': item.val().Email,
-            'type': item.val().role,
-            'nome': item.val().Nome,
-            'sobrenome': item.val().Sobrenome,
-            'curso': item.val().Curso
-          })
+          if (auth.currentUser.uid !== item.key) {
+            _this.usuarios.push({
+              'id': item.key,
+              'ra': item.val().RA,
+              'email': item.val().Email,
+              'type': item.val().role,
+              'nome': item.val().Nome + ' ' + item.val().Sobrenome,
+              'curso': item.val().Curso
+            })
+          }
         })
       })
 
@@ -208,8 +204,8 @@
         clearFilters()
         this[inputText] = ''
       },
-      showConfirmModal (usuario) {
-        this.usuario = usuario
+      showConfirmModal (id) {
+        this.usuario = this.usuarios[this.usuarios.map(function (u) { return u.id }).indexOf(id)]
         this.visibleConfirmModal = true
       },
       closeConfirmModal () {
@@ -232,9 +228,7 @@
       deletaUsuario () {
         let _this = this
         _this.visibleConfirmModal = false
-
-        console.log(_this.usuario.id)
-        db.ref('Usuarios').child(_this.usuario).remove().then(function () {
+        db.ref('Usuarios').child(_this.usuario.id).remove().then(function () {
           _this.$notification.success({
             message: 'Yey!',
             description: 'Usuário deletado com sucesso.'
@@ -247,6 +241,62 @@
         })
 
         _this.usuario = ''
+      },
+      promoveUsuario (id) {
+        this.usuario = this.usuarios[this.usuarios.map(function (u) { return u.id }).indexOf(id)]
+        if (this.usuario.type === 'Comum') {
+          db.ref('Usuarios').child(this.usuario.id).update({role: 'Supervisor'}).then(() => {
+            this.$notification.success({
+              message: 'Yey!',
+              description: 'Usuário promovido com sucesso.'
+            })
+          }).catch(() => {
+            this.$notification.error({
+              message: 'Yey!',
+              description: 'Falha ao promover Usuário ' + this.usuario.nome
+            })
+          })
+        } else if (this.usuario.type === 'Supervisor') {
+          db.ref('Usuarios').child(this.usuario.id).update({role: 'admin'}).then(() => {
+            this.$notification.success({
+              message: 'Yey!',
+              description: 'Usuário promovido com sucesso.'
+            })
+          }).catch(() => {
+            this.$notification.error({
+              message: 'Yey!',
+              description: 'Falha ao promover Usuário ' + this.usuario.nome
+            })
+          })
+        }
+      },
+      rebaixaUsuario (id) {
+        this.usuario = this.usuarios[this.usuarios.map(function (u) { return u.id }).indexOf(id)]
+        if (this.usuario.type === 'admin') {
+          db.ref('Usuarios').child(this.usuario.id).update({role: 'Supervisor'}).then(() => {
+            this.$notification.success({
+              message: 'Yey!',
+              description: 'Usuário rebaixado com sucesso.'
+            })
+          }).catch(() => {
+            this.$notification.error({
+              message: 'Yey!',
+              description: 'Falha ao rebaixar Usuário ' + this.usuario.nome
+            })
+          })
+        } else if (this.usuario.type === 'Supervisor') {
+          db.ref('Usuarios').child(this.usuario.id).update({role: 'Comum'}).then(() => {
+            this.$notification.success({
+              message: 'Yey!',
+              description: 'Usuário rebaixado com sucesso.'
+            })
+          }).catch(() => {
+            this.$notification.error({
+              message: 'Yey!',
+              description: 'Falha ao rebaixar Usuário ' + this.usuario.nome
+            })
+          })
+        }
       }
     }
 
