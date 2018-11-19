@@ -20,7 +20,7 @@
             <span> Rebaixar Usuário </span>
           </template>
 
-          <a-tag v-if = "type != 'Comum'" @click = "rebaixaUsuario(text)" color = "orange" :key = "text">
+          <a-tag @click = "rebaixaUsuario(text)" color = "orange" :key = "text">
             <a-icon type = "arrow-down" />
           </a-tag>
 
@@ -268,6 +268,11 @@
               description: 'Falha ao promover Usuário ' + this.usuario.nome
             })
           })
+        } else {
+          this.$notification.warning({
+            message: 'Opps..',
+            description: 'Este usuário já está no nível alto baixo possível.'
+          })
         }
       },
       rebaixaUsuario (id) {
@@ -295,6 +300,11 @@
               message: 'Yey!',
               description: 'Falha ao rebaixar Usuário ' + this.usuario.nome
             })
+          })
+        } else {
+          this.$notification.warning({
+            message: 'Opps..',
+            description: 'Este usuário já está no nível mais baixo possível.'
           })
         }
       }
