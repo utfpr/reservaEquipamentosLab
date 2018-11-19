@@ -32,11 +32,11 @@
           <div class="col-md-6">
             <a-card title="Equipamentos">
               <h5 class="card-title">Quebrados: <span class="text-dark">{{ equipamentosQuebradosLength }}</span></h5>
-              <br>
+              
               <h5 class="card-title">Em Manutenção: <span class="text-dark">{{ equipamentosManutencaoLength }}</span></h5>
-              <br>
+              
               <h5 class="card-title">Reservas confirmadas: <span class="text-dark">{{ reservasEquipConfirmadasLength }}</span> </h5>
-              <br>
+              
               <h5 class="card-title">Reservas pendentes: <span class="text-dark">{{ reservasEquipPendentesLength }}</span></h5>
             </a-card>
           </div>
@@ -44,8 +44,9 @@
           <div class="col-md-6">
             <a-card title="Locais">
               <h5 class="card-title">Reservas confirmadas: <span class="text-dark">{{ reservasLocalConfirmadasLength }}</span></h5>
-              <br>
+              
               <h5 class="card-title">Reservas pendentes: <span class="text-dark">{{ reservasLocalConfirmadasLength }}</span></h5>
+              <br><br><br>
             </a-card>
           </div>
         </div>
@@ -70,12 +71,13 @@
             </div>
             
             <div>
-              <h3> {{ diaResumo }} </h3>
+              <h3> Agendados  para  {{ diaResumo.date() }}/{{ diaResumo.month() }}/{{ diaResumo.year() }} </h3>
+              <br/>
 
-              <ul>
-                <li> ccc </li>
-                <li v-for="reserva in reservas"> {{reserva}} </li>
-              </ul>
+                <div v-for="reserva in reservas">
+                  <h5>{{reserva[0]}} - Início: {{reserva[1].Inicio}} - Fim: {{reserva[1].Fim}}</h5>
+                </div>
+
             </div>
           </a-carousel>
         </div>
@@ -86,6 +88,7 @@
 </template>
 
 <script>
+var moment = require('moment')
 export default {
   name: 'ResumoSupervisor',
   props: {
@@ -103,11 +106,12 @@ export default {
   },
   data () {
     return {
+      diaResumo: '2018-11-11'
     }
   },
   methods: {
     callback (key) {
-      console.log(key)
+      this.diaResumo = moment(this.diaResumo)
     }
   }
 }
@@ -116,7 +120,7 @@ export default {
 /* For demo */
 .ant-carousel >>> .slick-slide {
   text-align: center;
-  background: #364d79;
+  background: #f7f7f7;
   overflow: hidden;
 }
 
@@ -124,8 +128,8 @@ export default {
   width: 25px;
   height: 25px;
   font-size: 25px;
-  color: #fff;
-  background-color: rgba(31,45,61,.11);
+  color: #000;
+  background-color: #f7f7f7;
   opacity: 0.3;
 }
 .ant-carousel >>> .custom-slick-arrow:before {
@@ -136,17 +140,17 @@ export default {
 }
 
 .ant-carousel >>> .slick-slide  h3 {
-  color: #fff;
+  color: #000;
 }
 </style>
 <style>
 .ant-card-bordered {
-  border: 2px solid #1890ff;
+  border: 1px solid rgb(232, 232, 232);
 }
 .ant-card-head {
   font-size: 24px;
   background: #f7f7f7;
-  border-bottom: 1px solid #1890ff;
+  border-bottom: 1px solid rgb(232, 232, 232);
 }
 .ant-card-head-title {
   font-size: 24px;
