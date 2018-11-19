@@ -21,6 +21,7 @@ import ResumoComum from './ResumoComum.vue'
 import firebaseApp from '../../firebase-controller.js'
 const auth = firebaseApp.auth()
 const db = firebaseApp.database()
+var moment = require('moment')
 export default {
   name: 'home',
   data () {
@@ -57,7 +58,7 @@ export default {
         reservas_local_confirmadas_length: 0,
         reservas_local_pendentes_length: 0,
         reservados: [],
-        dia: new Date('dd/MM/yyyy')
+        dia: moment()
       }
     }
   },
@@ -132,16 +133,17 @@ export default {
           // _this.resumo.reservados.push(childSnapshot.key)
         })
         _this.reservas.equipConfirmadas.forEach(function (value) {
-          var dataInicio = value[1].Inicio.slice(0, 10)
-          console.log('Inicio: ' + dataInicio)
-          console.log('hoje: ' + _this.resumo.dia.getMonth)
-          if (value[1].Inicio.getFullYear === _this.resumo.dia.getFullYear && value[1].Inicio.getMonth === _this.resumo.dia.getMonth && value[1].Inicio.getDay === _this.resumo.dia.getDay) {
-            console.log('Passou equipconf')
+          var dataInicio = moment(value[1].Inicio.slice(0, 10), 'DD/MM/YYYY')
+          // console.log('Inicio: ' + dataInicio.date())
+          // console.log('hoje: ' + _this.resumo.dia.date())
+          if ((dataInicio.year() === _this.resumo.dia.year()) && (dataInicio.month() === _this.resumo.dia.month()) && (dataInicio.date() === _this.resumo.dia.date())) {
+            // console.log('Passou equipconf')
+            _this.resumo.reservados.push(value)
           }
         })
         _this.resumo.reservas_equip_confirmadas_length = _this.reservas.equipConfirmadas.length
-        _this.resumo.reservados = _this.reservas.equipConfirmadas
-        console.log('Lista Confirmados:' + _this.resumo.reservados)
+        // _this.resumo.reservados = _this.reservas.equipConfirmadas
+        // console.log('Lista Confirmados:' + _this.resumo.reservados)
         _this.loader.loading = false
       })
       db.ref('Equipamentos').orderByChild('Status').equalTo('Em Manutenção').on('value', function (snapshot) {
