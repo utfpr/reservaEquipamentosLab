@@ -1,128 +1,84 @@
 <template>
-      <div v-if="!loader.loading && role === 'Comum'" class="container">
-        <vue-event-calendar :events="reservasCalendar"></vue-event-calendar>
+      <div class="container">
+        <a-row>  
+          <a-col :span="8" type = "flex" justify = "space-around" align = "middle">
+            <h1 align="center" >Calendar</h1>
+            <br/>
+            <div :style="{ width: '300px', border: '1px solid #d9d9d9', borderRadius: '4px' }">
+              {{ month }}
+              <a-calendar :fullscreen="false" @panelChange="onPanelChange" align = "middle" class="calendar"/>
+            </div>
+          </a-col>
+          <a-col :span="16" type="flex" justify = "space-around" align = "middle">
+            <a-col :span="16" :offset="6">
+              <a-tabs @change="callback" type="card">
+                <a-tab-pane tab="Reservas de Equipamentos" key="1">
+                  <h3>Reservas de Equipamentos</h3>
+                  <a-list size="small" bordered :dataSource="reservasUser">
+                    <a-list-item slot="renderItem" slot-scope="item, index">{{item}}</a-list-item>
+                    <div slot="header">Header</div>
+                    <div slot="footer">Footer</div>
+                  </a-list>
+                </a-tab-pane>
+                <a-tab-pane tab="Reservas de Locais" key="2">
+                  <h3>Reservas de Locais</h3>
+                  <a-list size="small" bordered :dataSource="reservasUser">
+                    <a-list-item slot="renderItem" slot-scope="item, index">{{item}}</a-list-item>
+                    <div slot="header">Header</div>
+                    <div slot="footer">Footer</div>
+                  </a-list>
+                </a-tab-pane>
+                <a-tab-pane tab="Minhas reservas" key="3">
+                  <h3>Minhas reservas</h3>
+                  <a-list size="small" bordered :dataSource="reservasUser">
+                    <a-list-item slot="renderItem" slot-scope="item, index">{{item}}</a-list-item>
+                    <div slot="header">Header</div>
+                    <div slot="footer">Footer</div>
+                  </a-list>
+                </a-tab-pane>
+              </a-tabs>
+            </a-col>
+          </a-col>
+      </a-row>
       </div>
 </template>
-
+ 
 <script>
-import RingLoader from 'vue-spinner/src/RingLoader.vue'
-import firebaseApp from '../../firebase-controller.js'
-const auth = firebaseApp.auth()
-const db = firebaseApp.database()
+import moment from 'moment'
+import 'moment/locale/pt-br'
+// import {Icon} from 'antd'
 export default {
-  name: 'home',
-  data () {
-    return {
-      hours: null,
-      minutes: null,
-      seconds: null,
-      time: null,
-      month: null,
-      day: null,
-      role: null,
-      reservasUser: [],
-      reservasCalendar: [],
-      reservas: {
-        confirmadas: [],
-        pendentes: []
-      },
-      equipamentos: {
-        manutencao: [],
-        quebrados: []
-      },
-      loader: {
-        loading: true,
-        color: '#007bff',
-        size: '100px'
-      }
+  constructor () {
+    this.state = {
+      data: moment().hours(0).minutes(0).seconds(0).milliseconds(0)
     }
   },
-  components: {
-    RingLoader
-  },
-  created: function () {
-    var _this = this
-    db.ref('Usuarios/' + auth.currentUser.uid + '/role').on('value', function (snapshot) {
-      _this.loader.loading = true
-      _this.role = snapshot.val()
-      _this.loader.loading = false
-    })
-  },
-  mounted: function () {
-    this.loader.loading = true
-    let now = new Date()
-    this.hours = now.getHours()
-    this.minutes = this.zeroPattern(now.getMinutes())
-    this.seconds = this.zeroPattern(now.getSeconds())
-    this.time = this.hours + ':' + this.minutes
-    this.day = this.zeroPattern(now.getDate())
-    var month = now.getMonth()
-    if (month === 0) {
-      this.month = 'Jan'
-    } else if (month === 1) {
-      this.month = 'Fev'
-    } else if (month === 2) {
-      this.month = 'Mar'
-    } else if (month === 3) {
-      this.month = 'Abr'
-    } else if (month === 4) {
-      this.month = 'Mai'
-    } else if (month === 5) {
-      this.month = 'Jun'
-    } else if (month === 6) {
-      this.month = 'Jul'
-    } else if (month === 7) {
-      this.month = 'Ago'
-    } else if (month === 8) {
-      this.month = 'Set'
-    } else if (month === 9) {
-      this.month = 'Out'
-    } else if (month === 10) {
-      this.month = 'Nov'
-    } else if (month === 11) {
-      this.month = 'Dez'
-    }
-    setInterval(this.updateTime, 1000)
-
-    var _this = this
-    if (this.role === 'Comum') {
-      db.ref('Reservas/equipamentos').orderByChild('Solicitante').equalTo(auth.currentUser.uid).on('value', function (snapshot) {
-        _this.loader.loading = true
-        _this.reservasUser = []
-        snapshot.forEach(function (childSnapshot) {
-          db.ref('Equipamentos/' + childSnapshot.val().Equipamento).on('value', function (equip) {
-            _this.reservasUser.push([childSnapshot.key, childSnapshot.val(), equip.val()])
-          })
-        })
-      })
-      this.reservasUser.forEach(function (reserva) {
-        let ReservaInicio = {
-          date: _this.$moment(new Date(reserva[1].Inicio)).format('YYYY/MM/DD'),
-          title: 'Inicio de reserva: Equipamento ' + reserva[2].Nome + ' - ' + reserva[1].Status,
-          desc: 'Reserva do equipamento ' + reserva[1].Equipamento + ' - ' + reserva[2].Nome + ' no laboratório ' + reserva[2].Local + 'inicia às ' + _this.$moment(new Date(reserva[1].Inicio)).format('HH:mm')
-        }
-        let ReservaFim = {
-          date: _this.$moment(new Date(reserva[1].Fim)).format('YYYY/MM/DD'),
-          title: 'Fim de reserva: Equipamento ' + reserva[2].Nome + ' - ' + reserva[1].Status,
-          desc: 'Reserva do equipamento ' + reserva[1].Equipamento + ' - ' + reserva[2].Nome + ' no laboratório ' + reserva[2].Local + 'se encerra às ' + _this.$moment(new Date(reserva[1].Fim)).format('HH:mm')
-        }
-        _this.reservasCalendar.push(ReservaInicio)
-        _this.reservasCalendar.push(ReservaFim)
-      })
-      this.loader.loading = false
-    }
+  name: 'ResumoComum',
+  props: {
+    month: { type: String, default: 'Jan', required: true },
+    reservasUser: { type: Array }
   },
   methods: {
-    zeroPattern (n) {
-      return (parseInt(n, 10) >= 10 ? '' : '0') + n
+    onPanelChange (value) {
+      var data
+      if (value === 'backward') {
+        data = moment(this.state.data).subtract(1, 'M')
+      } else {
+        data = moment(this.state.data).add(1, 'M')
+      }
+      this.setState({ data })
     },
-    updateTime: function () {
-      let now = new Date()
-      this.hours = now.getHours()
-      this.minutes = this.zeroPattern(now.getMinutes())
-      this.seconds = this.zeroPattern(now.getSeconds())
-      this.time = this.hours + ':' + this.minutes
+    callback (key) {
+      console.log(key + this.reservasUser)
     }
   }
 }
 </script>
+<style>
+  .ant-select-selection--single{
+    display:none;
+  }
+  .ant-radio-group{
+    display:none;
+  }
+</style>

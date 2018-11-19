@@ -1,25 +1,31 @@
 <template>
+  
   <div id="home">
     <div class="container-fluid">
-      <div v-if="loader.loading" class="row justify-content-center">
-        <ring-loader :loading="loader.loading" :color="loader.color" :size="loader.size"></ring-loader>
+      <div v-if="role !== 'Comum'" class="container">
+        <resumo-supervisor :month="resumo.month" :day="resumo.day" :time="resumo.time" :reservasEquipConfirmadasLength="resumo.reservas_equip_confirmadas_length" :reservasEquipPendentesLength="resumo.reservas_equip_pendentes_length" :equipamentosQuebradosLength="resumo.equipamentos_quebrados_length" :equipamentosManutencaoLength="resumo.equipamentos_manutencao_length" :reservasLocalConfirmadasLength="resumo.reservas_local_confirmadas_length" :reservasLocalPendentesLength="resumo.reservas_local_pendentes_length" :reservas="resumo.reservados" :diaResumo="resumo.dia"></resumo-supervisor>
       </div>
+<<<<<<< HEAD
+      <div v-if="role === 'Comum'" class="container">
+=======
       <div v-if="!loader.loading && role !== 'Comum'" class="container">
-        <resumo-supervisor :month="resumo.month" :day="resumo.day" :time="resumo.time" :reservasConfirmadasLength="resumo.reservas_confirmadas_length" :reservasPendentesLength="resumo.reservas_pendentes_length" :equipamentosQuebradosLength="resumo.equipamentos_quebrados_length" :equipamentosManutencaoLength="resumo.equipamentos_manutencao_length"></resumo-supervisor>
+        <resumo-supervisor :month="resumo.month" :day="resumo.day" :time="resumo.time" :reservasEquipConfirmadasLength="resumo.reservas_equip_confirmadas_length" :reservasEquipPendentesLength="resumo.reservas_equip_pendentes_length" :equipamentosQuebradosLength="resumo.equipamentos_quebrados_length" :equipamentosManutencaoLength="resumo.equipamentos_manutencao_length" :reservasLocalConfirmadasLength="resumo.reservas_local_confirmadas_length" :reservasLocalPendentesLength="resumo.reservas_local_pendentes_length" :reservas="resumo.reservados" :diaResumo="resumo.dia"></resumo-supervisor>
       </div>
       <div v-if="!loader.loading && role === 'Comum'" class="container">
-        <vue-event-calendar :events="reservasCalendar"></vue-event-calendar>
+>>>>>>> def7643cc4231883d098e356f5737ab28f535885
+        <resumo-comum :month="resumo.month" :reservasUser="resumo.reservasUser"></resumo-comum>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import RingLoader from 'vue-spinner/src/RingLoader.vue'
 import ResumoSupervisor from './ResumoSupervisor.vue'
+import ResumoComum from './ResumoComum.vue'
 import firebaseApp from '../../firebase-controller.js'
 const auth = firebaseApp.auth()
 const db = firebaseApp.database()
+var moment = require('moment')
 export default {
   name: 'home',
   data () {
@@ -34,8 +40,10 @@ export default {
       reservasUser: [],
       reservasCalendar: [],
       reservas: {
-        confirmadas: [],
-        pendentes: []
+        equipConfirmadas: [],
+        equipPendentes: [],
+        localConfirmadas: [],
+        localPendentes: []
       },
       equipamentos: {
         manutencao: [],
@@ -47,16 +55,24 @@ export default {
         size: '100px'
       },
       resumo: {
-        reservas_confirmadas_length: 0,
-        reservas_pendentes_length: 0,
+        reservas_equip_confirmadas_length: 0,
+        reservas_equip_pendentes_length: 0,
         equipamentos_quebrados_length: 0,
-        equipamentos_manutencao_length: 0
+        equipamentos_manutencao_length: 0,
+        reservas_local_confirmadas_length: 0,
+        reservas_local_pendentes_length: 0,
+        reservados: [],
+        dia: moment()
       }
     }
   },
   components: {
+<<<<<<< HEAD
+=======
     RingLoader,
-    ResumoSupervisor
+>>>>>>> def7643cc4231883d098e356f5737ab28f535885
+    ResumoSupervisor,
+    ResumoComum
   },
   created: function () {
     var _this = this
@@ -106,26 +122,50 @@ export default {
     if (this.role === 'Supervisor' || this.role === 'admin') {
       db.ref('Reservas/equipamentos').orderByChild('Status').equalTo('Pendente').on('value', function (snapshot) {
         _this.loader.loading = true
-        _this.reservas.pendentes = []
-        _this.resumo.reservas_pendentes_length = 0
+        _this.reservas.equipPendentes = []
         snapshot.forEach(function (childSnapshot) {
-          _this.reservas.pendentes.push(childSnapshot.key)
-          _this.resumo.reservas_pendentes_length = _this.resumo.reservas_pendentes_length + 1
+          _this.reservas.equipPendentes.push(childSnapshot.key)
+          // _this.resumo.reservas_pendentes_length = _this.resumo.reservas_pendentes_length + 1
         })
+        _this.resumo.reservas_equip_pendentes_length = _this.reservas.equipPendentes.length
+        // console.log('Lista Pendentes:' + _this.reservas.equipPendentes)
+        // console.log('Lista Pendentes tem:' + _this.reservas.equipPendentes.length)
         _this.loader.loading = false
       })
       db.ref('Reservas/equipamentos').orderByChild('Status').equalTo('Confirmada').on('value', function (snapshot) {
         _this.loader.loading = true
-        _this.reservas.confirmadas = []
-        _this.resumo.reservas_confirmadas_length = 0
+        _this.reservas.equipConfirmadas = []
+        // Percorre todos os equipamentos confirmados
         snapshot.forEach(function (childSnapshot) {
-          // TODO filtrar apenas as reservas cujo o periodo abranja a data atual
-          // Usar comparação this.$moment().isBetween e this.$moment().isSame
-          // assim como foi feito para filtrar datas válidas no momento da criação de uma reserva
-          _this.reservas.confirmadas.push(childSnapshot.key)
-          _this.resumo.reservas_confirmadas_length = _this.resumo.reservas_confirmadas_length + 1
+          // console.log('Solicitante:' + childSnapshot.val().Solicitante)
+          // Pega dados do equipamento
+          db.ref('Equipamentos/' + childSnapshot.val().Equipamento).on('value', function (equipa) {
+            // Pega o usuário que solicitou o equipamento
+            db.ref('Usuarios/' + childSnapshot.val().Solicitante).on('value', function (userSolicitante) {
+              // console.log('hi' + userSolicitante.val().Nome)
+              console.log('conf: ' + childSnapshot.key)
+              // Adiciona o equipamento na lista de confirmados
+              _this.reservas.equipConfirmadas.push(childSnapshot.key)
+              // Pega data de início do empréstimo
+              var dataInicio = moment(childSnapshot.val().Inicio.slice(0, 10), 'DD/MM/YYYY')
+              // console.log('Inicio: ' + dataInicio.date() + dataInicio.month() + dataInicio.year())
+              // console.log('hoje: ' + _this.resumo.dia.date() + _this.resumo.dia.month() + _this.resumo.dia.year())
+              // Se a data de início de empréstimo é igual a data atual
+              if ((dataInicio.year() === _this.resumo.dia.year()) && (dataInicio.month() === _this.resumo.dia.month()) && (dataInicio.date() === _this.resumo.dia.date())) {
+                // console.log('Passou equipconf: ' + equipa.val())
+                // Equipamento é adiciondo na lista de resumo
+                _this.resumo.reservados.push([equipa.val().Nome, childSnapshot.val(), userSolicitante.val()])
+              }
+
+              // Guarda quantidade de confirmados
+              _this.resumo.reservas_equip_confirmadas_length = _this.reservas.equipConfirmadas.length
+              // _this.resumo.reservados = _this.reservas.equipConfirmadas
+              console.log('Lista Confirmados E:' + _this.reservas.equipConfirmadas.length)
+              _this.loader.loading = false
+            })
+          })
+          // _this.resumo.reservados.push(childSnapshot.key)
         })
-        _this.loader.loading = false
       })
       db.ref('Equipamentos').orderByChild('Status').equalTo('Em Manutenção').on('value', function (snapshot) {
         _this.loader.loading = true
@@ -133,8 +173,9 @@ export default {
         _this.resumo.equipamentos_manutencao_length = 0
         snapshot.forEach(function (childSnapshot) {
           _this.equipamentos.manutencao.push(childSnapshot.key)
-          _this.resumo.equipamentos_manutencao_length = _this.resumo.equipamentos_manutencao_length + 1
+          // _this.resumo.equipamentos_manutencao_length = _this.resumo.equipamentos_manutencao_length + 1
         })
+        _this.resumo.equipamentos_manutencao_length = _this.equipamentos.manutencao.length
         _this.loader.loading = false
       })
       db.ref('Equipamentos').orderByChild('Status').equalTo('Quebrado').on('value', function (snapshot) {
@@ -143,21 +184,77 @@ export default {
         _this.resumo.equipamentos_quebrados_length = 0
         snapshot.forEach(function (childSnapshot) {
           _this.equipamentos.quebrados.push(childSnapshot.key)
-          _this.resumo.equipamentos_quebrados_length = _this.resumo.equipamentos_quebrados_length + 1
+          // _this.resumo.equipamentos_quebrados_length = _this.resumo.equipamentos_quebrados_length + 1
+<<<<<<< HEAD
         })
+        _this.resumo.equipamentos_quebrados_length = _this.equipamentos.quebrados.length
         _this.loader.loading = false
+      })
+      db.ref('Reservas/locais').orderByChild('Status').equalTo('Pendente').on('value', function (snapshot) {
+        _this.loader.loading = true
+        _this.reservas.localPendentes = []
+        _this.resumo.reservas_local_pendentes_length = 0
+        snapshot.forEach(function (childSnapshot) {
+          _this.reservas.localPendentes.push(childSnapshot.key)
+          // _this.resumo.reservas_local_pendentes_length = _this.resumo.reservas_local_pendentes_length + 1
+        })
+        _this.resumo.reservas_local_pendentes_length = _this.reservas.localPendentes.length
+        _this.loader.loading = false
+      })
+=======
+        })
+        _this.resumo.equipamentos_quebrados_length = _this.equipamentos.quebrados.length
+        _this.loader.loading = false
+      })
+      db.ref('Reservas/locais').orderByChild('Status').equalTo('Pendente').on('value', function (snapshot) {
+        _this.loader.loading = true
+        _this.reservas.localPendentes = []
+        _this.resumo.reservas_local_pendentes_length = 0
+        snapshot.forEach(function (childSnapshot) {
+          _this.reservas.localPendentes.push(childSnapshot.key)
+          // _this.resumo.reservas_local_pendentes_length = _this.resumo.reservas_local_pendentes_length + 1
+        })
+        _this.resumo.reservas_local_pendentes_length = _this.reservas.localPendentes.length
+        _this.loader.loading = false
+      })
+>>>>>>> def7643cc4231883d098e356f5737ab28f535885
+      db.ref('Reservas/locais').orderByChild('Status').equalTo('Confirmada').on('value', function (snapshot) {
+        _this.loader.loading = true
+        _this.reservas.localConfirmadas = []
+        // Percorre todos os locais confirmados
+        snapshot.forEach(function (childSnapshot) {
+          // Pega o usuário que solicitou o equipamento
+          db.ref('Usuarios/' + childSnapshot.val().Solicitante).on('value', function (userSolicitante) {
+            console.log('conf: ' + childSnapshot.key)
+            // Adiciona o local na lista de confirmados
+            _this.reservas.localConfirmadas.push([childSnapshot.key, childSnapshot.val(), userSolicitante.val()])
+            // Pega data de início do empréstimo
+            var dataInicio = moment(childSnapshot.val().Inicio.slice(0, 10), 'DD/MM/YYYY')
+            if ((dataInicio.year() === _this.resumo.dia.year()) && (dataInicio.month() === _this.resumo.dia.month()) && (dataInicio.date() === _this.resumo.dia.date())) {
+              // console.log('Passou equipconf')
+              // Equipamento é adiciondo na lista de resumo
+              _this.resumo.reservados.push([childSnapshot.val().Local, childSnapshot.val(), userSolicitante.val()])
+            }
+
+            // Guarda quantidade de confirmados
+            _this.resumo.reservas_local_confirmadas_length = _this.reservas.localConfirmadas.length
+            _this.loader.loading = false
+            console.log('Lista Confirmados L:' + _this.reservas.localConfirmadas.length)
+          })
+        })
       })
     } else if (this.role === 'Comum') {
       db.ref('Reservas/equipamentos').orderByChild('Solicitante').equalTo(auth.currentUser.uid).on('value', function (snapshot) {
         _this.loader.loading = true
         _this.reservasUser = []
         snapshot.forEach(function (childSnapshot) {
+          console.log('ReservasUser183184: ' + _this.reservasUser)
           db.ref('Equipamentos/' + childSnapshot.val().Equipamento).on('value', function (equip) {
+            console.log('ChildSnapshot.key' + childSnapshot.key + '///' + 'reservasUser: ' + _this.reservasUser)
             _this.reservasUser.push([childSnapshot.key, childSnapshot.val(), equip.val()])
           })
         })
       })
-      console.log('oi')
       this.reservasUser.forEach(function (reserva) {
         let ReservaInicio = {
           date: _this.$moment(new Date(reserva[1].Inicio)).format('YYYY/MM/DD'),
@@ -173,6 +270,7 @@ export default {
         _this.reservasCalendar.push(ReservaInicio)
         _this.reservasCalendar.push(ReservaFim)
       })
+      console.log('Reservas User: ' + _this.reservasUser)
       this.loader.loading = false
     }
   },
