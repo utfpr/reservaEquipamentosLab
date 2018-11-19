@@ -31,9 +31,17 @@
         </div>
       </div>
 </template>
-
+ 
 <script>
+import moment from 'moment'
+import 'moment/locale/pt-br'
+// import {Icon} from 'antd'
 export default {
+  constructor () {
+    this.state = {
+      data: moment().hours(0).minutes(0).seconds(0).milliseconds(0)
+    }
+  },
   name: 'ResumoComum',
   props: {
     month: {type: String, default: 'Jan', required: true}
@@ -41,5 +49,10 @@ export default {
 }
 </script>
 <style>
-
+  .ant-select-selection--single{
+    display:none;
+  }
+  .ant-radio-group{
+    display:none;
+  }
 </style>
