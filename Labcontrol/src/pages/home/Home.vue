@@ -5,7 +5,7 @@
         <ring-loader :loading="loader.loading" :color="loader.color" :size="loader.size"></ring-loader>
       </div>
       <div v-if="!loader.loading && role !== 'Comum'" class="container">
-        <resumo-supervisor :month="resumo.month" :day="resumo.day" :time="resumo.time" :reservasEquipConfirmadasLength="resumo.reservas_equip_confirmadas_length" :reservasEquipPendentesLength="resumo.reservas_equip_pendentes_length" :equipamentosQuebradosLength="resumo.equipamentos_quebrados_length" :equipamentosManutencaoLength="resumo.equipamentos_manutencao_length" :reservasLocalConfirmadasLength="resumo.reservas_local_confirmadas_length" :reservasLocalPendentesLength="resumo.reservas_local_pendentes_length"></resumo-supervisor>
+        <resumo-supervisor :month="resumo.month" :day="resumo.day" :time="resumo.time" :reservasEquipConfirmadasLength="resumo.reservas_equip_confirmadas_length" :reservasEquipPendentesLength="resumo.reservas_equip_pendentes_length" :equipamentosQuebradosLength="resumo.equipamentos_quebrados_length" :equipamentosManutencaoLength="resumo.equipamentos_manutencao_length" :reservasLocalConfirmadasLength="resumo.reservas_local_confirmadas_length" :reservasLocalPendentesLength="resumo.reservas_local_pendentes_length" :reservas="resumo.reservados" :diaResumo="resumo.dia"></resumo-supervisor>
       </div>
       <div v-if="!loader.loading && role === 'Comum'" class="container">
         <resumo-comum :month="resumo.month" :reservasUser="resumo.reservasUser"></resumo-comum>
@@ -21,6 +21,7 @@ import ResumoComum from './ResumoComum.vue'
 import firebaseApp from '../../firebase-controller.js'
 const auth = firebaseApp.auth()
 const db = firebaseApp.database()
+var moment = require('moment')
 export default {
   name: 'home',
   data () {
@@ -55,7 +56,9 @@ export default {
         equipamentos_quebrados_length: 0,
         equipamentos_manutencao_length: 0,
         reservas_local_confirmadas_length: 0,
-        reservas_local_pendentes_length: 0
+        reservas_local_pendentes_length: 0,
+        reservados: [],
+        dia: moment()
       }
     }
   },
@@ -113,24 +116,46 @@ export default {
       db.ref('Reservas/equipamentos').orderByChild('Status').equalTo('Pendente').on('value', function (snapshot) {
         _this.loader.loading = true
         _this.reservas.equipPendentes = []
-        _this.resumo.reservas_pendentes_length = 0
         snapshot.forEach(function (childSnapshot) {
           _this.reservas.equipPendentes.push(childSnapshot.key)
-          _this.resumo.reservas_pendentes_length = _this.resumo.reservas_pendentes_length + 1
+          // _this.resumo.reservas_pendentes_length = _this.resumo.reservas_pendentes_length + 1
         })
+        _this.resumo.reservas_equip_pendentes_length = _this.reservas.equipPendentes.length
+        // console.log('Lista Pendentes:' + _this.reservas.equipPendentes)
+        // console.log('Lista Pendentes tem:' + _this.reservas.equipPendentes.length)
         _this.loader.loading = false
       })
       db.ref('Reservas/equipamentos').orderByChild('Status').equalTo('Confirmada').on('value', function (snapshot) {
         _this.loader.loading = true
         _this.reservas.equipConfirmadas = []
-        _this.resumo.reservas_confirmadas_length = 0
+        // Percorre todos os equipamentos confirmados
         snapshot.forEach(function (childSnapshot) {
-          // TODO filtrar apenas as reservas cujo o periodo abranja a data atual
-          // Usar comparação this.$moment().isBetween e this.$moment().isSame
-          // assim como foi feito para filtrar datas válidas no momento da criação de uma reserva
-          _this.reservas.equipConfirmadas.push(childSnapshot.key)
-          _this.resumo.reservas_confirmadas_length = _this.resumo.reservas_confirmadas_length + 1
+          // console.log('Solicitante:' + childSnapshot.val().Solicitante)
+          // Pega dados do equipamento
+          db.ref('Equipamentos/' + childSnapshot.val().Equipamento).on('value', function (equipa) {
+            // Pega o usuário que solicitou o equipamento
+            db.ref('Usuarios/' + childSnapshot.val().Solicitante).on('value', function (userSolicitante) {
+              // console.log('hi' + userSolicitante.val().Nome)
+              // Adiciona o equipamento na lista de confirmados
+              _this.reservas.equipConfirmadas.push([childSnapshot.key, childSnapshot.val(), userSolicitante.val()])
+              // Pega data de início do empréstimo
+              var dataInicio = moment(childSnapshot.val().Inicio.slice(0, 10), 'DD/MM/YYYY')
+              // console.log('Inicio: ' + dataInicio.date() + dataInicio.month() + dataInicio.year())
+              // console.log('hoje: ' + _this.resumo.dia.date() + _this.resumo.dia.month() + _this.resumo.dia.year())
+              // Se a data de início de empréstimo é igual a data atual
+              if ((dataInicio.year() === _this.resumo.dia.year()) && (dataInicio.month() === _this.resumo.dia.month()) && (dataInicio.date() === _this.resumo.dia.date())) {
+                console.log('Passou equipconf: ' + equipa.val())
+                // Equipamento é adiciondo na lista de resumo
+                _this.resumo.reservados.push([equipa.val().Nome, childSnapshot.val(), userSolicitante.val()])
+              }
+            })
+          })
+          // _this.resumo.reservados.push(childSnapshot.key)
         })
+        // Guarda quantidade de confirmados
+        _this.resumo.reservas_equip_confirmadas_length = _this.reservas.equipConfirmadas.length
+        // _this.resumo.reservados = _this.reservas.equipConfirmadas
+        // console.log('Lista Confirmados:' + _this.resumo.reservados)
         _this.loader.loading = false
       })
       db.ref('Equipamentos').orderByChild('Status').equalTo('Em Manutenção').on('value', function (snapshot) {
@@ -139,8 +164,9 @@ export default {
         _this.resumo.equipamentos_manutencao_length = 0
         snapshot.forEach(function (childSnapshot) {
           _this.equipamentos.manutencao.push(childSnapshot.key)
-          _this.resumo.equipamentos_manutencao_length = _this.resumo.equipamentos_manutencao_length + 1
+          // _this.resumo.equipamentos_manutencao_length = _this.resumo.equipamentos_manutencao_length + 1
         })
+        _this.resumo.equipamentos_manutencao_length = _this.equipamentos.manutencao.length
         _this.loader.loading = false
       })
       db.ref('Equipamentos').orderByChild('Status').equalTo('Quebrado').on('value', function (snapshot) {
@@ -149,8 +175,9 @@ export default {
         _this.resumo.equipamentos_quebrados_length = 0
         snapshot.forEach(function (childSnapshot) {
           _this.equipamentos.quebrados.push(childSnapshot.key)
-          _this.resumo.equipamentos_quebrados_length = _this.resumo.equipamentos_quebrados_length + 1
+          // _this.resumo.equipamentos_quebrados_length = _this.resumo.equipamentos_quebrados_length + 1
         })
+        _this.resumo.equipamentos_quebrados_length = _this.equipamentos.quebrados.length
         _this.loader.loading = false
       })
       db.ref('Reservas/locais').orderByChild('Status').equalTo('Pendente').on('value', function (snapshot) {
@@ -159,21 +186,31 @@ export default {
         _this.resumo.reservas_local_pendentes_length = 0
         snapshot.forEach(function (childSnapshot) {
           _this.reservas.localPendentes.push(childSnapshot.key)
-          _this.resumo.reservas_local_pendentes_length = _this.resumo.reservas_local_pendentes_length + 1
+          // _this.resumo.reservas_local_pendentes_length = _this.resumo.reservas_local_pendentes_length + 1
         })
+        _this.resumo.reservas_local_pendentes_length = _this.reservas.localPendentes.length
         _this.loader.loading = false
       })
       db.ref('Reservas/locais').orderByChild('Status').equalTo('Confirmada').on('value', function (snapshot) {
         _this.loader.loading = true
         _this.reservas.localConfirmadas = []
-        _this.resumo.reservas_local_confirmadas_length = 0
+        // Percorre todos os locais confirmados
         snapshot.forEach(function (childSnapshot) {
-          // TODO filtrar apenas as reservas cujo o periodo abranja a data atual
-          // Usar comparação this.$moment().isBetween e this.$moment().isSame
-          // assim como foi feito para filtrar datas válidas no momento da criação de uma reserva
-          _this.reservas.localConfirmadas.push(childSnapshot.key)
-          _this.resumo.reservas_local_confirmadas_length = _this.resumo.reservas_local_confirmadas_length + 1
+          // Pega o usuário que solicitou o equipamento
+          db.ref('Usuarios/' + childSnapshot.val().Solicitante).on('value', function (userSolicitante) {
+            // Adiciona o local na lista de confirmados
+            _this.reservas.localConfirmadas.push([childSnapshot.key, childSnapshot.val(), userSolicitante.val()])
+            // Pega data de início do empréstimo
+            var dataInicio = moment(childSnapshot.val().Inicio.slice(0, 10), 'DD/MM/YYYY')
+            if ((dataInicio.year() === _this.resumo.dia.year()) && (dataInicio.month() === _this.resumo.dia.month()) && (dataInicio.date() === _this.resumo.dia.date())) {
+              // console.log('Passou equipconf')
+              // Equipamento é adiciondo na lista de resumo
+              _this.resumo.reservados.push([childSnapshot.val().Local, childSnapshot.val(), userSolicitante.val()])
+            }
+          })
         })
+        // Guarda quantidade de confirmados
+        _this.resumo.reservas_local_confirmadas_length = _this.reservas.localConfirmadas.length
         _this.loader.loading = false
       })
     } else if (this.role === 'Comum') {
