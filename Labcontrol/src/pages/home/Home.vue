@@ -8,7 +8,7 @@
         <resumo-supervisor :month="resumo.month" :day="resumo.day" :time="resumo.time" :reservasEquipConfirmadasLength="resumo.reservas_equip_confirmadas_length" :reservasEquipPendentesLength="resumo.reservas_equip_pendentes_length" :equipamentosQuebradosLength="resumo.equipamentos_quebrados_length" :equipamentosManutencaoLength="resumo.equipamentos_manutencao_length" :reservasLocalConfirmadasLength="resumo.reservas_local_confirmadas_length" :reservasLocalPendentesLength="resumo.reservas_local_pendentes_length" :reservas="resumo.reservados" :diaResumo="resumo.dia"></resumo-supervisor>
       </div>
       <div v-if="!loader.loading && role === 'Comum'" class="container">
-        <resumo-comum :month="resumo.month"></resumo-comum>
+        <resumo-comum :month="resumo.month" :reservasUser="resumo.reservasUser"></resumo-comum>
       </div>
     </div>
   </div>
@@ -223,12 +223,13 @@ export default {
         _this.loader.loading = true
         _this.reservasUser = []
         snapshot.forEach(function (childSnapshot) {
+          console.log('ReservasUser183184: ' + _this.reservasUser)
           db.ref('Equipamentos/' + childSnapshot.val().Equipamento).on('value', function (equip) {
+            console.log('ChildSnapshot.key' + childSnapshot.key + '///' + 'reservasUser: ' + _this.reservasUser)
             _this.reservasUser.push([childSnapshot.key, childSnapshot.val(), equip.val()])
           })
         })
       })
-      console.log('oi')
       this.reservasUser.forEach(function (reserva) {
         let ReservaInicio = {
           date: _this.$moment(new Date(reserva[1].Inicio)).format('YYYY/MM/DD'),
@@ -244,6 +245,7 @@ export default {
         _this.reservasCalendar.push(ReservaInicio)
         _this.reservasCalendar.push(ReservaFim)
       })
+      console.log('Reservas User: ' + _this.reservasUser)
       this.loader.loading = false
     }
   },
