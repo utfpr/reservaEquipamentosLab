@@ -11,7 +11,7 @@
             <a-form layout = "inline" :autoFormCreate = "(form) => { this.form = form }">
               <a-row style = "display: -webkit-inline-box;">
                 <a-avatar v-if = "usuario.role === 'Comum'" :size = "50" style = "background-color: #007bff;" icon = "user" />
-                <a-avatar v-else-if = "usuario.role === 'Comum'" :size = "50" style = "background-color: #ffc107;" icon = "star" />
+                <a-avatar v-else-if = "usuario.role === 'Supervisor'" :size = "50" style = "background-color: #ffc107;" icon = "star" />
                 <a-avatar v-else :size = "50" style = "background-color: #28a745;" icon = "star" />
                 
                 <div v-if = "editable" style = "margin-top: 8px; margin-left: 15px;">

@@ -36,7 +36,7 @@
           </template>
 
           <a-tag color = "green" :key = "text" >
-            <router-link :to = "{ name: 'periodoReserva', params: { objetoReserva: 'laboratorio', itemReserva: text} }">
+            <router-link :to = "{ name: 'periodoReserva', params: { item: 'local', valorItem: text} }">
              <a-icon style = "color: #52c41a" type = "database" />
             </router-link>
           </a-tag>
@@ -64,7 +64,7 @@
         </a-tooltip>
       </span>
 
-      <a-icon slot = "filterIcon" slot-scope = "filtered" type='search' :style = "{ color: filtered ? '#108ee9' : '#aaa' }" />
+      <a-icon slot = "filterIcon" slot-scope = "filtered" type = "search" :style = "{ color: filtered ? '#108ee9' : '#aaa' }" />
       
       <div slot = "filterDropdownNome" slot-scope = "{ setSelectedKeys, selectedKeys, confirm, clearFilters }" class = 'custom-filter-dropdown'>
         <a-input

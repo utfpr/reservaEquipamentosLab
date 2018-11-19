@@ -1,0 +1,453 @@
+<template>
+  <a-row>
+    <a-row style = "text-align: center; margin-bottom: 30px;">
+      <a-col :span = "4">
+        <a-button v-if = "parent.current === 1" size = "large" @click = "parent.voltar">
+          <a-icon type = "arrow-left" /> Voltar
+        </a-button>
+        
+        <a-button v-if = "parent.current === 2" size = "large" @click = "voltar">
+          <a-icon type = "arrow-left" /> Voltar
+        </a-button>
+      </a-col>
+
+      <a-col :span = "16">
+        <h2 v-if = "parent.current === 1"> Selecione Período da Reserva </h2>
+        <h2 v-if = "parent.current === 2"> Confirme sua Reserva </h2>
+      </a-col>
+
+      <a-col :span = "4">
+        <a-button v-if = "parent.current === 1" size = "large" type = "primary" @click = "verificaDados">
+          Próximo <a-icon type = "arrow-right" />
+        </a-button>
+
+        <a-button v-if = "parent.current === 2" size = "large" type = "primary" @click = "openModal()">
+          <a-icon type = "check" /> Concluir
+        </a-button>
+      </a-col>
+    </a-row>
+
+    <a-row style = "margin-bottom: 30px;">
+      <a-alert v-if = "alert.visible" type = "error" showIcon>
+        <span slot = "description"> {{ alert.message }} </span>
+        <span slot = "message"> <i> Opps! </i> </span>
+      </a-alert>
+    </a-row>
+
+    <a-form v-if = "parent.current === 1" layout = "inline" :autoFormCreate = "(form) => { this.form = form }">
+      <a-row :gutter = "16" style = "text-align: center;">
+        <a-col :span = "12">
+          <a-form-item label = "Data Início" fieldDecoratorId = "dataInicial" :fieldDecoratorOptions = "{ rules: [{ required: true, message: 'Campo Obrigatório' }] }">
+            <a-date-picker format = "DD/MM/YYYY" :disabledDate = "disabledDateInicial" placeholder = "Selecione Data Inicial" style = "margin-left: 30px;" size = "large" />
+          </a-form-item>
+        </a-col>
+
+        <a-col :span = "12">
+          <a-form-item label = "Hora Início" fieldDecoratorId = "horaInicial" :fieldDecoratorOptions = "{ rules: [{ required: true, message: 'Campo Obrigatório' }] }">
+            <a-time-picker format = "HH:mm" :disabledHours = "disabledHoursInicial" :minuteStep = "10" placeholder = "Hora Inicial" style = "margin-left: 30px;" size = "large" />
+          </a-form-item>
+        </a-col>
+      </a-row>
+
+      <a-row :gutter = "16" style = "text-align: center;">
+        <a-col :span = "12">
+          <a-form-item label = "Data Fim" fieldDecoratorId = "dataFinal" :fieldDecoratorOptions = "{ rules: [{ required: true, message: 'Campo Obrigatório' }] }">
+            <a-date-picker format = "DD/MM/YYYY" :disabledDate = "disabledDateFinal" placeholder = "Selecione Data Final" style = "margin-left: 30px;" size = "large" />
+          </a-form-item>
+        </a-col>
+
+        <a-col :span = "12">
+          <a-form-item label = "Hora Fim" fieldDecoratorId = "horaFinal" :fieldDecoratorOptions = "{ rules: [{ required: true, message: 'Campo Obrigatório' }] }">
+            <a-time-picker format = "HH:mm" :disabledHours = "disabledHoursFinal" :minuteStep = "10" placeholder = "Hora Final" style = "margin-left: 30px;" size = "large" />
+          </a-form-item>
+        </a-col>
+      </a-row>
+    </a-form>
+
+    <a-row v-if = "parent.current === 2">
+      <h5 v-if = "item === 'equipamento'"> <b> Item Reservado: </b> {{ item }} - {{ equipamentos[equipamentos.map(function (e) { return e.id }).indexOf(valorItem)].patrimonio }} </h5>
+      <h5 v-if = "item === 'local'"> <b> Item Reservado: </b> {{ item }} - {{ valorItem }} </h5>
+      <br />
+      <h5> <b> Perído Reservado: </b> {{ $moment(dataInicial).format('DD/MM/YYYY HH:mm') }} - {{ $moment(dataFinal).format('DD/MM/YYYY HH:mm') }} </h5>
+      <br />
+    </a-row>
+
+    <a-modal :visible = "modal.visible" :footer = "null" @cancel = "closeModal()" style = "padding: 32px 32px 24px;">
+      <a-icon type = "question-circle-o" style = "color: #faad14; font-size: 22px; margin-right: 16px" />
+      <span> <b> Deseja confirmar sua reserva?! </b> </span> <br/><br/>
+      <span> {{ modal.message }} </span> <br/>
+      
+      <span v-if = "(role === 'Supervisor' || role === 'admin') && (conflitos.length > 0)">
+        <a-textarea v-model = "modal.resposta" placeholder = "Digite o motivo do cancelamento aqui" :autosize = "{ minRows: 5, maxRows: 5 }" /> <br/> <br/>
+      </span>
+
+      <span> <i> Esta ação não poderá ser desfeita. </i> </span> <br/>
+
+      <div style = "text-align: right; margin-top: 20px;">
+        <a-button @click = "closeModal"> Voltar </a-button>
+        <a-button @click = "realizaReserva" type = "primary"> Confirmar </a-button>
+      </div> 
+    </a-modal>
+  </a-row>
+</template>
+
+<script>
+  import firebaseApp from '../../firebase-controller.js'
+  import { sendEmail } from '../../emailAPI.js'
+
+  const db = firebaseApp.database()
+  const auth = firebaseApp.auth()
+
+  export default {
+    name: 'periodoReserva',
+    data () {
+      return {
+        role: null,
+        equipamentos: [],
+        usuarios: [],
+        conflitos: [],
+        conflitosAulas: [],
+        parent: this.$parent.$parent.$parent,
+        valorItem: this.$route.params.valorItem,
+        item: this.$route.params.item,
+        dataInicial: '',
+        dataFinal: '',
+        tempoMin: 0,
+        alert: {
+          visible: false,
+          message: ''
+        },
+        modal: {
+          visible: false,
+          message: '',
+          resposta: ''
+        }
+      }
+    },
+    beforeMount: function () {
+      let _this = this
+
+      db.ref('Controle/Configuracao/TempoMinAntesReserva').on('value', function (snapshot) {
+        _this.tempoMin = snapshot.val()
+      })
+
+      db.ref('Usuarios/' + auth.currentUser.uid).on('value', function (snapshot) {
+        _this.role = snapshot.val().role
+      })
+
+      db.ref('Equipamentos').orderByKey().on('value', function (snapshot) {
+        _this.equipamentos = []
+
+        snapshot.forEach(function (item) {
+          _this.equipamentos.push({
+            'id': item.key,
+            'patrimonio': item.val().Patrimonio,
+            'nome': item.val().Nome
+          })
+        })
+      })
+
+      db.ref('Usuarios').orderByKey().on('value', function (snapshot) {
+        _this.usuarios = []
+
+        snapshot.forEach(function (item) {
+          _this.usuarios.push({
+            'id': item.key,
+            'email': item.val().Email,
+            'nome': item.val().Nome
+          })
+        })
+      })
+    },
+    created: function () {
+      this.parent.current = 1
+    },
+    methods: {
+      voltar () {
+        this.parent.current = 1
+      },
+      avancar () {
+        this.parent.current = 2
+      },
+      range (start, end) {
+        const result = []
+        for (let i = start; i < end; i++) {
+          result.push(i)
+        }
+        return result
+      },
+      disabledDateInicial (current) {
+        let week = this.$moment(current).isoWeekday()
+        let maxDate = this.$moment().set({ 'date': '15', 'month': '06' })
+
+        if (this.$moment().get('month') >= 7) {
+          maxDate = this.$moment().set({ 'date': '20', 'month': '11' })
+        }
+
+        if (this.role === 'admin' || this.role === 'Supervisor') {
+          maxDate = this.$moment(maxDate).add(2, 'year')
+        }
+
+        return (current && current < this.$moment().add(-1, 'days').endOf('day')) ||
+          (week === 6) ||
+          (week === 7) ||
+          (current && current > maxDate)
+      },
+      disabledDateFinal (current) {
+        let week = this.$moment(current).isoWeekday()
+        let maxDate = this.$moment().set({ 'date': '15', 'month': '06' })
+
+        if (this.$moment().get('month') >= 7) {
+          maxDate = this.$moment().set({ 'date': '20', 'month': '11' })
+        }
+
+        if (this.role === 'admin' || this.role === 'Supervisor') {
+          maxDate = this.$moment(maxDate).add('2', 'years')
+        }
+
+        if (this.form.getFieldValue('dataInicial')) {
+          return (current && current < this.$moment(this.form.getFieldValue('dataInicial'))) ||
+            (week === 6) ||
+            (week === 7) ||
+            (current && current > maxDate)
+        } else {
+          return (current && current < this.$moment().add(-1, 'days').endOf('day')) ||
+            (week === 6) ||
+            (week === 7) ||
+            (current && current > maxDate)
+        }
+      },
+      disabledHoursInicial () {
+        return this.range(0, 24).splice(0, 7) + this.range(0, 24).splice(23, 1)
+      },
+      disabledHoursFinal () {
+        return this.range(0, 24).splice(0, 7) + this.range(0, 24).splice(23, 1)
+      },
+      verificaDados () {
+        let _this = this
+        _this.alert.visible = false
+
+        this.form.validateFields(async (err, values) => {
+          if (!err) {
+            _this.dataInicial = this.$moment(values.dataInicial).set({
+              'hour': values.horaInicial.get('hour'),
+              'minute': values.horaInicial.get('minute'),
+              'second': '0'
+            })
+
+            _this.dataFinal = this.$moment(values.dataFinal).set({
+              'hour': values.horaFinal.get('hour'),
+              'minute': values.horaFinal.get('minute'),
+              'second': '0'
+            })
+
+            if (_this.dataFinal < _this.dataInicial || _this.dataInicial < this.$moment()) {
+              _this.alert.message = 'Período Inválido.'
+              _this.alert.visible = true
+            } else if (this.role === 'Comum' && _this.dataInicial < this.$moment().add(this.tempoMin, 'hours')) {
+              _this.alert.message = 'Período Inválido. Horas Mínimas de Reserva: ' + this.tempoMin + 'h.'
+              _this.alert.visible = true
+            }
+
+            _this.conflitos = []
+            _this.conflitosAulas = []
+            if (this.item === 'equipamento') {
+              db.ref('Reservas/equipamentos').orderByChild('Equipamento').equalTo(_this.valorItem).on('value', function (snapshot) {
+                snapshot.forEach(function (reservaEquip) {
+                  let dataInicialEquip = _this.$moment(reservaEquip.val().Inicio, 'DD/MM/YYYY HH:mm')
+                  let dataFinalEquip = _this.$moment(reservaEquip.val().Fim, 'DD/MM/YYYY HH:mm')
+
+                  if ((_this.dataInicial <= dataFinalEquip) && (_this.dataFinal >= dataInicialEquip) && (reservaEquip.val().Status !== 'Cancelada')) {
+                    _this.conflitos.push({
+                      'id': reservaEquip.key,
+                      'tipo': 'equipamento',
+                      'dados': reservaEquip.val()
+                    })
+                  }
+                })
+
+                if (_this.conflitos.length === 0 || _this.role === 'Supervisor' || _this.role === 'admin') {
+                  _this.avancar()
+                } else {
+                  _this.alert.message = 'Neste período já existem agendamentos marcados, consulte um supervisor para realizar sua reserva ou escolha outro horário.'
+                  _this.alert.visible = true
+                }
+              })
+            } else {
+              db.ref('Reservas/locais').orderByChild('Local').equalTo(_this.valorItem).on('value', function (snapshot) {
+                snapshot.forEach(function (reservaLocal) {
+                  let dataInicialLocal = _this.$moment(reservaLocal.val().Inicio, 'DD/MM/YYYY HH:mm')
+                  let dataFinalLocal = _this.$moment(reservaLocal.val().Fim, 'DD/MM/YYYY HH:mm')
+
+                  if ((_this.dataInicial <= dataFinalLocal) && (_this.dataFinal >= dataInicialLocal) && (reservaLocal.val().Status !== 'Cancelada')) {
+                    _this.conflitos.push({
+                      'id': reservaLocal.key,
+                      'tipo': 'local',
+                      'dados': reservaLocal.val()
+                    })
+                  }
+                })
+
+                db.ref('Reservas/aulas').orderByChild('Local').equalTo(_this.valorItem).on('value', function (snapshot) {
+                  snapshot.forEach(function (reservaAula) {
+                    let horaInicio = _this.$moment(reservaAula.val().horaInicio, 'HH:mm')
+                    let horaFim = _this.$moment(reservaAula.val().horaFim, 'HH:mm')
+
+                    let dataInicialAula = _this.$moment(reservaAula.val().Inicio, 'DD/MM/YYYY HH:mm').set({
+                      'hour': horaInicio.get('hour'),
+                      'minute': horaInicio.get('minute'),
+                      'second': '0'
+                    }).day(reservaAula.val().diaSemana)
+
+                    let dataInicialFimAula = _this.$moment(reservaAula.val().Inicio, 'DD/MM/YYYY HH:mm').set({
+                      'hour': horaFim.get('hour'),
+                      'minute': horaFim.get('minute'),
+                      'second': '0'
+                    }).day(reservaAula.val().diaSemana)
+
+                    let dataFinalAula = _this.$moment(reservaAula.val().Fim, 'DD/MM/YYYY HH:mm').set({
+                      'hour': horaFim.get('hour'),
+                      'minute': horaFim.get('minute'),
+                      'second': '0'
+                    })
+
+                    while (dataInicialAula <= dataFinalAula) {
+                      if ((_this.dataInicial <= dataInicialFimAula) && (_this.dataFinal >= dataInicialAula) && (reservaAula.val().Status !== 'Cancelada')) {
+                        _this.conflitosAulas.push({
+                          'id': reservaAula.key,
+                          'dados': reservaAula.val()
+                        })
+                        break
+                      }
+                      dataInicialAula = dataInicialAula.add(7, 'day')
+                      dataInicialFimAula = dataInicialFimAula.add(7, 'day')
+                    }
+                  })
+
+                  if (((_this.role === 'Comum') && (_this.conflitos.length === 0)) || ((_this.role === 'Supervisor' || _this.role === 'admin') && (_this.conflitosAulas.length === 0))) {
+                    _this.avancar()
+                  } else {
+                    _this.alert.message = 'Neste período já existem agendamentos ou aulas marcadas, consulte um supervisor para realizar sua reserva ou escolha outro horário.'
+                    _this.alert.visible = true
+                  }
+                })
+              })
+            }
+          }
+        })
+      },
+      realizaReserva () {
+        let _this = this
+
+        if (_this.item === 'equipamento') {
+          if ((_this.role === 'Supervisor' || _this.role === 'admin') && (_this.conflitos.length > 0)) {
+            _this.conflitos.forEach(function (equipamento) {
+              db.ref('Reservas/equipamentos').child(equipamento.id).update({
+                'Status': 'Cancelada'
+              }).then(() => {
+                let user = _this.usuarios[_this.usuarios.map(function (e) { return e.id }).indexOf(equipamento.dados.Solicitante)]
+                let equipamentoNome = _this.equipamentos[_this.equipamentos.map(function (e) { return e.id }).indexOf(equipamento.dados.Equipamento)].patrimonio
+                let to = [user.nome + ' <' + user.email + '>']
+                let textBody = 'Sua reserva foi cancelada'
+                let htmlBody = '<h3>Reserva cancelada</h3><br><p>Sua reserva do equipamento: <strong>' + equipamentoNome + '</strong> no período: <strong>' + _this.$moment(_this.dataInicial).format('DD/MM/YYYY') + ' até ' + _this.$moment(_this.dataFinal).format('DD/MM/YYYY') + '</strong> foi <strong>cancelada</strong>.</p>'
+                if (_this.modal.resposta !== '') {
+                  htmlBody += '<p>Sua reserva foi cancelada pelo motivo: ' + _this.modal.resposta + '</p>'
+                }
+                htmlBody += '<small>Este é um E-mail automático, por favor não responda</small>'
+
+                sendEmail(to, 'Reserva de equipamento cancelada', textBody, htmlBody)
+              })
+            })
+          }
+
+          db.ref('Reservas/equipamentos').push({
+            'Equipamento': _this.valorItem,
+            'Inicio': _this.$moment(_this.dataInicial).format('DD/MM/YYYY HH:mm'),
+            'Fim': _this.$moment(_this.dataFinal).format('DD/MM/YYYY HH:mm'),
+            'Solicitante': auth.currentUser.uid,
+            'Status': (_this.role === 'Supervisor' || _this.role === 'admin') ? 'Confirmada' : 'Pendente'
+          }).then(() => {
+            _this.$notification.success({
+              message: 'Yey!..',
+              description: 'Reserva solicitada com sucesso.'
+            }, 1500)
+
+            _this.closeModal()
+            this.$router.push('/reservas')
+          }).catch((err) => {
+            _this.$notification.error({
+              message: 'Opps..',
+              description: 'Reserva não realizada. Erro: ' + err
+            })
+          })
+        } else {
+          if ((_this.role === 'Supervisor' || _this.role === 'admin') && (_this.conflitos.length > 0)) {
+            _this.conflitos.forEach(function (local) {
+              db.ref('Reservas/locais').child(local.id).update({
+                'Status': 'Cancelada'
+              }).then(() => {
+                let user = _this.usuarios[_this.usuarios.map(function (e) { return e.id }).indexOf(local.dados.Solicitante)]
+                let to = [user.nome + ' <' + user.email + '>']
+                let textBody = 'Sua reserva foi cancelada'
+                let htmlBody = '<h3>Reserva cancelada</h3><br><p>Sua reserva do local: <strong>' + local.dados.Local + '</strong> no período: <strong>' + _this.$moment(_this.dataInicial).format('DD/MM/YYYY') + ' até ' + _this.$moment(_this.dataFinal).format('DD/MM/YYYY') + '</strong> foi <strong>cancelada</strong>.</p>'
+                if (_this.modal.resposta !== '') {
+                  htmlBody += '<p>Sua reserva foi cancelada pelo motivo: ' + _this.modal.resposta + '</p>'
+                }
+                htmlBody += '<small>Este é um E-mail automático, por favor não responda</small>'
+
+                sendEmail(to, 'Reserva de local cancelada', textBody, htmlBody)
+              })
+            })
+          }
+
+          db.ref('Reservas/locais').push({
+            'Local': _this.valorItem,
+            'Inicio': _this.$moment(_this.dataInicial).format('DD/MM/YYYY HH:mm'),
+            'Fim': _this.$moment(_this.dataFinal).format('DD/MM/YYYY HH:mm'),
+            'Solicitante': auth.currentUser.uid,
+            'Status': (_this.role === 'Supervisor' || _this.role === 'admin') ? 'Confirmada' : 'Pendente'
+          }).then(() => {
+            _this.$notification.success({
+              message: 'Yey!..',
+              description: 'Reserva solicitada com sucesso.'
+            }, 1500)
+
+            _this.closeModal()
+            this.$router.push('/reservas')
+          }).catch((err) => {
+            _this.$notification.error({
+              message: 'Opps..',
+              description: 'Reserva não realizada. Erro: ' + err
+            }, 1500)
+          })
+        }
+      },
+      openModal () {
+        this.modal.message = 'Está tudo certo, deseja continuar?'
+
+        if ((this.role === 'Supervisor' || this.role === 'admin') && (this.conflitos.length > 0)) {
+          this.modal.message = 'Para confirmar essa reserva será necessário cancelar algumas outras, está de acordo?'
+        }
+
+        this.modal.visible = true
+      },
+      closeModal () {
+        this.modal.visible = false
+      }
+    }
+  }
+</script>
+
+<style>
+  .linkProximo {
+    text-decoration: none !important;
+  }
+
+  .ant-calendar-ok-btn {
+    color: white !important;
+  }
+
+  .ant-form-explain {
+    margin-left: 30px;
+  }
+</style>

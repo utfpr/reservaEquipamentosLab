@@ -1,27 +1,30 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import firebaseApp from '../firebase-controller.js'
+
 import Home from '@/pages/home/Home'
 import Login from '@/pages/Login'
-import p404 from '@/pages/p404'
 import Perfil from '@/pages/perfil/Perfil.vue'
+
 import Equipamentos from '@/pages/equipamentos/Equipamentos'
-import ReservaDetails from '@/pages/reservas/ReservaDetails'
 import Locais from '@/pages/locais/Locais'
+
 import Cursos from '@/pages/cursos/Cursos'
+import Aulas from '@/pages/aulas/Aulas'
+import Usuarios from '@/pages/usuarios/Usuarios'
+
 import Reservas from '@/pages/reservas/Reservas'
-import listaEquipamentos from '@/pages/reservas/ListaEquipamentos'
-import listaLocais from '@/pages/reservas/ListaLocais'
-import itemReserva from '@/pages/reservas/itemReserva'
 import novaReserva from '@/pages/reservas/novaReserva'
-import ReservaCadastro from '@/pages/reservas/ReservaCadastro'
+import itemReserva from '@/pages/reservas/itemReserva'
+import periodoReserva from '@/pages/reservas/periodoReserva'
+
 import Cadastro from '@/pages/Cadastro'
+
 import VerificarEmail from '@/pages/VerificarEmail'
 import actionHandler from '@/components/actionHandler'
 import RecuperarSenha from '@/pages/RecuperarSenha'
-import Calendario from '@/components/Calendar-event'
-import Aulas from '@/pages/aulas/Aulas'
-import Usuarios from '@/pages/usuarios/Usuarios'
+
+import Agendamento from '@/pages/aulas/AgendamentoAulas'
 
 Vue.use(Router)
 
@@ -55,6 +58,14 @@ const router = new Router({
         requiresAuth: true
       }
     }, {
+      path: '/agendamento',
+      name: 'AgendamentoAulas',
+      component: Agendamento,
+      meta: {
+        menuKey: '',
+        requiresAuth: true
+      }
+    }, {
       path: '/cursos',
       name: 'Cursos',
       component: Cursos,
@@ -74,14 +85,6 @@ const router = new Router({
       path: '/equipamentos',
       name: 'Equipamentos',
       component: Equipamentos,
-      meta: {
-        menuKey: 'equipamentos',
-        requiresAuth: true
-      }
-    }, {
-      path: '/reservas/equipamentos/:key/:action',
-      name: 'ReservaDetails',
-      component: ReservaDetails,
       meta: {
         menuKey: 'equipamentos',
         requiresAuth: true
@@ -136,15 +139,8 @@ const router = new Router({
         requiresAuth: true
       }
     }, {
-      path: '/calendario',
-      name: 'Calendario',
-      component: Calendario,
-      meta: {
-        menuKey: 'home',
-        requiresAuth: false
-      }
-    }, {
       path: '/reservar',
+      name: 'novaReserva',
       component: novaReserva,
       meta: {
         menuKey: 'reservas',
@@ -159,45 +155,14 @@ const router = new Router({
           requiresAuth: true
         }
       }, {
-        path: 'equipamento',
-        name: 'ListaEquipamentos',
-        component: listaEquipamentos,
-        meta: {
-          menuKey: 'reservas',
-          requiresAuth: true
-        }
-      }, {
-        path: 'laboratorio',
-        name: 'listaLocais',
-        component: listaLocais,
-        meta: {
-          menuKey: 'reservas',
-          requiresAuth: true
-        }
-      }, {
-        path: ':objetoReserva/:itemReserva',
+        path: ':item/:valorItem',
         name: 'periodoReserva',
-        component: ReservaCadastro,
+        component: periodoReserva,
         meta: {
           menuKey: 'reservas',
           requiresAuth: true
         }
       }]
-    }, {
-      path: '/reservas/cadastro',
-      name: 'Cadastro de reservas',
-      component: ReservaCadastro,
-      meta: {
-        menuKey: 'reservas',
-        requiresAuth: true
-      }
-    }, {
-      path: '/p404',
-      name: 'p404',
-      component: p404,
-      meta: {
-        menuKey: ''
-      }
     }, {
       path: '*',
       redirect: '/'

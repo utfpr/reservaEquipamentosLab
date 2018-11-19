@@ -1,466 +1,714 @@
 <template>
-  <div id="Reservas">
-    <div class="container-fluid">
-      <div v-if="loader.loading" class="row justify-content-center">
-        <ring-loader :loading="loader.loading" :color="loader.color" :size="loader.size"></ring-loader>
-      </div>
-      <div v-if="!loader.loading" class="row">
-        <div class="col-12 col-lg-10 justify-content-center">
-          <div class="input-group">
-            <input v-on:keyup="search()" id="search" type="text" class="form-control"  aria-label="Campo de pesquisa" placeholder="Buscar...">
-            <div class="input-group-append">
-              <button v-on:click="search()" type="button" class="btn btn-outline-secondary">{{filtroAtivo}}</button>
-              <button type="button" class="btn btn-outline-secondary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                <span class="sr-only">Filtro</span>
-              </button>
-              <div class="dropdown-menu">
-                <span v-for="filtro in filtros" v-on:click="selectFilter(filtro)" class="dropdown-item">{{filtro}}</span>
-              </div>
-            </div>
+  <div>
+  <!-- <a-spin :spinning = "loading"> -->
+    <a-row style = "margin-bottom: 30px;">
+      <a-col :span = "16" :offset = "4" style = "text-align: center">
+        <h1> Reservas </h1>
+      </a-col>
+
+      <a-col :span = "4">
+        <router-link to = "/reservar">
+          <a-button type = "primary" size = "large" icon = "plus" style = "width: 100%; margin-top: 8px;"> Nova Reserva </a-button>
+        </router-link>
+      </a-col>
+    </a-row>
+    <a-tabs defaultActiveKey="1">
+      <a-tab-pane key="1">
+        <span slot="tab">
+          <a-icon class = "fa fa-flask" />
+          Equipamentos
+        </span>
+        <a-table :dataSource = "Reservaequip" :columns = "columnsEquip" :locale = "{ filterConfirm: 'Ok', filterReset: 'Resetar', emptyText: 'Nenhum Equipamento Cadastrado' }">
+          <span slot = "actions" slot-scope = "text, record">
+            <a-tooltip v-if = "record.status === 'Pendente'" placement = "top">
+              <template slot = "title">
+                <span> Confirmar Reserva</span>
+              </template>
+
+              <a-tag color = "green" :key = "text" >
+                <a-icon style = "color: #52c41a" type = "check" />
+              </a-tag>
+            </a-tooltip>
+
+            <!-- Editar Reserva -->
+            <a-tooltip v-if = "record.status === 'Pendente' " placement = "top">
+              <template slot = "title">
+                <span> Editar Reserva </span>
+              </template>
+
+              <a-tag color = "orange" :key = "text" >
+                <router-link :to = "{ name: 'periodoReserva', params: { item: 'equipamento', valorItem: text} }">
+                  <a-icon style = "color: #fa8c16;" type = "edit" />
+                </router-link>
+              </a-tag>
+            </a-tooltip>
+
+            <a-tooltip v-if = "record.status !== 'Cancelada'" placement = "top">
+              <template slot = "title">
+                <span> Cancelar Reserva </span>
+              </template>
+
+              <a-tag @click = "showEquipamentoModal(text)" color = "red" :key = "text" >
+                <a-icon type = "close" />
+              </a-tag>
+            </a-tooltip>
+          </span>
+
+          <a-icon slot = "filterIcon" slot-scope = "filtered" type='search' :style = "{ color: filtered ? '#108ee9' : '#aaa' }" />
+
+          <div slot = "filterDropdownEquipamento" slot-scope = "{ setSelectedKeys, selectedKeys, confirm, clearFilters }" class = 'custom-filter-dropdown'>
+            <a-input
+              ref = "EquipamentoInput"
+              placeholder = 'Buscar Equipamento...'
+              :value = "selectedKeys[0]"
+              @change = "e => setSelectedKeys(e.target.value ? [e.target.value] : [])"
+              @pressEnter = "() => handleSearch('searchNome', selectedKeys, confirm)"
+            />
+            <a-button type = 'primary' @click = "() => handleSearch('searchEquipamento', selectedKeys, confirm)"> Buscar </a-button>
+            <a-button @click = "() => handleReset('searchEquipamento', clearFilters)"> Resetar </a-button>
           </div>
-        </div>
-        <div class="col-12 col-md-2 text-center">
-          <router-link to="/reservar" class="justify-content-center mt-2 mt-md-0 btn btn-outline-primary btn-block">Novo</router-link>
-        </div>
+          
+          <div slot = "filterDropdownSolicitante" slot-scope = "{ setSelectedKeys, selectedKeys, confirm, clearFilters }" class = 'custom-filter-dropdown'>
+            <a-input
+              ref = "solicitanteInput"
+              placeholder = 'Buscar solicitante...'
+              :value = "selectedKeys[0]"
+              @change = "e => setSelectedKeys(e.target.value ? [e.target.value] : [])"
+              @pressEnter = "() => handleSearch('searchSolicitante', selectedKeys, confirm)"
+            />
+            <a-button type = 'primary' @click = "() => handleSearch('searchSolicitante', selectedKeys, confirm)"> Buscar </a-button>
+            <a-button @click = "() => handleReset('searchSolicitante', clearFilters)"> Resetar </a-button>
+          </div>
+
+          <span slot = "statusTag" slot-scope = "tag">
+            <a-tag v-if = "tag == 'Confirmada'" color = "green" :key = "tag"> {{tag}} </a-tag>
+            <a-tag v-if = "tag == 'Cancelada'" color = "red" :key = "tag"> {{tag}} </a-tag>
+            <a-tag v-if = "tag == 'Pendente'" color = "blue" :key = "tag"> {{tag}} </a-tag>
+          </span>
+        </a-table>
+
+      </a-tab-pane>
+      <a-tab-pane key="2">
+        <span slot="tab">
+          <a-icon class = "fa fa-map-marker-alt" />
+          Locais
+        </span>
+          <a-table :dataSource = "Reservalocais" :columns = "columnsLocal" :locale = "{ filterConfirm: 'Ok', filterReset: 'Resetar', emptyText: 'Nenhum Local Cadastrado' }">
+            <span slot = "actions" slot-scope = "text">
+              <a-tooltip v-if = "role === 'admin' || role === 'Supervisor'" placement = "top">
+                <template slot = "title">
+                  <span> Confirmar Reserva </span>
+                </template>
+
+                <a-tag color = "green" :key = "text" >
+                  <router-link :to = "{ name: 'periodoReserva', params: { item: 'local', valorItem: text} }">
+                  <a-icon style = "color: #52c41a" type = "database" />
+                  </router-link>
+                </a-tag>
+              </a-tooltip>
+
+              <a-tooltip v-if = "role === 'admin' || role === 'Supervisor'" placement = "top">
+                <template slot = "title">
+                  <span> Cancelar Reserva </span>
+                </template>
+
+                <a-tag @click = "showLocalModal(text)" color = "red" :key = "text" >
+                  <a-icon type = "delete" />
+                </a-tag>
+
+              </a-tooltip>
+            </span>
+
+            <a-icon slot = "filterIcon" slot-scope = "filtered" type='search' :style = "{ color: filtered ? '#108ee9' : '#aaa' }" />
+            
+            <!-- <div slot = "filterDropdownNome" slot-scope = "{ setSelectedKeys, selectedKeys, confirm, clearFilters }" class = 'custom-filter-dropdown'>
+              <a-input
+                ref = "nomeInput"
+                placeholder = 'Buscar nome...'
+                :value = "selectedKeys[0]"
+                @change = "e => setSelectedKeys(e.target.value ? [e.target.value] : [])"
+                @pressEnter = "() => handleSearch('searchNome', selectedKeys, confirm)"
+              />
+              <a-button type = 'primary' @click = "() => handleSearch('searchNome', selectedKeys, confirm)"> Buscar </a-button>
+              <a-button @click = "() => handleReset('searchNome', clearFilters)"> Resetar </a-button>
+            </div> -->
+
+            <div slot = "filterDropdownSolicitante" slot-scope = "{ setSelectedKeys, selectedKeys, confirm, clearFilters }" class = 'custom-filter-dropdown'>
+              <a-input
+                ref = "solicitanteInput"
+                placeholder = 'Buscar solicitante...'
+                :value = "selectedKeys[0]"
+                @change = "e => setSelectedKeys(e.target.value ? [e.target.value] : [])"
+                @pressEnter = "() => handleSearch('searchSolicitante', selectedKeys, confirm)"
+              />
+              <a-button type = 'primary' @click = "() => handleSearch('searchSolicitante', selectedKeys, confirm)"> Buscar </a-button>
+              <a-button @click = "() => handleReset('searchSolicitante', clearFilters)"> Resetar </a-button>
+            </div>
+            
+            <!-- <div slot = "filterDropdownSupervisor" slot-scope = "{ setSelectedKeys, selectedKeys, confirm, clearFilters }" class = 'custom-filter-dropdown'>
+              <a-input
+                ref = "supervisorInput"
+                placeholder = 'Buscar Supervisor...'
+                :value = "selectedKeys[0]"
+                @change = "e => setSelectedKeys(e.target.value ? [e.target.value] : [])"
+                @pressEnter = "() => handleSearch('searchSupervisor', selectedKeys, confirm)"
+              />
+              <a-button type = 'primary' @click = "() => handleSearch('searchSupervisor', selectedKeys, confirm)"> Buscar </a-button>
+              <a-button @click = "() => handleReset('searchSupervisor', clearFilters)"> Resetar </a-button>
+            </div> -->
+            <span slot = "statusTag" slot-scope = "tag">
+              <a-tag v-if = "tag === 'Confirmada'" color = "green" :key = "tag"> {{tag}} </a-tag>
+              <a-tag v-if = "tag === 'Cancelada'" color = "red" :key = "tag"> {{tag}} </a-tag>
+              <a-tag v-if = "tag === 'Pendente'" color = "blue" :key = "tag"> {{tag}} </a-tag>
+            </span>
+          </a-table>
+      </a-tab-pane>
+    </a-tabs>
+
+    
+    <a-modal
+      :visible = "visibleEquipamentoModal"
+      :footer = "null"
+      @cancel = "closeEquipamentoModal()"
+      style = "padding: 32px 32px 24px;">
+
+      <a-icon type = "question-circle-o" style = "color: #faad14; font-size: 22px; margin-right: 16px" />
+      <span> <b> Cuidado! </b> </span> <br/><br/>
+      <span > Realmente deseja cancelar esta Reserva do Equipamento: <b><i>{{modalEquip}}</i></b>? </span> <br/>
+      <a-textarea placeholder="Digite o motivo do cancelamento aqui" :autosize="{ minRows: 5, maxRows: 5 }" /><br/><br/>
+      <span > <i> Esta ação não poderá ser desfeita. </i> </span> <br/>
+
+      <div style = "text-align: right; margin-top: 20px;">
+        <a-button @click = "closeEquipamentoModal()"> Voltar </a-button>
+        <a-button @click = "deletaLocal()" type = "danger"> Cancelar </a-button>
+      </div> 
+    </a-modal>
+
+    <a-modal
+      v-if = "role === 'admin' || role === 'Supervisor'"
+      :visible = "visibleLocalModal"
+      :footer = "null"
+      @cancel = "closeLocalModal()"
+      style = "padding: 32px 32px 24px; top: 20px;">
+      
+      <div slot = "title">
+        <h5 v-if = "edit"> <b> {{local.nome}} </b> </h5>
+        <h5 v-else > <b> Novo Local </b> </h5>
       </div>
-      <div v-if="!loader.loading" class="row mt-4 justify-content-center text-center">
-        <h2> Reservas </h2>
-      </div>
-      <div v-if="!loader.loading" class="row">
-        <v-dialog/>
-        <div class="col-12">
-          <h4 v-if="reservas.length === 0" class=" text-center mt-5"> Nenhuma reserva encontrada </h4>
-          <table v-else class="table table-responsive-md table-hover text-center">
-            <thead>
-              <tr>
-                <th scope="col"><span v-on:click="orderBy('Periodo')">Período</span></th>
-                <th scope="col"><span v-on:click="orderBy('Equipamento')">Equipamento</span></th>
-                <th scope="col"><span v-on:click="orderBy('Local')">Local</span></th>
-                <th scope="col"><span v-on:click="orderBy('Solicitante')">Solicitante</span></th>
-                <th scope="col"><span v-on:click="orderBy('Status')">Status</span></th>
-                <th scope="col">Ações</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="reserva in reservas">
-                <td>{{periodoFormatado(reserva[1].Inicio, reserva[1].Fim)}}</td>
-                <td>{{reserva[1].Equipamento}} - {{reserva[2].Nome}}</td>
-                <td>{{reserva[2].Local}}</td>
-                <td>{{reserva[3].RA}} - {{reserva[3].Nome}}</td>
-                <td>{{reserva[1].Status}}</td>
-                <td>
-                  <ul class="list-inline d-inline-flex">
-                    <li>
-                      <router-link :to="{ name: 'ReservaDetails', params: {key: reserva[0], action: 'view'}}" class="mr-2 list-inline-item btn btn-primary btn-sm">Vizualizar</router-link>
-                    </li>
-                    <li>
-                      <router-link :to="{ name: 'ReservaDetails', params: {key: reserva[0], action: 'edit'}}" class="mr-2 list-inline-item btn btn-primary btn-sm">Editar</router-link>
-                    </li>
-                    <li v-if="role === 'Supervisor' || role === 'admin'">
-                      <span v-if="reserva[1].Status === 'Confirmada' || reserva[1].Status === 'Cancelada'"  class="mr-2 list-inline-item btn btn-primary btn-sm disabled">Confirmar</span>
-                      <span v-else class="mr-2 list-inline-item btn btn-primary btn-sm" v-on:click="confirmaConfirmarReserva(reserva)">Confirmar</span>
-                    </li>
-                    <li>
-                      <span v-if="reserva[1].Status === 'Cancelada'" class="list-inline-item btn btn-danger btn-sm disabled">Cancelar</span>
-                      <span v-else class="list-inline-item btn btn-danger btn-sm" v-on:click="confirmaCancelarReserva(reserva)">Cancelar</span>
-                    </li>
-                  </ul>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
+
+      <a-form layout = "vertical" :autoFormCreate = "(form) => { this.form = form }">
+        <a-row :gutter = "16">
+          <a-col :span = "24">
+            <a-form-item label = "Sala" fieldDecoratorId = "nome" :fieldDecoratorOptions = "{ rules: [{ required: true, message: 'Campo Obrigatório' }, { validator: this.checkUnique }], initialValue: local.nome }">
+              <a-input size = "large" placeholder = "Digite bloco e sala" @focus = "checkInput" />
+            </a-form-item>
+          </a-col>
+        </a-row>
+
+        <a-row :gutter = "16">
+          <a-col :span = "24">
+            <a-form-item label = "Supervisor" fieldDecoratorId = "supervisor" :fieldDecoratorOptions = "{ rules: [{ required: true, message: 'Selecione Supervisor' }], initialValue: local.supervisor }">
+              <a-select size = "large" placeholder = "Selecione supervisor" @focus = "checkSelect('supervisor')" showSearch notFoundContent = "Supervisor não Encontrado" :filterOption = "filterOption">
+                <a-select-option v-for = "supervisor in supervisores" v-bind:key = "supervisor" :value = "supervisor"> {{supervisor}} </a-select-option>
+              </a-select>
+            </a-form-item>
+          </a-col>
+        </a-row>
+
+        <a-row :gutter = "16">
+          <a-col :span = "24">
+            <a-form-item label = "Cursos" fieldDecoratorId = "curso" :fieldDecoratorOptions = "{ rules: [{ required: true, message: 'Selecione Curso' }], initialValue: local.curso }">
+              <a-select size = "large" placeholder = "Selecione curso" @focus = "checkSelect('curso')" showSearch notFoundContent = "Curso não Encontrado" :filterOption = "filterOption">
+                <a-select-option v-for = "curso in cursos" v-bind:key = "curso" :value = "curso"> {{curso}} </a-select-option>
+              </a-select>
+            </a-form-item>
+          </a-col>
+        </a-row>
+
+        <a-row :gutter = "16">
+          <a-col :span = "24">
+            <a-form-item label = "Descrição" fieldDecoratorId = "descricao" :fieldDecoratorOptions = "{ rules: [{ required: true, message: 'Campo Obrigatório' }], initialValue: local.descricao }">
+              <a-textarea placeholder = "Digite descrição do laboratório" :autosize = "{ minRows: 3, maxRows: 6 }" @focus = "checkInput" />
+            </a-form-item>
+          </a-col>
+        </a-row>
+
+        <a-row style = "text-align: right; margin-bottom: 5px;">
+          <a-button size = "large" @click = "closeLocalModal()" style = "margin-right: 15px;"> Cancelar </a-button>
+          
+          <a-button v-if = "edit" size = "large" type = "primary" @click = "atualizaLocal"> Atualizar </a-button>
+          <a-button v-else size = "large" type = "primary" @click = "cadastraLocal"> Cadastrar </a-button>
+        </a-row>
+      </a-form>
+    </a-modal>
   </div>
+  <!-- </a-spin> -->
 </template>
 
 <script>
-import {sendEmail} from '../../emailAPI.js'
-import RingLoader from 'vue-spinner/src/RingLoader.vue'
-import firebaseApp from '../../firebase-controller.js'
-const auth = firebaseApp.auth()
-const db = firebaseApp.database()
-export default {
-  name: 'reservas',
-  data () {
-    return {
-      filtros: ['Período', 'RA', 'Patrimônio', 'Nome', 'Status'],
-      filtroAtivo: '',
-      reservas: [],
-      role: null,
-      userEmail: null,
-      loader: {
-        loading: true,
-        color: '#007bff',
-        size: '100px'
-      }
-    }
-  },
-  components: {
-    RingLoader
-  },
-  created: function () {
-    this.filtroAtivo = this.filtros[0]
-    var _this = this
-    db.ref('Usuarios/' + auth.currentUser.uid).on('value', function (snapshot) {
-      _this.loader.loading = true
-      _this.role = snapshot.val().role
-      _this.userEmail = snapshot.val().Email
-      _this.loader.loading = false
-    })
-  },
-  mounted: function () {
-    var _this = this
-    if (this.role === 'Supervisor' || this.role === 'admin') {
-      db.ref('Reservas/equipamentos').on('value', function (snapshot) {
-        _this.loader.loading = true
-        _this.reservas = []
-        snapshot.forEach(function (childSnapshot) {
-          db.ref('Equipamentos/' + childSnapshot.val().Equipamento).on('value', function (equipamento) {
-            db.ref('Usuarios/' + childSnapshot.val().Solicitante).on('value', function (soliciante) {
-              _this.reservas.push([childSnapshot.key, childSnapshot.val(), equipamento.val(), soliciante.val()])
-            })
-          })
-        })
-        _this.loader.loading = false
-      })
-    } else if (this.role === 'Comum') {
-      db.ref('Reservas/equipamentos').orderByChild('Solicitante').equalTo(auth.currentUser.uid).on('value', function (snapshot) {
-        _this.loader.loading = true
-        _this.reservas = []
-        snapshot.forEach(function (childSnapshot) {
-          db.ref('Equipamentos/' + childSnapshot.val().Equipamento).on('value', function (equipamento) {
-            db.ref('Usuarios/' + childSnapshot.val().Solicitante).on('value', function (soliciante) {
-              _this.reservas.push([childSnapshot.key, childSnapshot.val(), equipamento.val(), soliciante.val()])
-            })
-          })
-        })
-        _this.loader.loading = false
-      })
-    }
-  },
-  methods: {
-    periodoFormatado (inicio, fim) {
-      return this.$moment(new Date(inicio)).format('[De] DD/MM/YYYY [às] HH:mm [até] ') + this.$moment(new Date(fim)).format('DD/MM/YYYY [às] HH:mm')
-    },
-    // modal para cancelar reservas
-    confirmaCancelarReserva (reserva) {
-      // rota do superrvisor
-      if (this.role === 'Supervisor') {
-        this.$modal.show('dialog', {
-          title: 'Cuidado!',
-          text: ' Se realmente deseja <b>cancelar</b> esta reserva, informe o motivo e clique em Cancelar Reserva<br/><textarea style = "width: 100%; min-height: 100px" id = "motivoCancelamento"></textarea><br/><i>Essa ação não poderá ser desfeita</i>',
-          buttons: [
-            {
-              title: 'Cancelar Reserva',
-              handler: () => {
-                this.$modal.hide('dialog')
-                this.cancelarReserva(reserva)
-                this.$router.push('/home')
-              }
-            },
-            {
-              title: 'Sair',
-              default: true
-            }
-          ]
-        })
-      // rota do usuario
-      } else {
-        this.$modal.show('dialog', {
-          title: 'Cuidado!',
-          text: ' Se realmente deseja <b>cancelar</b> esta reserva, clique em cancelar a reserva <br/><i>Essa ação não poderá ser desfeita</i>',
-          buttons: [
-            {
-              title: 'Cancelar Reserva',
-              handler: () => {
-                this.$modal.hide('dialog')
-                this.cancelarReserva(reserva)
-                this.$router.push('/home')
-              }
-            },
-            {
-              title: 'Sair',
-              default: true
-            }
-          ]
-        })
-      }
-    },
-    // cancela reserva para usuarios comuns
-    cancelarReserva (reserva) {
-      db.ref('Reservas/equipamentos').child(reserva[0]).update({
-        'Status': 'Cancelada'
-      })
-      let to = [auth.currentUser.displayName + ' <' + this.userEmail + '>']
-      let subject = 'Reserva de equipamento cancelada'
-      let textBody = 'Sua resersa foi cancelada'
+  import firebaseApp from '../../firebase-controller.js'
 
-      let htmlBody = '<h3>Reserva cancelada</h3><br><p>Sua reserva do equipamento: <strong>' + reserva[1].Equipamento + ' - ' + reserva[2].Nome + '</strong> no local <strong>' + reserva[2].Local + '</strong> no período: <strong>' + (this.$moment(new Date(reserva[1].Inicio)).format('[De] DD/MM/YYYY [às] HH:mm [até] ') + this.$moment(new Date(reserva[1].Fim)).format('DD/MM/YYYY [às] HH:mm')) + '</strong> foi <strong>cancelada</strong> pelo responsável.</p><small>Este é um E-mail automático, por favor não responda</small>'
-      sendEmail(to, subject, textBody, htmlBody)
-      this.$notify({
-        group: 'notify',
-        type: 'success',
-        title: 'Yey!',
-        text: 'Reserva <b>cancelada</b> com sucesso'
-      })
-    },
+  const db = firebaseApp.database()
+  const auth = firebaseApp.auth()
 
-    // cancela reserva para supervisores
-    cancelarReservaSupervisor (reserva) {
-      var motivo = document.getElementById('motivoCancelamento').value
-      if (motivo) {
-        db.ref('Reservas/equipamentos').child(reserva[0]).update({
-          'Status': 'Cancelada'
-        })
-        let to = [auth.currentUser.displayName + ' <' + this.userEmail + '>']
-        let subject = 'Reserva de equipamento cancelada'
-        let textBody = 'Sua resersa foi cancelada'
-        let htmlBody = '<h3>Reserva cancelada</h3><br><p>Sua reserva do equipamento: <strong>' + reserva[1].Equipamento + ' - ' + reserva[2].Nome + '</strong> no local <strong>' + reserva[2].Local + '</strong> no período: <strong>' + (this.$moment(new Date(reserva[1].Inicio)).format('[De] DD/MM/YYYY [às] HH:mm [até] ') + this.$moment(new Date(reserva[1].Fim)).format('DD/MM/YYYY [às] HH:mm')) + '</strong> foi <strong>cancelada</strong> pelo responsável.</p><p><strong>Motivo do cancelamento:' + motivo + '</strong></p><small>Este é um E-mail automático, por favor não responda</small>'
-        sendEmail(to, subject, textBody, htmlBody)
-        this.$notify({
-          group: 'notify',
-          type: 'success',
-          title: 'Yey!',
-          text: 'Reserva <b>cancelada</b> com sucesso'
-        })
-      } else {
-        this.$notify({
-          group: 'notify',
-          type: 'Warning',
-          title: 'Ops!',
-          text: 'Motivo de cancelamento não informado'
-        })
-        this.confirmaCancelarReserva(reserva)
-      }
-    },
-    confirmaConfirmarReserva (reserva) {
-      this.$modal.show('dialog', {
-        title: 'Confirmar reserva',
-        text: 'Realmente deseja <b>confirmar</b> esta reserva?<br><i>Você poderá cancelá-la depois</i>',
-        buttons: [
-          {
-            title: 'Confirmar Reserva',
-            handler: () => {
-              this.$modal.hide('dialog')
-              this.confirmarReserva(reserva)
-            }
+  export default {
+    data () {
+      return {
+        role: null,
+        // loading: false,
+        cursos: [],
+        supervisores: [],
+        usuarios: [],
+        Reservaequip: [],
+        Reservalocais: [],
+        local: [],
+        locais: [],
+        equipamento: [],
+        searchNome: '',
+        searchSupervisor: '',
+        columnsEquip: [{
+          title: 'Equipamento',
+          dataIndex: 'equipamento',
+          key: 'equipamento',
+          scopedSlots: {
+            filterDropdown: 'filterDropdownEquipamento',
+            filterIcon: 'filterIcon'
           },
-          {
-            title: 'Sair',
-            default: true
+          onFilter: (value, record) => record.equipamento.toLowerCase().includes(value.toLowerCase()),
+          onFilterDropdownVisibleChange: (visible) => {
+            if (visible) {
+              setTimeout(() => {
+                this.$refs.equipamentoInput.focus()
+              })
+            }
           }
-        ]
-      })
+        }, {
+          title: 'Local',
+          dataIndex: 'local',
+          key: 'local',
+          filters: this.populaFiltroLocais(),
+          onFilter: (value, record) => record.local === value
+        }, {
+          title: 'Solicitante',
+          dataIndex: 'solicitante',
+          key: 'solicitante',
+          scopedSlots: {
+            filterDropdown: 'filterDropdownSolicitante',
+            filterIcon: 'filterIcon'
+          },
+          onFilter: (value, record) => record.solicitante.toLowerCase().includes(value.toLowerCase()),
+          onFilterDropdownVisibleChange: (visible) => {
+            if (visible) {
+              setTimeout(() => {
+                this.$refs.solicitanteInput.focus()
+              })
+            }
+          }
+        }, {
+          title: 'Data Inicio',
+          dataIndex: 'dataInicio',
+          key: 'dataInicio',
+          scopedSlots: {
+            filterDropdown: 'filterDropdownDataInicio',
+            filterIcon: 'filterIcon'
+          },
+          onFilter: (value, record) => record.dataInicio.toLowerCase().includes(value.toLowerCase()),
+          onFilterDropdownVisibleChange: (visible) => {
+            if (visible) {
+              setTimeout(() => {
+                this.$refs.dataInicioInput.focus()
+              })
+            }
+          }
+        }, {
+          title: 'Data Fim',
+          dataIndex: 'dataFim',
+          key: 'dataFim',
+          scopedSlots: {
+            filterDropdown: 'filterDropdownDataFim',
+            filterIcon: 'filterIcon'
+          },
+          onFilter: (value, record) => record.dataFim.toLowerCase().includes(value.toLowerCase()),
+          onFilterDropdownVisibleChange: (visible) => {
+            if (visible) {
+              setTimeout(() => {
+                this.$refs.dataFimInput.focus()
+              })
+            }
+          }
+        }, {
+        }, {
+          title: 'Status',
+          dataIndex: 'status',
+          key: 'status',
+          scopedSlots: { customRender: 'statusTag' },
+          filters: [{
+            text: 'Cancelada',
+            value: 'Cancelada'
+          }, {
+            text: 'Confirmada',
+            value: 'Confirmada'
+          }, {
+            text: 'Pendente',
+            value: 'Pendente'
+          }],
+          onFilter: (value, record) => record.status === value
+        }, {
+          title: 'Ações',
+          dataIndex: 'id',
+          key: 'acoes',
+          align: 'center',
+          scopedSlots: { customRender: 'actions' }
+        }],
+        columnsLocal: [{
+          title: 'Local',
+          dataIndex: 'local',
+          key: 'local',
+          filters: this.populaFiltroLocais(),
+          onFilter: (value, record) => record.local === value
+        }, {
+          title: 'Solicitante',
+          dataIndex: 'solicitante',
+          key: 'solicitante',
+          scopedSlots: {
+            filterDropdown: 'filterDropdownSolicitante',
+            filterIcon: 'filterIcon'
+          },
+          onFilter: (value, record) => record.solicitante.toLowerCase().includes(value.toLowerCase()),
+          onFilterDropdownVisibleChange: (visible) => {
+            if (visible) {
+              setTimeout(() => {
+                this.$refs.solicitanteInput.focus()
+              })
+            }
+          }
+        }, {
+          title: 'Data Inicio',
+          dataIndex: 'dataInicio',
+          key: 'dataInicio',
+          scopedSlots: {
+            filterDropdown: 'filterDropdownDataInicio',
+            filterIcon: 'filterIcon'
+          },
+          onFilter: (value, record) => record.dataInicio.toLowerCase().includes(value.toLowerCase()),
+          onFilterDropdownVisibleChange: (visible) => {
+            if (visible) {
+              setTimeout(() => {
+                this.$refs.dataInicioInput.focus()
+              })
+            }
+          }
+        }, {
+          title: 'Data Fim',
+          dataIndex: 'dataFim',
+          key: 'dataFim',
+          scopedSlots: {
+            filterDropdown: 'filterDropdownDataFim',
+            filterIcon: 'filterIcon'
+          },
+          onFilter: (value, record) => record.dataFim.toLowerCase().includes(value.toLowerCase()),
+          onFilterDropdownVisibleChange: (visible) => {
+            if (visible) {
+              setTimeout(() => {
+                this.$refs.dataFimInput.focus()
+              })
+            }
+          }
+        }, {
+          title: 'Status',
+          dataIndex: 'status',
+          key: 'status',
+          scopedSlots: { customRender: 'statusTag' },
+          filters: [{
+            text: 'Cancelada',
+            value: 'Cancelada'
+          }, {
+            text: 'Confirmada',
+            value: 'Confirmada'
+          }, {
+            text: 'Pendente',
+            value: 'Pendente'
+          }],
+          onFilter: (value, record) => record.status === value
+        }, {
+          title: 'Ações',
+          dataIndex: 'local',
+          key: 'acoes',
+          align: 'center',
+          scopedSlots: { customRender: 'actions' }
+        }],
+        visibleEquipamentoModal: false,
+        modalEquip: '',
+        visibleLocalModal: false,
+        edit: false
+      }
     },
-    confirmarReserva (reserva) {
-      db.ref('Reservas/equipamentos').child(reserva[0]).update({
-        'Status': 'Confirmada'
-      })
-      let to = [auth.currentUser.displayName + ' <' + this.userEmail + '>']
-      let subject = 'Reserva de equipamento confirmada'
-      let textBody = 'Sua resersa foi confirmada'
-      let htmlBody = '<h3>Reserva confirmada</h3><br><p>Sua reserva do equipamento: <strong>' + reserva[1].Equipamento + ' - ' + reserva[2].Nome + '</strong> no local <strong>' + reserva[2].Local + '</strong> no período: <strong>' + (this.$moment(new Date(reserva[1].Inicio)).format('[De] DD/MM/YYYY [às] HH:mm [até] ') + this.$moment(new Date(reserva[1].Fim)).format('DD/MM/YYYY [às] HH:mm')) + '</strong> foi <strong>confirmada</strong> pelo responsável.</p><p>Cuide bem do equipamento e não deixe de ler o POP disponível no sitema de reservas caso tenha dúvidas</p><small>Este é um E-mail automático, por favor não responda</small>'
-      sendEmail(to, subject, textBody, htmlBody)
-      this.$notify({
-        group: 'notify',
-        type: 'success',
-        title: 'Yey!',
-        text: 'Reserva <b>confirmada</b> com sucesso'
-      })
-    },
-    selectFilter (filtro) {
-      this.filtroAtivo = filtro
-    },
-    search () {
-      let pesquisa = document.getElementById('search').value
-      var _this = this
-      if (pesquisa) {
-        if (this.filtroAtivo === 'Patrimônio') {
-          if (this.role === 'Supervisor' || this.role === 'admin') {
-            db.ref('Reservas/equipamentos').orderByChild('Equipamento').startAt(pesquisa).endAt(pesquisa + '\uf8ff').on('value', function (snapshot) {
-              _this.loader.loading = true
-              _this.reservas = []
-              snapshot.forEach(function (childSnapshot) {
-                db.ref('Equipamentos/' + childSnapshot.val().Equipamento).on('value', function (equipamento) {
-                  db.ref('Usuarios/' + childSnapshot.val().Solicitante).on('value', function (soliciante) {
-                    _this.reservas.push([childSnapshot.key, childSnapshot.val(), equipamento.val(), soliciante.val()])
-                  })
-                })
-              })
-              _this.loader.loading = false
+    beforeMount: function () {
+      let _this = this
+      _this.loading = true
+      db.ref('Usuarios/' + auth.currentUser.uid + '/role').on('value', function (snapshot) {
+        // _this.loading = true
+        _this.role = snapshot.val()
+        // _this.loading = false
+        // todos os locais
+        db.ref('Locais').orderByKey().on('value', function (snapshot) {
+          // _this.loading = true
+          _this.local = []
+
+          snapshot.forEach(function (item) {
+            _this.local.push({
+              'local': item.key,
+              'curso': item.val().Curso,
+              'descricao': item.val().Descricao,
+              'supervisor': item.val().Supervisor
             })
-          } else if (this.role === 'Comum') {
-            db.ref('Reservas/equipamentos').orderByChild('Equipamento').startAt(pesquisa).endAt(pesquisa + '\uf8ff').on('value', function (snapshot) {
-              _this.loader.loading = true
-              _this.reservas = []
-              snapshot.forEach(function (childSnapshot) {
-                if (childSnapshot.val().Solicitante === auth.currentUser.uid) {
-                  db.ref('Equipamentos/' + childSnapshot.val().Equipamento).on('value', function (equipamento) {
-                    db.ref('Usuarios/' + childSnapshot.val().Solicitante).on('value', function (soliciante) {
-                      _this.reservas.push([childSnapshot.key, childSnapshot.val(), equipamento.val(), soliciante.val()])
-                    })
-                  })
-                }
-              })
-              _this.loader.loading = false
-            })
-          }
-        } else if (this.filtroAtivo === 'Nome') {
-          if (this.role === 'Supervisor' || this.role === 'admin') {
-            db.ref('Reservas/equipamentos').on('value', function (snapshot) {
-              _this.loader.loading = true
-              _this.reservas = []
-              snapshot.forEach(function (childSnapshot) {
-                db.ref('Equipamentos').orderByChild('Nome').startAt(pesquisa).endAt(pesquisa + '\uffff').on('value', function (equipamento) {
-                  if (childSnapshot.val().Equipamento === equipamento.key) {
-                    db.ref('Usuarios/' + childSnapshot.val().Solicitante).on('value', function (soliciante) {
-                      _this.reservas.push([childSnapshot.key, childSnapshot.val(), equipamento.val(), soliciante.val()])
-                    })
-                  }
-                })
-              })
-              _this.loader.loading = false
-            })
-          } else if (this.role === 'Comum') {
-            db.ref('Reservas/equipamentos').orderByChild('Solicitante').equalTo(auth.currentUser.uid).on('value', function (snapshot) {
-              _this.loader.loading = true
-              _this.reservas = []
-              snapshot.forEach(function (childSnapshot) {
-                db.ref('Equipamentos').orderByChild('Nome').startAt(pesquisa).endAt(pesquisa + '\uffff').on('value', function (equipamento) {
-                  if (childSnapshot.val().Equipamento === equipamento.key) {
-                    db.ref('Usuarios/' + childSnapshot.val().Solicitante).on('value', function (soliciante) {
-                      _this.reservas.push([childSnapshot.key, childSnapshot.val(), equipamento.val(), soliciante.val()])
-                    })
-                  }
-                })
-              })
-              _this.loader.loading = false
-            })
-          }
-        } else if (this.filtroAtivo === 'Status') {
-          if (this.role === 'Supervisor' || this.role === 'admin') {
-            db.ref('Reservas/equipamentos').orderByChild('Status').equalTo(pesquisa).on('value', function (snapshot) {
-              _this.loader.loading = true
-              _this.reservas = []
-              snapshot.forEach(function (childSnapshot) {
-                db.ref('Equipamentos/' + childSnapshot.val().Equipamento).on('value', function (equipamento) {
-                  db.ref('Usuarios/' + childSnapshot.val().Solicitante).on('value', function (soliciante) {
-                    _this.reservas.push([childSnapshot.key, childSnapshot.val(), equipamento.val(), soliciante.val()])
-                  })
-                })
-              })
-              _this.loader.loading = false
-            })
-          } else if (this.role === 'Comum') {
-            db.ref('Reservas/equipamentos').orderByChild('Status').equalTo(pesquisa).on('value', function (snapshot) {
-              _this.loader.loading = true
-              _this.reservas = []
-              snapshot.forEach(function (childSnapshot) {
-                if (childSnapshot.val().Solicitante === auth.currentUser.uid) {
-                  db.ref('Equipamentos/' + childSnapshot.val().Equipamento).on('value', function (equipamento) {
-                    db.ref('Usuarios/' + childSnapshot.val().Solicitante).on('value', function (soliciante) {
-                      _this.reservas.push([childSnapshot.key, childSnapshot.val(), equipamento.val(), soliciante.val()])
-                    })
-                  })
-                }
-              })
-              _this.loader.loading = false
-            })
-          }
-        }
-      } else {
-        if (this.role === 'Supervisor' || this.role === 'admin') {
-          db.ref('Reservas/equipamentos').on('value', function (snapshot) {
-            _this.loader.loading = true
-            _this.reservas = []
-            snapshot.forEach(function (childSnapshot) {
-              db.ref('Equipamentos/' + childSnapshot.val().Equipamento).on('value', function (equipamento) {
-                db.ref('Usuarios/' + childSnapshot.val().Solicitante).on('value', function (soliciante) {
-                  _this.reservas.push([childSnapshot.key, childSnapshot.val(), equipamento.val(), soliciante.val()])
-                })
-              })
-            })
-            _this.loader.loading = false
           })
-        } else if (this.role === 'Comum') {
+          _this.loading = false
+        })
+        // todos os Supervisores
+        db.ref('Usuarios').orderByChild('role').equalTo('Supervisor').on('value', (snapshot) => {
+          // _this.loading = true
+          _this.supervisores = []
+
+          snapshot.forEach(function (item) {
+            _this.supervisores.push({
+              'key': item.key,
+              'curso': item.val().Curso,
+              'email': item.val().Email,
+              'nome': item.val().Nome,
+              'RA': item.val().RA
+            })
+          })
+          _this.loading = false
+        })
+        // todos os Equipamentos
+        db.ref('Equipamentos').orderByKey().on('value', function (snapshot) {
+          // _this.loading = true
+
+          snapshot.forEach(function (item) {
+            _this.equipamento.push({
+              'key': item.key,
+              'patrimonio': item.val().Patrimonio,
+              'nome': item.val().Nome,
+              'local': item.val().Local,
+              'status': item.val().Status
+            })
+          })
+          _this.loading = false
+        })
+        // todos os Usuarios
+        db.ref('Usuarios').orderByKey().on('value', function (snapshot) {
+          // _this.loading = true
+
+          snapshot.forEach(function (item) {
+            _this.usuarios.push({
+              'key': item.key,
+              'curso': item.val().Curso,
+              'email': item.val().Email,
+              'nome': item.val().Nome,
+              'RA': item.val().RA,
+              'sobrenome': item.val().Sobrenome,
+              'role': item.val().role
+            })
+          })
+          _this.loading = false
+        })
+        if (_this.role === 'admin' || _this.role === 'Supervisor') {
+          // Reservas dos Locais
+          db.ref('Reservas/locais').orderByKey().on('value', function (snapshot) {
+            // _this.loading = true
+            snapshot.forEach(function (item) {
+              var solicitante
+              var supervisor
+              var val = _this.usuarios.map(function (e) { return e.key }).indexOf(item.val().Solicitante)
+              if (val === -1) {
+                solicitante = 'Error'
+              } else {
+                solicitante = _this.usuarios[_this.usuarios.map(function (e) { return e.key }).indexOf(item.val().Solicitante)].nome
+              }
+              val = _this.supervisores.map(function (e) { return e.key }).indexOf(item.val().Supervisor)
+              if (val === -1) {
+                supervisor = 'Error'
+              } else {
+                supervisor = _this.supervisores[_this.supervisores.map(function (e) { return e.key }).indexOf(item.val().Supervisor)].nome
+              }
+              _this.Reservalocais.push({
+                'local': item.val().Local,
+                'solicitante': solicitante,
+                'supervisor': supervisor, // esta dando erro tem que arrumar o banco.
+                'dataInicio': item.val().Inicio,
+                'dataFim': item.val().Fim,
+                'status': item.val().Status
+              })
+            })
+            _this.loading = false
+          })
+          // Reservas dos Equipamentos
+          db.ref('Reservas/equipamentos').orderByKey().on('value', function (snapshot) {
+            // _this.loading = true
+
+            snapshot.forEach(function (item) {
+              var solicitante
+              var val = _this.usuarios.map(function (e) { return e.key }).indexOf(item.val().Solicitante)
+              if (val === -1) {
+                solicitante = 'Error'
+              } else {
+                solicitante = _this.usuarios[_this.usuarios.map(function (e) { return e.key }).indexOf(item.val().Solicitante)].nome
+              }
+              var local
+              var equipamento
+              val = _this.equipamento.map(function (e) { return e.key }).indexOf(item.val().Equipamento)
+              if (val === -1) {
+                local = 'Error'
+              } else {
+                local = _this.equipamento[_this.equipamento.map(function (e) { return e.key }).indexOf(item.val().Equipamento)].local
+                equipamento = _this.equipamento[_this.equipamento.map(function (e) { return e.key }).indexOf(item.val().Equipamento)].patrimonio
+              }
+              _this.Reservaequip.push({
+                'id': item.val().Equipamento,
+                'equipamento': equipamento,
+                'local': local,
+                'solicitante': solicitante,
+                'dataInicio': item.val().Inicio,
+                'dataFim': item.val().Fim,
+                'status': item.val().Status
+              })
+            })
+            _this.loading = false
+          })
+        } else {
+          // Reservas dos Locais
+          db.ref('Reservas/locais').orderByChild('Solicitante').equalTo(auth.currentUser.uid).on('value', function (snapshot) {
+            // _this.loading = true
+            console.log('entrou')
+            snapshot.forEach(function (item) {
+              console.log('item =', item.val())
+              var solicitante
+              var supervisor
+              var val = _this.usuarios.map(function (e) { return e.key }).indexOf(item.val().Solicitante)
+              if (val === -1) {
+                solicitante = 'Error'
+              } else {
+                solicitante = _this.usuarios[_this.usuarios.map(function (e) { return e.key }).indexOf(item.val().Solicitante)].nome
+              }
+              val = _this.supervisores.map(function (e) { return e.key }).indexOf(item.val().Supervisor)
+              if (val === -1) {
+                supervisor = 'Error'
+              } else {
+                supervisor = _this.supervisores[_this.supervisores.map(function (e) { return e.key }).indexOf(item.val().Supervisor)].nome
+              }
+              _this.Reservalocais.push({
+                'local': item.val().Local,
+                'solicitante': solicitante,
+                'supervisor': supervisor, // esta dando erro tem que arrumar o banco.
+                'dataInicio': item.val().Inicio,
+                'dataFim': item.val().Fim,
+                'status': item.val().Status
+              })
+            })
+            _this.loading = false
+          })
+          // Reservas dos Equipamentos
           db.ref('Reservas/equipamentos').orderByChild('Solicitante').equalTo(auth.currentUser.uid).on('value', function (snapshot) {
-            _this.loader.loading = true
-            _this.reservas = []
-            snapshot.forEach(function (childSnapshot) {
-              db.ref('Equipamentos/' + childSnapshot.val().Equipamento).on('value', function (equipamento) {
-                db.ref('Usuarios/' + childSnapshot.val().Solicitante).on('value', function (soliciante) {
-                  _this.reservas.push([childSnapshot.key, childSnapshot.val(), equipamento.val(), soliciante.val()])
-                })
+            // _this.loading = true
+
+            snapshot.forEach(function (item) {
+              var solicitante
+              var val = _this.usuarios.map(function (e) { return e.key }).indexOf(item.val().Solicitante)
+              if (val === -1) {
+                solicitante = 'Error'
+              } else {
+                solicitante = _this.usuarios[_this.usuarios.map(function (e) { return e.key }).indexOf(item.val().Solicitante)].nome
+              }
+              var local
+              var equipamento
+              val = _this.equipamento.map(function (e) { return e.key }).indexOf(item.val().Equipamento)
+              if (val === -1) {
+                local = 'Error'
+              } else {
+                local = _this.equipamento[_this.equipamento.map(function (e) { return e.key }).indexOf(item.val().Equipamento)].local
+                equipamento = _this.equipamento[_this.equipamento.map(function (e) { return e.key }).indexOf(item.val().Equipamento)].patrimonio
+              }
+              _this.Reservaequip.push({
+                'id': item.val().Equipamento,
+                'equipamento': equipamento,
+                'local': local,
+                'solicitante': solicitante,
+                'dataInicio': item.val().Inicio,
+                'dataFim': item.val().Fim,
+                'status': item.val().Status
               })
             })
-            _this.loader.loading = false
+            _this.loading = false
           })
         }
-      }
+      })
     },
-    orderBy (campo) {
-      console.log('chamado')
-      if (campo === 'Data') {
-        this.reservas.sort(function (a, b) {
-          if (a[1].Data > b[0].Data) {
-            return 1
-          }
-          if (a[0].Data < b[0].Data) {
-            return -1
-          }
-          return 0
+    methods: {
+      handleSearch (inputText, selectedKeys, confirm) {
+        confirm()
+        this[inputText] = selectedKeys[0]
+      },
+      handleReset (inputText, clearFilters) {
+        clearFilters()
+        this[inputText] = ''
+      },
+      showEquipamentoModal (equip) {
+        var _this = this
+        this.modalEquip = _this.equipamento[_this.equipamento.map(function (e) { return e.key }).indexOf(equip)].patrimonio
+        this.visibleEquipamentoModal = true
+      },
+      closeEquipamentoModal () {
+        this.visibleEquipamentoModal = false
+        this.modalEquip = ''
+      },
+      showLocalModal () {
+        this.visibleLocalModal = true
+      },
+      showAtualizaModal (local) {
+        this.local = this.locais[this.locais.map(function (e) { return e.nome }).indexOf(local)]
+        this.edit = true
+        this.showLocalModal()
+      },
+      closeLocalModal () {
+        this.visibleLocalModal = false
+        this.edit = false
+        this.local = ''
+        this.form.resetFields()
+      },
+      populaFiltroLocais () {
+        var locais = []
+        db.ref('Locais').orderByKey().on('value', function (snapshot) {
+          snapshot.forEach(function (item) {
+            locais.push({
+              'text': item.key,
+              'value': item.key
+            })
+          })
         })
-      } else if (campo === 'Periodo') {
-        this.reservas.sort(function (a, b) {
-          if (a[1].PeriodoInicio > b[1].PeriodoInicio) {
-            return 1
-          }
-          if (a[1].PeriodoInicio < b[1].PeriodoInicio) {
-            return -1
-          }
-          return 0
-        })
-      } else if (campo === 'Equipamento') {
-        console.log(this.reservas)
-        this.reservas.sort(function (a, b) {
-          if (a[1].Equipamento > b[1].Equipamento) {
-            console.log('qualquertexot')
-            return 1
-          }
-          if (a[1].Equipamento < b[1].Equipamento) {
-            console.log('logo')
-            return -1
-          }
-          return 0
-        })
-      } else if (campo === 'RA') {
-        this.reservas.sort(function (a, b) {
-          if (a[1].RA > b[1].RA) {
-            return 1
-          }
-          if (a[1].RA < b[1].RA) {
-            return -1
-          }
-          return 0
-        })
-      } else if (campo === 'Estado') {
-        this.reservas.sort(function (a, b) {
-          if (a[1].Status > b[1].Status) {
-            return 1
-          }
-          if (a[1].Status < b[1].Status) {
-            return -1
-          }
-          return 0
-        })
+        return locais
+      },
+      filterOption (input, option) {
+        return option.componentOptions.children[0].text.toLowerCase().indexOf(input.toLowerCase()) >= 0
       }
-      console.log('terminado')
     }
   }
-}
 </script>
 
-<style lang="css">
+<style>
+  .custom-filter-dropdown {
+    padding: 8px;
+    border-radius: 6px;
+    background: #fff;
+    box-shadow: 0 1px 6px rgba(0, 0, 0, .2);
+  }
+
+  .custom-filter-dropdown input {
+    width: 130px;
+    margin-right: 8px;
+  }
+
+  .custom-filter-dropdown button {
+    margin-right: 8px;
+  }
 </style>
