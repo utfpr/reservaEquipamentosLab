@@ -1,6 +1,5 @@
 <template>
-  <div>
-  <!-- <a-spin :spinning = "loading"> -->
+  <a-spin :spinning = "loading">
     <a-row style = "margin-bottom: 30px;">
       <a-col :span = "16" :offset = "4" style = "text-align: center">
         <h1> Reservas </h1>
@@ -12,12 +11,13 @@
         </router-link>
       </a-col>
     </a-row>
+
     <a-tabs defaultActiveKey="1">
-      <a-tab-pane key="1">
-        <span slot="tab">
-          <a-icon class = "fa fa-flask" />
-          Equipamentos
+      <a-tab-pane key = "1">
+        <span slot = "tab">
+          <a-icon class = "fa fa-flask" /> Equipamentos
         </span>
+
         <a-table :dataSource = "Reservaequip" :columns = "columnsEquip" :locale = "{ filterConfirm: 'Ok', filterReset: 'Resetar', emptyText: 'Nenhum Equipamento Cadastrado' }">
           <span slot = "actions" slot-scope = "text, record">
             <a-tooltip v-if = "record.status === 'Pendente' && role !== 'Comum'" placement = "top">
@@ -30,7 +30,6 @@
               </a-tag>
             </a-tooltip>
 
-            <!-- Editar Reserva -->
             <a-tooltip v-if = "record.status === 'Pendente' " placement = "top">
               <template slot = "title">
                 <span> Editar Reserva </span>
@@ -91,21 +90,22 @@
             <a-button type = 'primary' @click = "() => handleSearch('searchDataInicio', selectedKeys, confirm)"> Buscar </a-button>
             <a-button @click = "() => handleReset('searchDataInicio', clearFilters)"> Resetar </a-button>
           </div>
+
           <span slot = "statusTag" slot-scope = "tag">
             <a-tag v-if = "tag == 'Confirmada'" color = "green" :key = "tag"> {{tag}} </a-tag>
             <a-tag v-if = "tag == 'Cancelada'" color = "red" :key = "tag"> {{tag}} </a-tag>
             <a-tag v-if = "tag == 'Pendente'" color = "blue" :key = "tag"> {{tag}} </a-tag>
           </span>
         </a-table>
-
       </a-tab-pane>
-      <a-tab-pane key="2">
-        <span slot="tab">
-          <a-icon class = "fa fa-map-marker-alt" />
-          Locais
+
+      <a-tab-pane key = "2">
+        <span slot = "tab">
+          <a-icon class = "fa fa-map-marker-alt" /> Locais
         </span>
-          <a-table :dataSource = "Reservalocais" :columns = "columnsLocal" :locale = "{ filterConfirm: 'Ok', filterReset: 'Resetar', emptyText: 'Nenhum Local Cadastrado' }">
-            <span slot = "actions" slot-scope = "text, record">
+        
+        <a-table :dataSource = "Reservalocais" :columns = "columnsLocal" :locale = "{ filterConfirm: 'Ok', filterReset: 'Resetar', emptyText: 'Nenhum Local Cadastrado' }">
+          <span slot = "actions" slot-scope = "text, record">
               <a-tooltip v-if = "record.status === 'Pendente'  && role !== 'Comum'" placement = "top">
                 <template slot = "title">
                   <span> Confirmar Reserva</span>
@@ -116,7 +116,6 @@
                 </a-tag>
               </a-tooltip>
 
-              <!-- Editar Reserva -->
               <a-tooltip v-if = "record.status === 'Pendente' " placement = "top">
                 <template slot = "title">
                   <span> Editar Reserva </span>
@@ -140,29 +139,28 @@
             </a-tooltip>
           </span>
 
-            <a-icon slot = "filterIcon" slot-scope = "filtered" type='search' :style = "{ color: filtered ? '#108ee9' : '#aaa' }" />
-      
-            <div slot = "filterDropdownSolicitante" slot-scope = "{ setSelectedKeys, selectedKeys, confirm, clearFilters }" class = 'custom-filter-dropdown'>
-              <a-input
-                ref = "solicitanteInput"
-                placeholder = 'Buscar solicitante...'
-                :value = "selectedKeys[0]"
-                @change = "e => setSelectedKeys(e.target.value ? [e.target.value] : [])"
-                @pressEnter = "() => handleSearch('searchSolicitante', selectedKeys, confirm)"
-              />
-              <a-button type = 'primary' @click = "() => handleSearch('searchSolicitante', selectedKeys, confirm)"> Buscar </a-button>
-              <a-button @click = "() => handleReset('searchSolicitante', clearFilters)"> Resetar </a-button>
-            </div>
+          <a-icon slot = "filterIcon" slot-scope = "filtered" type='search' :style = "{ color: filtered ? '#108ee9' : '#aaa' }" />
+    
+          <div slot = "filterDropdownSolicitante" slot-scope = "{ setSelectedKeys, selectedKeys, confirm, clearFilters }" class = 'custom-filter-dropdown'>
+            <a-input
+              ref = "solicitanteInput"
+              placeholder = 'Buscar solicitante...'
+              :value = "selectedKeys[0]"
+              @change = "e => setSelectedKeys(e.target.value ? [e.target.value] : [])"
+              @pressEnter = "() => handleSearch('searchSolicitante', selectedKeys, confirm)"
+            />
+            <a-button type = 'primary' @click = "() => handleSearch('searchSolicitante', selectedKeys, confirm)"> Buscar </a-button>
+            <a-button @click = "() => handleReset('searchSolicitante', clearFilters)"> Resetar </a-button>
+          </div>
 
-            <span slot = "statusTag" slot-scope = "tag">
-              <a-tag v-if = "tag === 'Confirmada'" color = "green" :key = "tag"> {{tag}} </a-tag>
-              <a-tag v-if = "tag === 'Cancelada'" color = "red" :key = "tag"> {{tag}} </a-tag>
-              <a-tag v-if = "tag === 'Pendente'" color = "blue" :key = "tag"> {{tag}} </a-tag>
-            </span>
-          </a-table>
+          <span slot = "statusTag" slot-scope = "tag">
+            <a-tag v-if = "tag === 'Confirmada'" color = "green" :key = "tag"> {{tag}} </a-tag>
+            <a-tag v-if = "tag === 'Cancelada'" color = "red" :key = "tag"> {{tag}} </a-tag>
+            <a-tag v-if = "tag === 'Pendente'" color = "blue" :key = "tag"> {{tag}} </a-tag>
+          </span>
+        </a-table>
       </a-tab-pane>
     </a-tabs>
-
     
     <a-modal
       :visible = "visibleEquipamentoModal"
@@ -172,8 +170,12 @@
 
       <a-icon type = "question-circle-o" style = "color: #faad14; font-size: 22px; margin-right: 16px" />
       <span> <b> Cuidado! </b> </span> <br/><br/>
-      <span > Realmente deseja cancelar esta Reserva do Equipamento: <b><i>{{modalEquip.equipamento}}</i></b>? </span> <br/>
-      <a-textarea v-model = "resposta" placeholder="Digite o motivo do cancelamento aqui" :autosize="{ minRows: 5, maxRows: 5 }" /><br/><br/>
+      <span > Realmente deseja cancelar esta Reserva do Equipamento: <b><i> {{modalEquip.equipamento}} </i></b>? </span> <br/>
+
+      <span v-if = "role === 'Supervisor' || role === 'admin'">
+        <a-textarea v-model = "resposta" placeholder = "Digite o motivo do cancelamento aqui" :autosize = "{ minRows: 5, maxRows: 5 }" /> <br/><br/>
+      </span>
+
       <span > <i> Esta ação não poderá ser desfeita. </i> </span> <br/>
 
       <div style = "text-align: right; margin-top: 20px;">
@@ -190,8 +192,11 @@
 
       <a-icon type = "question-circle-o" style = "color: #faad14; font-size: 22px; margin-right: 16px" />
       <span> <b> Cuidado! </b> </span> <br/><br/>
-      <span > Realmente deseja cancelar esta Reserva de Local?: <b><i>{{modalEquip.equipamento}}</i></b>? </span> <br/>
-      <a-textarea v-model = "resposta" placeholder="Digite o motivo do cancelamento aqui" :autosize="{ minRows: 5, maxRows: 5 }" /><br/><br/>
+      <span > Realmente deseja cancelar esta Reserva de Local?: <b><i> {{modalLocal.local}} </i></b>? </span> <br/>
+      
+      <span v-if = "role === 'Supervisor' || role === 'admin'">
+        <a-textarea v-model = "resposta" placeholder = "Digite o motivo do cancelamento aqui" :autosize = "{ minRows: 5, maxRows: 5 }" /><br/><br/>
+      </span>
       <span > <i> Esta ação não poderá ser desfeita. </i> </span> <br/>
 
       <div style = "text-align: right; margin-top: 20px;">
@@ -199,8 +204,7 @@
         <a-button @click = "cancelarReservaLocal(modalLocal)" type = "danger"> Cancelar </a-button>
       </div> 
     </a-modal>
-  </div>
-  <!-- </a-spin> -->
+  </a-spin>
 </template>
 
 <script>
@@ -214,7 +218,7 @@
     data () {
       return {
         role: null,
-        // loading: false,
+        loading: true,
         resposta: '',
         cursos: [],
         supervisores: [],
@@ -407,211 +411,215 @@
     beforeMount: function () {
       let _this = this
       _this.loading = true
+  
       db.ref('Usuarios/' + auth.currentUser.uid + '/role').on('value', function (snapshot) {
-        // _this.loading = true
+        _this.loading = true
         _this.role = snapshot.val()
-        // _this.loading = false
-        // todos os locais
-        db.ref('Locais').orderByKey().on('value', function (snapshot) {
-          // _this.loading = true
-          _this.local = []
+        _this.loading = false
+      })
+
+      db.ref('Locais').orderByKey().on('value', function (snapshot) {
+        _this.local = []
+        _this.loading = true
+
+        snapshot.forEach(function (item) {
+          _this.local.push({
+            'local': item.key,
+            'curso': item.val().Curso,
+            'descricao': item.val().Descricao,
+            'supervisor': item.val().Supervisor
+          })
+        })
+        _this.loading = false
+      })
+
+      db.ref('Usuarios').orderByChild('role').equalTo('Supervisor').on('value', (snapshot) => {
+        _this.supervisores = []
+        _this.loading = true
+
+        snapshot.forEach(function (item) {
+          _this.supervisores.push({
+            'key': item.key,
+            'curso': item.val().Curso,
+            'email': item.val().Email,
+            'nome': item.val().Nome,
+            'RA': item.val().RA
+          })
+        })
+        _this.loading = false
+      })
+
+      db.ref('Equipamentos').orderByKey().on('value', function (snapshot) {
+        _this.equipamento = []
+        _this.loading = true
+
+        snapshot.forEach(function (item) {
+          _this.equipamento.push({
+            'key': item.key,
+            'patrimonio': item.val().Patrimonio,
+            'nome': item.val().Nome,
+            'local': item.val().Local,
+            'status': item.val().Status
+          })
+        })
+        _this.loading = false
+      })
+
+      db.ref('Usuarios').orderByKey().on('value', function (snapshot) {
+        _this.usuarios = []
+        _this.loading = true
+
+        snapshot.forEach(function (item) {
+          _this.usuarios.push({
+            'key': item.key,
+            'curso': item.val().Curso,
+            'email': item.val().Email,
+            'RA': item.val().RA,
+            'nomeCompleto': item.val().Nome + ' ' + item.val().Sobrenome,
+            'nome': item.val().Nome,
+            'sobrenome': item.val().Sobrenome,
+            'role': item.val().role
+          })
+        })
+        _this.loading = false
+      })
+
+      if (_this.role === 'admin' || _this.role === 'Supervisor') {
+        db.ref('Reservas/locais').orderByKey().on('value', function (snapshot) {
+          _this.Reservalocais = []
+          _this.loading = true
 
           snapshot.forEach(function (item) {
-            _this.local.push({
-              'local': item.key,
-              'curso': item.val().Curso,
-              'descricao': item.val().Descricao,
-              'supervisor': item.val().Supervisor
-            })
-          })
-          _this.loading = false
-        })
-        // todos os Supervisores
-        db.ref('Usuarios').orderByChild('role').equalTo('Supervisor').on('value', (snapshot) => {
-          // _this.loading = true
-          _this.supervisores = []
-
-          snapshot.forEach(function (item) {
-            _this.supervisores.push({
+            var solicitante
+            var supervisor
+            var val = _this.usuarios.map(function (e) { return e.key }).indexOf(item.val().Solicitante)
+            if (val === -1) {
+              solicitante = 'Error'
+            } else {
+              solicitante = _this.usuarios[_this.usuarios.map(function (e) { return e.key }).indexOf(item.val().Solicitante)]
+            }
+            val = _this.supervisores.map(function (e) { return e.key }).indexOf(item.val().Supervisor)
+            if (val === -1) {
+              supervisor = 'Error'
+            } else {
+              supervisor = _this.supervisores[_this.supervisores.map(function (e) { return e.key }).indexOf(item.val().Supervisor)].nome
+            }
+            _this.Reservalocais.push({
               'key': item.key,
-              'curso': item.val().Curso,
-              'email': item.val().Email,
-              'nome': item.val().Nome,
-              'RA': item.val().RA
-            })
-          })
-          _this.loading = false
-        })
-        // todos os Equipamentos
-        db.ref('Equipamentos').orderByKey().on('value', function (snapshot) {
-          // _this.loading = true
-          _this.equipamento = []
-          snapshot.forEach(function (item) {
-            _this.equipamento.push({
-              'key': item.key,
-              'patrimonio': item.val().Patrimonio,
-              'nome': item.val().Nome,
               'local': item.val().Local,
+              'solicitante': solicitante,
+              'supervisor': supervisor, // esta dando erro tem que arrumar o banco.
+              'dataInicio': item.val().Inicio,
+              'dataFim': item.val().Fim,
               'status': item.val().Status
             })
           })
           _this.loading = false
         })
-        // todos os Usuariospush
-        db.ref('Usuarios').orderByKey().on('value', function (snapshot) {
-          // _this.loading = true
-          _this.usuarios = []
+
+        db.ref('Reservas/equipamentos').orderByKey().on('value', function (snapshot) {
+          _this.Reservaequip = []
+          _this.loading = true
+
           snapshot.forEach(function (item) {
-            _this.usuarios.push({
+            var solicitante
+            var val = _this.usuarios.map(function (e) { return e.key }).indexOf(item.val().Solicitante)
+            if (val === -1) {
+              solicitante = 'Error'
+            } else {
+              solicitante = _this.usuarios[_this.usuarios.map(function (e) { return e.key }).indexOf(item.val().Solicitante)]
+            }
+            var local
+            var equipamento
+            val = _this.equipamento.map(function (e) { return e.key }).indexOf(item.val().Equipamento)
+            if (val === -1) {
+              local = 'Error'
+            } else {
+              local = _this.equipamento[_this.equipamento.map(function (e) { return e.key }).indexOf(item.val().Equipamento)].local
+              equipamento = _this.equipamento[_this.equipamento.map(function (e) { return e.key }).indexOf(item.val().Equipamento)].patrimonio
+            }
+            _this.Reservaequip.push({
               'key': item.key,
-              'curso': item.val().Curso,
-              'email': item.val().Email,
-              'RA': item.val().RA,
-              'nomeCompleto': item.val().Nome + ' ' + item.val().Sobrenome,
-              'nome': item.val().Nome,
-              'sobrenome': item.val().Sobrenome,
-              'role': item.val().role
+              'id': item.val().Equipamento,
+              'equipamento': equipamento,
+              'local': local,
+              'solicitante': solicitante,
+              'dataInicio': item.val().Inicio,
+              'dataFim': item.val().Fim,
+              'status': item.val().Status
+            })
+          })
+          _this.loading = false
+        })
+      } else {
+        db.ref('Reservas/locais').orderByChild('Solicitante').equalTo(auth.currentUser.uid).on('value', function (snapshot) {
+          _this.Reservalocais = []
+          _this.loading = true
+
+          snapshot.forEach(function (item) {
+            console.log('item =', item.val())
+            var solicitante
+            var supervisor
+            var val = _this.usuarios.map(function (e) { return e.key }).indexOf(item.val().Solicitante)
+            if (val === -1) {
+              solicitante = 'Error'
+            } else {
+              solicitante = _this.usuarios[_this.usuarios.map(function (e) { return e.key }).indexOf(item.val().Solicitante)]
+            }
+            val = _this.supervisores.map(function (e) { return e.key }).indexOf(item.val().Supervisor)
+            if (val === -1) {
+              supervisor = 'Error'
+            } else {
+              supervisor = _this.supervisores[_this.supervisores.map(function (e) { return e.key }).indexOf(item.val().Supervisor)].nome
+            }
+            _this.Reservalocais.push({
+              'key': item.key,
+              'local': item.val().Local,
+              'solicitante': solicitante,
+              'supervisor': supervisor, // esta dando erro tem que arrumar o banco.
+              'dataInicio': item.val().Inicio,
+              'dataFim': item.val().Fim,
+              'status': item.val().Status
             })
           })
           _this.loading = false
         })
 
-        if (_this.role === 'admin' || _this.role === 'Supervisor') {
-          // Reservas dos Locais
-          db.ref('Reservas/locais').orderByKey().on('value', function (snapshot) {
-            // _this.loading = true
-            _this.Reservalocais = []
-            snapshot.forEach(function (item) {
-              var solicitante
-              var supervisor
-              var val = _this.usuarios.map(function (e) { return e.key }).indexOf(item.val().Solicitante)
-              if (val === -1) {
-                solicitante = 'Error'
-              } else {
-                solicitante = _this.usuarios[_this.usuarios.map(function (e) { return e.key }).indexOf(item.val().Solicitante)]
-              }
-              val = _this.supervisores.map(function (e) { return e.key }).indexOf(item.val().Supervisor)
-              if (val === -1) {
-                supervisor = 'Error'
-              } else {
-                supervisor = _this.supervisores[_this.supervisores.map(function (e) { return e.key }).indexOf(item.val().Supervisor)].nome
-              }
-              _this.Reservalocais.push({
-                'key': item.key,
-                'local': item.val().Local,
-                'solicitante': solicitante,
-                'supervisor': supervisor, // esta dando erro tem que arrumar o banco.
-                'dataInicio': item.val().Inicio,
-                'dataFim': item.val().Fim,
-                'status': item.val().Status
-              })
+        db.ref('Reservas/equipamentos').orderByChild('Solicitante').equalTo(auth.currentUser.uid).on('value', function (snapshot) {
+          _this.Reservaequip = []
+          _this.loading = true
+
+          snapshot.forEach(function (item) {
+            var solicitante
+            var val = _this.usuarios.map(function (e) { return e.key }).indexOf(item.val().Solicitante)
+            if (val === -1) {
+              solicitante = 'Error'
+            } else {
+              solicitante = _this.usuarios[_this.usuarios.map(function (e) { return e.key }).indexOf(item.val().Solicitante)]
+            }
+            var local
+            var equipamento
+            val = _this.equipamento.map(function (e) { return e.key }).indexOf(item.val().Equipamento)
+            if (val === -1) {
+              local = 'Error'
+            } else {
+              local = _this.equipamento[_this.equipamento.map(function (e) { return e.key }).indexOf(item.val().Equipamento)].local
+              equipamento = _this.equipamento[_this.equipamento.map(function (e) { return e.key }).indexOf(item.val().Equipamento)].patrimonio
+            }
+            _this.Reservaequip.push({
+              'key': item.key,
+              'id': item.val().Equipamento,
+              'equipamento': equipamento,
+              'local': local,
+              'solicitante': solicitante,
+              'dataInicio': item.val().Inicio,
+              'dataFim': item.val().Fim,
+              'status': item.val().Status
             })
-            _this.loading = false
           })
-          // Reservas dos Equipamentos
-          db.ref('Reservas/equipamentos').orderByKey().on('value', function (snapshot) {
-            // _this.loading = true
-            _this.Reservaequip = []
-            snapshot.forEach(function (item) {
-              var solicitante
-              var val = _this.usuarios.map(function (e) { return e.key }).indexOf(item.val().Solicitante)
-              if (val === -1) {
-                solicitante = 'Error'
-              } else {
-                solicitante = _this.usuarios[_this.usuarios.map(function (e) { return e.key }).indexOf(item.val().Solicitante)]
-              }
-              var local
-              var equipamento
-              val = _this.equipamento.map(function (e) { return e.key }).indexOf(item.val().Equipamento)
-              if (val === -1) {
-                local = 'Error'
-              } else {
-                local = _this.equipamento[_this.equipamento.map(function (e) { return e.key }).indexOf(item.val().Equipamento)].local
-                equipamento = _this.equipamento[_this.equipamento.map(function (e) { return e.key }).indexOf(item.val().Equipamento)].patrimonio
-              }
-              _this.Reservaequip.push({
-                'key': item.key,
-                'id': item.val().Equipamento,
-                'equipamento': equipamento,
-                'local': local,
-                'solicitante': solicitante,
-                'dataInicio': item.val().Inicio,
-                'dataFim': item.val().Fim,
-                'status': item.val().Status
-              })
-            })
-            _this.loading = false
-          })
-        } else {
-          // Reservas dos Locais
-          db.ref('Reservas/locais').orderByChild('Solicitante').equalTo(auth.currentUser.uid).on('value', function (snapshot) {
-            // _this.loading = true
-            _this.Reservalocais = []
-            console.log('entrou')
-            snapshot.forEach(function (item) {
-              console.log('item =', item.val())
-              var solicitante
-              var supervisor
-              var val = _this.usuarios.map(function (e) { return e.key }).indexOf(item.val().Solicitante)
-              if (val === -1) {
-                solicitante = 'Error'
-              } else {
-                solicitante = _this.usuarios[_this.usuarios.map(function (e) { return e.key }).indexOf(item.val().Solicitante)].nome
-              }
-              val = _this.supervisores.map(function (e) { return e.key }).indexOf(item.val().Supervisor)
-              if (val === -1) {
-                supervisor = 'Error'
-              } else {
-                supervisor = _this.supervisores[_this.supervisores.map(function (e) { return e.key }).indexOf(item.val().Supervisor)].nome
-              }
-              _this.Reservalocais.push({
-                'key': item.key,
-                'local': item.val().Local,
-                'solicitante': solicitante,
-                'supervisor': supervisor, // esta dando erro tem que arrumar o banco.
-                'dataInicio': item.val().Inicio,
-                'dataFim': item.val().Fim,
-                'status': item.val().Status
-              })
-            })
-            _this.loading = false
-          })
-          // Reservas dos Equipamentos
-          db.ref('Reservas/equipamentos').orderByChild('Solicitante').equalTo(auth.currentUser.uid).on('value', function (snapshot) {
-            // _this.loading = true
-            _this.Reservaequip = []
-            snapshot.forEach(function (item) {
-              var solicitante
-              var val = _this.usuarios.map(function (e) { return e.key }).indexOf(item.val().Solicitante)
-              if (val === -1) {
-                solicitante = 'Error'
-              } else {
-                solicitante = _this.usuarios[_this.usuarios.map(function (e) { return e.key }).indexOf(item.val().Solicitante)].nome
-              }
-              var local
-              var equipamento
-              val = _this.equipamento.map(function (e) { return e.key }).indexOf(item.val().Equipamento)
-              if (val === -1) {
-                local = 'Error'
-              } else {
-                local = _this.equipamento[_this.equipamento.map(function (e) { return e.key }).indexOf(item.val().Equipamento)].local
-                equipamento = _this.equipamento[_this.equipamento.map(function (e) { return e.key }).indexOf(item.val().Equipamento)].patrimonio
-              }
-              _this.Reservaequip.push({
-                'key': item.key,
-                'id': item.val().Equipamento,
-                'equipamento': equipamento,
-                'local': local,
-                'solicitante': solicitante,
-                'dataInicio': item.val().Inicio,
-                'dataFim': item.val().Fim,
-                'status': item.val().Status
-              })
-            })
-            _this.loading = false
-          })
-        }
-      })
+          _this.loading = false
+        })
+      }
     },
     methods: {
       handleSearch (inputText, selectedKeys, confirm) {

@@ -17,8 +17,8 @@
         <p> <b> Especificação: </b> {{ record.especificacao }} </p>
       </span>
 
-      <span slot = "actions" slot-scope = "text">
-        <a-tooltip placement = "top">
+      <span slot = "actions" slot-scope = "text, record">
+        <a-tooltip v-if = "record.pop === 'true'" placement = "top">
           <template slot = "title">
             <span> Baixar POP </span>
           </template>
@@ -28,13 +28,13 @@
           </a-tag>
         </a-tooltip>
 
-        <a-tooltip placement = "top">
+        <a-tooltip v-if = "record.status !== 'Quebrado'" placement = "top">
           <template slot = "title">
             <span> Reservar Equipamento </span>
           </template>
 
           <a-tag color = "green" :key = "text" >
-            <router-link :to = "{ name: 'periodoReserva', params: { item: 'equipamento', valorItem: text } }">
+            <router-link :to = "{ name: 'periodoReserva', params: { item: 'equipamento', valorItem: text }}">
              <a-icon style = "color: #52c41a" type = "database" />
             </router-link>
           </a-tag>

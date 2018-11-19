@@ -1,9 +1,6 @@
 <template>
-  <a-row>
-
-    <!-- Cabeçalho da página -->
+  <a-spin :spinning = "loading">
     <a-row style = "margin-bottom: 30px;">
-      <!-- Por que os valores 16 e 4 para span e offset? -->
       <a-col :span = "16" :offset = "4" style = "text-align: center">
         <h1> Usuários </h1>
       </a-col>
@@ -14,8 +11,8 @@
         <p> <b> E-mail: </b> {{ record.email }} </p>
       </span>
 
-      <span slot = "actions" slot-scope = "text">
-        <a-tooltip placement = "top">
+      <span slot = "actions" slot-scope = "text, record">
+        <a-tooltip v-if = "record.type !== 'Comum'" placement = "top">
           <template slot = "title">
             <span> Rebaixar Usuário </span>
           </template>
@@ -23,10 +20,9 @@
           <a-tag @click = "rebaixaUsuario(text)" color = "orange" :key = "text">
             <a-icon type = "arrow-down" />
           </a-tag>
-
         </a-tooltip>
         
-        <a-tooltip placement = "top">
+        <a-tooltip v-if = "record.type !== 'admin'" placement = "top">
           <template slot = "title">
             <span> Promover Usuário </span>
           </template>
@@ -47,7 +43,7 @@
         </a-tooltip>
       </span>
       
-      <a-icon slot = "filterIcon" slot-scope = "filtered" type='search' :style = "{ color: filtered ? '#108ee9' : '#aaa' }" />
+      <a-icon slot = "filterIcon" slot-scope = "filtered" type = "search" :style = "{ color: filtered ? '#108ee9' : '#aaa' }" />
       
       <div slot = "filterDropdownRA" slot-scope = "{ setSelectedKeys, selectedKeys, confirm, clearFilters }" class = 'custom-filter-dropdown'>
         <a-input
@@ -85,8 +81,8 @@
       :visible = "visibleConfirmModal"
       :footer = "null"
       @cancel = "closeConfirmModal()"
-      style = "padding: 32px 32px 24px;"
-    >
+      style = "padding: 32px 32px 24px;">
+
       <a-icon type = "question-circle-o" style = "color: #faad14; font-size: 22px; margin-right: 16px" />
       <span> <b> Cuidado! </b> </span> <br />
       <span style = "margin-left: 38px;"> Realmente deseja deletar o usuário: {{usuario.nome}}? </span> <br />
@@ -97,9 +93,7 @@
         <a-button @click = "deletaUsuario()" type = "danger"> Deletar </a-button>
       </div> 
     </a-modal>
-
-
-  </a-row>
+  </a-spin>
 </template>
 
 <script>
@@ -112,9 +106,11 @@
     data () {
       return {
         role: null,
+        loading: true,
         usuarios: [],
         usuario: '',
         searchRA: '',
+        searchNome: '',
         columns: [{
           title: 'RA',
           dataIndex: 'ra',
@@ -147,8 +143,7 @@
               })
             }
           }
-        },
-        {
+        }, {
           title: 'Curso',
           dataIndex: 'curso',
           key: 'curso',
@@ -159,7 +154,16 @@
           dataIndex: 'type',
           scopedSlots: { customRender: 'statusTipo' },
           key: 'type',
-          filters: [{'text': 'admin', 'value': 'admin'}, {'text': 'Comum', 'value': 'Comum'}, {'text': 'Supervisor', 'value': 'Supervisor'}],
+          filters: [{
+            'text': 'Comum',
+            'value': 'Comum'
+          }, {
+            'text': 'Supervisor',
+            'value': 'Supervisor'
+          }, {
+            'text': 'admin',
+            'value': 'admin'
+          }],
           onFilter: (value, record) => record.type === value
         }, {
           title: 'Ações',
@@ -173,9 +177,11 @@
     },
     beforeMount: function () {
       let _this = this
+      _this.loading = true
 
       db.ref('Usuarios').orderByKey().on('value', function (snapshot) {
         _this.usuarios = []
+        _this.loading = true
 
         snapshot.forEach(function (item) {
           if (auth.currentUser.uid !== item.key) {
@@ -189,10 +195,13 @@
             })
           }
         })
+        _this.loading = false
       })
 
       db.ref('Usuarios/' + auth.currentUser.uid + '/role').on('value', function (snapshot) {
+        _this.loading = true
         _this.role = snapshot.val()
+        _this.loading = false
       })
     },
     methods: {
@@ -227,6 +236,7 @@
       },
       deletaUsuario () {
         let _this = this
+
         _this.visibleConfirmModal = false
         db.ref('Usuarios').child(_this.usuario.id).remove().then(function () {
           _this.$notification.success({
@@ -309,7 +319,6 @@
         }
       }
     }
-
   }
 </script>
 

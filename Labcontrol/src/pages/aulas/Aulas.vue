@@ -12,21 +12,23 @@
       </a-col>
     </a-row>
 
-    <a-table :dataSource = "aulas" :columns = "columns" :locale = "{ filterConfirm: 'Ok', filterReset: 'Resetar', emptyText: 'Nenhuma aula angendada' }">
-      
-      <span slot="diaSemana" slot-scope="text, record">
-        <span>{{$moment().day(record.diaSemana).format("dddd")}}</span>
+    <a-table :dataSource = "aulas" :columns = "columns" :locale = "{ filterConfirm: 'Ok', filterReset: 'Resetar', emptyText: 'Nenhuma Aula Agendada' }">
+      <span slot = "diaSemana" slot-scope = "text, record">
+        <span> {{ $moment().day(record.diaSemana).format("dddd") }} </span>
       </span>
-      <span slot="horas" slot-scope="text, record">
-        <span>{{record.horaInicio}} Até {{record.horaFim}}</span>
+      <span slot = "horas" slot-scope = "text, record">
+        <span> {{ record.horaInicio }} Até {{ record.horaFim }} </span>
       </span>
     </a-table>  
   </a-spin>    
 </template>
+
 <script>
   import firebaseApp from '../../firebase-controller.js'
+
   const auth = firebaseApp.auth()
   const db = firebaseApp.database()
+
   export default {
     data () {
       return {
@@ -60,8 +62,7 @@
           title: 'Local',
           dataIndex: 'local',
           key: 'local'
-        }
-        ]
+        }]
       }
     },
     beforeMount: function () {
