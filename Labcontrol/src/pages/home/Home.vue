@@ -8,7 +8,7 @@
         <resumo-supervisor :month="resumo.month" :day="resumo.day" :time="resumo.time" :reservasEquipConfirmadasLength="resumo.reservas_equip_confirmadas_length" :reservasEquipPendentesLength="resumo.reservas_equip_pendentes_length" :equipamentosQuebradosLength="resumo.equipamentos_quebrados_length" :equipamentosManutencaoLength="resumo.equipamentos_manutencao_length" :reservasLocalConfirmadasLength="resumo.reservas_local_confirmadas_length" :reservasLocalPendentesLength="resumo.reservas_local_pendentes_length" :reservas="resumo.reservados" :diaResumo="resumo.dia"></resumo-supervisor>
       </div>
       <div v-if="!loader.loading && role === 'Comum'" class="container">
-        <resumo-comum :month="resumo.month" :reservasUser="resumo.reservasUser"></resumo-comum>
+        <resumo-comum :reservasUser="resumo.reservasUser"></resumo-comum>
       </div>
     </div>
   </div>
