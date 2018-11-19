@@ -79,6 +79,7 @@
                 </div>
 
             </div>
+            <!-- <div></div> -->
           </a-carousel>
         </div>
 
@@ -102,11 +103,11 @@ export default {
     reservasLocalConfirmadasLength: {type: Number, default: 0, required: true},
     reservasLocalPendentesLength: {type: Number, default: 0, required: true},
     reservas: {type: Array, default: 'Não há reservas para este dia.', required: true},
-    diaResumo: {type: Date, default: '2018-11-11', required: true}
+    diaResumo: {type: Object, default: '2018-11-11', required: true}
   },
   data () {
     return {
-      diaResumo: '2018-11-11'
+      // diaResumo: '2018-11-11'
     }
   },
   methods: {
@@ -122,6 +123,8 @@ export default {
   text-align: center;
   background: #f7f7f7;
   overflow: hidden;
+  padding-top: 20px;
+  padding-bottom: 20px;
 }
 
 .ant-carousel >>> .custom-slick-arrow {
