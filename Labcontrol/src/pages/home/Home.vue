@@ -136,27 +136,29 @@ export default {
             // Pega o usuário que solicitou o equipamento
             db.ref('Usuarios/' + childSnapshot.val().Solicitante).on('value', function (userSolicitante) {
               // console.log('hi' + userSolicitante.val().Nome)
+              console.log('conf: ' + childSnapshot.key)
               // Adiciona o equipamento na lista de confirmados
-              _this.reservas.equipConfirmadas.push([childSnapshot.key, childSnapshot.val(), userSolicitante.val()])
+              _this.reservas.equipConfirmadas.push(childSnapshot.key)
               // Pega data de início do empréstimo
               var dataInicio = moment(childSnapshot.val().Inicio.slice(0, 10), 'DD/MM/YYYY')
               // console.log('Inicio: ' + dataInicio.date() + dataInicio.month() + dataInicio.year())
               // console.log('hoje: ' + _this.resumo.dia.date() + _this.resumo.dia.month() + _this.resumo.dia.year())
               // Se a data de início de empréstimo é igual a data atual
               if ((dataInicio.year() === _this.resumo.dia.year()) && (dataInicio.month() === _this.resumo.dia.month()) && (dataInicio.date() === _this.resumo.dia.date())) {
-                console.log('Passou equipconf: ' + equipa.val())
+                // console.log('Passou equipconf: ' + equipa.val())
                 // Equipamento é adiciondo na lista de resumo
                 _this.resumo.reservados.push([equipa.val().Nome, childSnapshot.val(), userSolicitante.val()])
               }
+
+              // Guarda quantidade de confirmados
+              _this.resumo.reservas_equip_confirmadas_length = _this.reservas.equipConfirmadas.length
+              // _this.resumo.reservados = _this.reservas.equipConfirmadas
+              console.log('Lista Confirmados E:' + _this.reservas.equipConfirmadas.length)
+              _this.loader.loading = false
             })
           })
           // _this.resumo.reservados.push(childSnapshot.key)
         })
-        // Guarda quantidade de confirmados
-        _this.resumo.reservas_equip_confirmadas_length = _this.reservas.equipConfirmadas.length
-        // _this.resumo.reservados = _this.reservas.equipConfirmadas
-        // console.log('Lista Confirmados:' + _this.resumo.reservados)
-        _this.loader.loading = false
       })
       db.ref('Equipamentos').orderByChild('Status').equalTo('Em Manutenção').on('value', function (snapshot) {
         _this.loader.loading = true
@@ -198,6 +200,7 @@ export default {
         snapshot.forEach(function (childSnapshot) {
           // Pega o usuário que solicitou o equipamento
           db.ref('Usuarios/' + childSnapshot.val().Solicitante).on('value', function (userSolicitante) {
+            console.log('conf: ' + childSnapshot.key)
             // Adiciona o local na lista de confirmados
             _this.reservas.localConfirmadas.push([childSnapshot.key, childSnapshot.val(), userSolicitante.val()])
             // Pega data de início do empréstimo
@@ -207,11 +210,13 @@ export default {
               // Equipamento é adiciondo na lista de resumo
               _this.resumo.reservados.push([childSnapshot.val().Local, childSnapshot.val(), userSolicitante.val()])
             }
+
+            // Guarda quantidade de confirmados
+            _this.resumo.reservas_local_confirmadas_length = _this.reservas.localConfirmadas.length
+            _this.loader.loading = false
+            console.log('Lista Confirmados L:' + _this.reservas.localConfirmadas.length)
           })
         })
-        // Guarda quantidade de confirmados
-        _this.resumo.reservas_local_confirmadas_length = _this.reservas.localConfirmadas.length
-        _this.loader.loading = false
       })
     } else if (this.role === 'Comum') {
       db.ref('Reservas/equipamentos').orderByChild('Solicitante').equalTo(auth.currentUser.uid).on('value', function (snapshot) {
