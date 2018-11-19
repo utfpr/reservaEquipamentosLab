@@ -20,12 +20,12 @@
         </span>
         <a-table :dataSource = "Reservaequip" :columns = "columnsEquip" :locale = "{ filterConfirm: 'Ok', filterReset: 'Resetar', emptyText: 'Nenhum Equipamento Cadastrado' }">
           <span slot = "actions" slot-scope = "text, record">
-            <a-tooltip v-if = "record.status === 'Pendente'" placement = "top">
+            <a-tooltip v-if = "record.status === 'Pendente' && role !== 'Comum'" placement = "top">
               <template slot = "title">
                 <span> Confirmar Reserva</span>
               </template>
 
-              <a-tag color = "green" :key = "text" >
+              <a-tag @click = "confirmReserva(record.key, record)" color = "green" :key = "text" >
                 <a-icon style = "color: #52c41a" type = "check" />
               </a-tag>
             </a-tooltip>
@@ -37,7 +37,7 @@
               </template>
 
               <a-tag color = "orange" :key = "text" >
-                <router-link :to = "{ name: 'periodoReserva', params: { item: 'equipamento', valorItem: text} }">
+                <router-link :to = "{ name: 'periodoReserva', params: { item: 'equipamento', valorItem: text }}">
                   <a-icon style = "color: #fa8c16;" type = "edit" />
                 </router-link>
               </a-tag>
@@ -48,7 +48,7 @@
                 <span> Cancelar Reserva </span>
               </template>
 
-              <a-tag @click = "showEquipamentoModal(text)" color = "red" :key = "text" >
+              <a-tag @click = "showEquipamentoModal(record)" color = "red" :key = "text" >
                 <a-icon type = "close" />
               </a-tag>
             </a-tooltip>
@@ -80,6 +80,17 @@
             <a-button @click = "() => handleReset('searchSolicitante', clearFilters)"> Resetar </a-button>
           </div>
 
+          <div slot = "filterDropdownDataInicio'" slot-scope = "{ setSelectedKeys, selectedKeys, confirm, clearFilters }" class = 'custom-filter-dropdown'>
+            <a-input
+              ref = "dataInicioInput"
+              placeholder = 'Buscar data de inicio...'
+              :value = "selectedKeys[0]"
+              @change = "e => setSelectedKeys(e.target.value ? [e.target.value] : [])"
+              @pressEnter = "() => handleSearch('searchDataInicio', selectedKeys, confirm)"
+            />
+            <a-button type = 'primary' @click = "() => handleSearch('searchDataInicio', selectedKeys, confirm)"> Buscar </a-button>
+            <a-button @click = "() => handleReset('searchDataInicio', clearFilters)"> Resetar </a-button>
+          </div>
           <span slot = "statusTag" slot-scope = "tag">
             <a-tag v-if = "tag == 'Confirmada'" color = "green" :key = "tag"> {{tag}} </a-tag>
             <a-tag v-if = "tag == 'Cancelada'" color = "red" :key = "tag"> {{tag}} </a-tag>
@@ -94,45 +105,43 @@
           Locais
         </span>
           <a-table :dataSource = "Reservalocais" :columns = "columnsLocal" :locale = "{ filterConfirm: 'Ok', filterReset: 'Resetar', emptyText: 'Nenhum Local Cadastrado' }">
-            <span slot = "actions" slot-scope = "text">
-              <a-tooltip v-if = "role === 'admin' || role === 'Supervisor'" placement = "top">
+            <span slot = "actions" slot-scope = "text, record">
+              <a-tooltip v-if = "record.status === 'Pendente'  && role !== 'Comum'" placement = "top">
                 <template slot = "title">
-                  <span> Confirmar Reserva </span>
+                  <span> Confirmar Reserva</span>
                 </template>
 
-                <a-tag color = "green" :key = "text" >
-                  <router-link :to = "{ name: 'periodoReserva', params: { item: 'local', valorItem: text} }">
-                  <a-icon style = "color: #52c41a" type = "database" />
+                <a-tag @click = "confirmReservaLocais(record.key, record)" color = "green" :key = "text" >
+                  <a-icon style = "color: #52c41a" type = "check" />
+                </a-tag>
+              </a-tooltip>
+
+              <!-- Editar Reserva -->
+              <a-tooltip v-if = "record.status === 'Pendente' " placement = "top">
+                <template slot = "title">
+                  <span> Editar Reserva </span>
+                </template>
+
+                <a-tag color = "orange" :key = "text" >
+                  <router-link :to = "{ name: 'periodoReserva', params: { item: 'equipamento', valorItem: text }}">
+                    <a-icon style = "color: #fa8c16;" type = "edit" />
                   </router-link>
                 </a-tag>
               </a-tooltip>
 
-              <a-tooltip v-if = "role === 'admin' || role === 'Supervisor'" placement = "top">
+              <a-tooltip v-if = "record.status !== 'Cancelada'" placement = "top">
                 <template slot = "title">
                   <span> Cancelar Reserva </span>
                 </template>
 
-                <a-tag @click = "showLocalModal(text)" color = "red" :key = "text" >
-                  <a-icon type = "delete" />
+                <a-tag @click = "showLocalModal(record)" color = "red" :key = "text" >
+                  <a-icon type = "close" />
                 </a-tag>
-
-              </a-tooltip>
-            </span>
+            </a-tooltip>
+          </span>
 
             <a-icon slot = "filterIcon" slot-scope = "filtered" type='search' :style = "{ color: filtered ? '#108ee9' : '#aaa' }" />
-            
-            <!-- <div slot = "filterDropdownNome" slot-scope = "{ setSelectedKeys, selectedKeys, confirm, clearFilters }" class = 'custom-filter-dropdown'>
-              <a-input
-                ref = "nomeInput"
-                placeholder = 'Buscar nome...'
-                :value = "selectedKeys[0]"
-                @change = "e => setSelectedKeys(e.target.value ? [e.target.value] : [])"
-                @pressEnter = "() => handleSearch('searchNome', selectedKeys, confirm)"
-              />
-              <a-button type = 'primary' @click = "() => handleSearch('searchNome', selectedKeys, confirm)"> Buscar </a-button>
-              <a-button @click = "() => handleReset('searchNome', clearFilters)"> Resetar </a-button>
-            </div> -->
-
+      
             <div slot = "filterDropdownSolicitante" slot-scope = "{ setSelectedKeys, selectedKeys, confirm, clearFilters }" class = 'custom-filter-dropdown'>
               <a-input
                 ref = "solicitanteInput"
@@ -144,18 +153,7 @@
               <a-button type = 'primary' @click = "() => handleSearch('searchSolicitante', selectedKeys, confirm)"> Buscar </a-button>
               <a-button @click = "() => handleReset('searchSolicitante', clearFilters)"> Resetar </a-button>
             </div>
-            
-            <!-- <div slot = "filterDropdownSupervisor" slot-scope = "{ setSelectedKeys, selectedKeys, confirm, clearFilters }" class = 'custom-filter-dropdown'>
-              <a-input
-                ref = "supervisorInput"
-                placeholder = 'Buscar Supervisor...'
-                :value = "selectedKeys[0]"
-                @change = "e => setSelectedKeys(e.target.value ? [e.target.value] : [])"
-                @pressEnter = "() => handleSearch('searchSupervisor', selectedKeys, confirm)"
-              />
-              <a-button type = 'primary' @click = "() => handleSearch('searchSupervisor', selectedKeys, confirm)"> Buscar </a-button>
-              <a-button @click = "() => handleReset('searchSupervisor', clearFilters)"> Resetar </a-button>
-            </div> -->
+
             <span slot = "statusTag" slot-scope = "tag">
               <a-tag v-if = "tag === 'Confirmada'" color = "green" :key = "tag"> {{tag}} </a-tag>
               <a-tag v-if = "tag === 'Cancelada'" color = "red" :key = "tag"> {{tag}} </a-tag>
@@ -174,72 +172,32 @@
 
       <a-icon type = "question-circle-o" style = "color: #faad14; font-size: 22px; margin-right: 16px" />
       <span> <b> Cuidado! </b> </span> <br/><br/>
-      <span > Realmente deseja cancelar esta Reserva do Equipamento: <b><i>{{modalEquip}}</i></b>? </span> <br/>
-      <a-textarea placeholder="Digite o motivo do cancelamento aqui" :autosize="{ minRows: 5, maxRows: 5 }" /><br/><br/>
+      <span > Realmente deseja cancelar esta Reserva do Equipamento: <b><i>{{modalEquip.equipamento}}</i></b>? </span> <br/>
+      <a-textarea v-model = "resposta" placeholder="Digite o motivo do cancelamento aqui" :autosize="{ minRows: 5, maxRows: 5 }" /><br/><br/>
       <span > <i> Esta ação não poderá ser desfeita. </i> </span> <br/>
 
       <div style = "text-align: right; margin-top: 20px;">
         <a-button @click = "closeEquipamentoModal()"> Voltar </a-button>
-        <a-button @click = "deletaLocal()" type = "danger"> Cancelar </a-button>
+        <a-button @click = "cancelarReserva(modalEquip)" type = "danger"> Cancelar </a-button>
       </div> 
     </a-modal>
 
     <a-modal
-      v-if = "role === 'admin' || role === 'Supervisor'"
       :visible = "visibleLocalModal"
       :footer = "null"
       @cancel = "closeLocalModal()"
-      style = "padding: 32px 32px 24px; top: 20px;">
-      
-      <div slot = "title">
-        <h5 v-if = "edit"> <b> {{local.nome}} </b> </h5>
-        <h5 v-else > <b> Novo Local </b> </h5>
-      </div>
+      style = "padding: 32px 32px 24px;">
 
-      <a-form layout = "vertical" :autoFormCreate = "(form) => { this.form = form }">
-        <a-row :gutter = "16">
-          <a-col :span = "24">
-            <a-form-item label = "Sala" fieldDecoratorId = "nome" :fieldDecoratorOptions = "{ rules: [{ required: true, message: 'Campo Obrigatório' }, { validator: this.checkUnique }], initialValue: local.nome }">
-              <a-input size = "large" placeholder = "Digite bloco e sala" @focus = "checkInput" />
-            </a-form-item>
-          </a-col>
-        </a-row>
+      <a-icon type = "question-circle-o" style = "color: #faad14; font-size: 22px; margin-right: 16px" />
+      <span> <b> Cuidado! </b> </span> <br/><br/>
+      <span > Realmente deseja cancelar esta Reserva de Local?: <b><i>{{modalEquip.equipamento}}</i></b>? </span> <br/>
+      <a-textarea v-model = "resposta" placeholder="Digite o motivo do cancelamento aqui" :autosize="{ minRows: 5, maxRows: 5 }" /><br/><br/>
+      <span > <i> Esta ação não poderá ser desfeita. </i> </span> <br/>
 
-        <a-row :gutter = "16">
-          <a-col :span = "24">
-            <a-form-item label = "Supervisor" fieldDecoratorId = "supervisor" :fieldDecoratorOptions = "{ rules: [{ required: true, message: 'Selecione Supervisor' }], initialValue: local.supervisor }">
-              <a-select size = "large" placeholder = "Selecione supervisor" @focus = "checkSelect('supervisor')" showSearch notFoundContent = "Supervisor não Encontrado" :filterOption = "filterOption">
-                <a-select-option v-for = "supervisor in supervisores" v-bind:key = "supervisor" :value = "supervisor"> {{supervisor}} </a-select-option>
-              </a-select>
-            </a-form-item>
-          </a-col>
-        </a-row>
-
-        <a-row :gutter = "16">
-          <a-col :span = "24">
-            <a-form-item label = "Cursos" fieldDecoratorId = "curso" :fieldDecoratorOptions = "{ rules: [{ required: true, message: 'Selecione Curso' }], initialValue: local.curso }">
-              <a-select size = "large" placeholder = "Selecione curso" @focus = "checkSelect('curso')" showSearch notFoundContent = "Curso não Encontrado" :filterOption = "filterOption">
-                <a-select-option v-for = "curso in cursos" v-bind:key = "curso" :value = "curso"> {{curso}} </a-select-option>
-              </a-select>
-            </a-form-item>
-          </a-col>
-        </a-row>
-
-        <a-row :gutter = "16">
-          <a-col :span = "24">
-            <a-form-item label = "Descrição" fieldDecoratorId = "descricao" :fieldDecoratorOptions = "{ rules: [{ required: true, message: 'Campo Obrigatório' }], initialValue: local.descricao }">
-              <a-textarea placeholder = "Digite descrição do laboratório" :autosize = "{ minRows: 3, maxRows: 6 }" @focus = "checkInput" />
-            </a-form-item>
-          </a-col>
-        </a-row>
-
-        <a-row style = "text-align: right; margin-bottom: 5px;">
-          <a-button size = "large" @click = "closeLocalModal()" style = "margin-right: 15px;"> Cancelar </a-button>
-          
-          <a-button v-if = "edit" size = "large" type = "primary" @click = "atualizaLocal"> Atualizar </a-button>
-          <a-button v-else size = "large" type = "primary" @click = "cadastraLocal"> Cadastrar </a-button>
-        </a-row>
-      </a-form>
+      <div style = "text-align: right; margin-top: 20px;">
+        <a-button @click = "closeLocalModal()"> Voltar </a-button>
+        <a-button @click = "cancelarReservaLocal(modalLocal)" type = "danger"> Cancelar </a-button>
+      </div> 
     </a-modal>
   </div>
   <!-- </a-spin> -->
@@ -247,6 +205,7 @@
 
 <script>
   import firebaseApp from '../../firebase-controller.js'
+  import { sendEmail } from '../../emailAPI.js'
 
   const db = firebaseApp.database()
   const auth = firebaseApp.auth()
@@ -256,6 +215,7 @@
       return {
         role: null,
         // loading: false,
+        resposta: '',
         cursos: [],
         supervisores: [],
         usuarios: [],
@@ -290,7 +250,7 @@
           onFilter: (value, record) => record.local === value
         }, {
           title: 'Solicitante',
-          dataIndex: 'solicitante',
+          dataIndex: 'solicitante.nomeCompleto',
           key: 'solicitante',
           scopedSlots: {
             filterDropdown: 'filterDropdownSolicitante',
@@ -368,7 +328,7 @@
           onFilter: (value, record) => record.local === value
         }, {
           title: 'Solicitante',
-          dataIndex: 'solicitante',
+          dataIndex: 'solicitante.nomeCompleto',
           key: 'solicitante',
           scopedSlots: {
             filterDropdown: 'filterDropdownSolicitante',
@@ -439,6 +399,7 @@
         }],
         visibleEquipamentoModal: false,
         modalEquip: '',
+        modalLocal: '',
         visibleLocalModal: false,
         edit: false
       }
@@ -484,7 +445,7 @@
         // todos os Equipamentos
         db.ref('Equipamentos').orderByKey().on('value', function (snapshot) {
           // _this.loading = true
-
+          _this.equipamento = []
           snapshot.forEach(function (item) {
             _this.equipamento.push({
               'key': item.key,
@@ -496,27 +457,30 @@
           })
           _this.loading = false
         })
-        // todos os Usuarios
+        // todos os Usuariospush
         db.ref('Usuarios').orderByKey().on('value', function (snapshot) {
           // _this.loading = true
-
+          _this.usuarios = []
           snapshot.forEach(function (item) {
             _this.usuarios.push({
               'key': item.key,
               'curso': item.val().Curso,
               'email': item.val().Email,
-              'nome': item.val().Nome,
               'RA': item.val().RA,
+              'nomeCompleto': item.val().Nome + ' ' + item.val().Sobrenome,
+              'nome': item.val().Nome,
               'sobrenome': item.val().Sobrenome,
               'role': item.val().role
             })
           })
           _this.loading = false
         })
+
         if (_this.role === 'admin' || _this.role === 'Supervisor') {
           // Reservas dos Locais
           db.ref('Reservas/locais').orderByKey().on('value', function (snapshot) {
             // _this.loading = true
+            _this.Reservalocais = []
             snapshot.forEach(function (item) {
               var solicitante
               var supervisor
@@ -524,7 +488,7 @@
               if (val === -1) {
                 solicitante = 'Error'
               } else {
-                solicitante = _this.usuarios[_this.usuarios.map(function (e) { return e.key }).indexOf(item.val().Solicitante)].nome
+                solicitante = _this.usuarios[_this.usuarios.map(function (e) { return e.key }).indexOf(item.val().Solicitante)]
               }
               val = _this.supervisores.map(function (e) { return e.key }).indexOf(item.val().Supervisor)
               if (val === -1) {
@@ -533,6 +497,7 @@
                 supervisor = _this.supervisores[_this.supervisores.map(function (e) { return e.key }).indexOf(item.val().Supervisor)].nome
               }
               _this.Reservalocais.push({
+                'key': item.key,
                 'local': item.val().Local,
                 'solicitante': solicitante,
                 'supervisor': supervisor, // esta dando erro tem que arrumar o banco.
@@ -546,14 +511,14 @@
           // Reservas dos Equipamentos
           db.ref('Reservas/equipamentos').orderByKey().on('value', function (snapshot) {
             // _this.loading = true
-
+            _this.Reservaequip = []
             snapshot.forEach(function (item) {
               var solicitante
               var val = _this.usuarios.map(function (e) { return e.key }).indexOf(item.val().Solicitante)
               if (val === -1) {
                 solicitante = 'Error'
               } else {
-                solicitante = _this.usuarios[_this.usuarios.map(function (e) { return e.key }).indexOf(item.val().Solicitante)].nome
+                solicitante = _this.usuarios[_this.usuarios.map(function (e) { return e.key }).indexOf(item.val().Solicitante)]
               }
               var local
               var equipamento
@@ -565,6 +530,7 @@
                 equipamento = _this.equipamento[_this.equipamento.map(function (e) { return e.key }).indexOf(item.val().Equipamento)].patrimonio
               }
               _this.Reservaequip.push({
+                'key': item.key,
                 'id': item.val().Equipamento,
                 'equipamento': equipamento,
                 'local': local,
@@ -580,6 +546,7 @@
           // Reservas dos Locais
           db.ref('Reservas/locais').orderByChild('Solicitante').equalTo(auth.currentUser.uid).on('value', function (snapshot) {
             // _this.loading = true
+            _this.Reservalocais = []
             console.log('entrou')
             snapshot.forEach(function (item) {
               console.log('item =', item.val())
@@ -598,6 +565,7 @@
                 supervisor = _this.supervisores[_this.supervisores.map(function (e) { return e.key }).indexOf(item.val().Supervisor)].nome
               }
               _this.Reservalocais.push({
+                'key': item.key,
                 'local': item.val().Local,
                 'solicitante': solicitante,
                 'supervisor': supervisor, // esta dando erro tem que arrumar o banco.
@@ -611,7 +579,7 @@
           // Reservas dos Equipamentos
           db.ref('Reservas/equipamentos').orderByChild('Solicitante').equalTo(auth.currentUser.uid).on('value', function (snapshot) {
             // _this.loading = true
-
+            _this.Reservaequip = []
             snapshot.forEach(function (item) {
               var solicitante
               var val = _this.usuarios.map(function (e) { return e.key }).indexOf(item.val().Solicitante)
@@ -630,6 +598,7 @@
                 equipamento = _this.equipamento[_this.equipamento.map(function (e) { return e.key }).indexOf(item.val().Equipamento)].patrimonio
               }
               _this.Reservaequip.push({
+                'key': item.key,
                 'id': item.val().Equipamento,
                 'equipamento': equipamento,
                 'local': local,
@@ -653,28 +622,91 @@
         clearFilters()
         this[inputText] = ''
       },
-      showEquipamentoModal (equip) {
-        var _this = this
-        this.modalEquip = _this.equipamento[_this.equipamento.map(function (e) { return e.key }).indexOf(equip)].patrimonio
+      showEquipamentoModal (equipamento) {
+        this.modalEquip = equipamento
         this.visibleEquipamentoModal = true
+      },
+      showLocalModal (local) {
+        this.modalLocal = local
+        this.visibleLocalModal = true
+      },
+      confirmReserva (key, equipamento) {
+        var _this = this
+        db.ref('Reservas/equipamentos').child(key).update({
+          'Status': 'Confirmada'
+        }).then(() => {
+          let user = _this.Reservaequip[_this.Reservaequip.map(function (e) { return e.key }).indexOf(key)].solicitante
+          let to = [user.nome + ' <' + user.email + '>']
+          let textBody = 'Sua reserva foi Confirmada'
+          let htmlBody = '<h3>Reserva confirmada</h3><br><p>Sua reserva do equipamento: <strong>' + equipamento.equipamento + '</strong> no período: <strong>' + equipamento.dataInicio + ' até ' + equipamento.dataFim + '</strong> foi <strong>confirmado</strong>.</p> <small>Este é um E-mail automático, por favor não responda</small>'
+
+          sendEmail(to, 'Reserva de equipamento confirmada', textBody, htmlBody)
+        })
+      },
+      confirmReservaLocais (key, locais) {
+        // var _this = this
+        db.ref('Reservas/locais').child(key).update({
+          'Status': 'Confirmada'
+        }).then(() => {
+          let user = locais.solicitante
+          let to = [user.nome + ' <' + user.email + '>']
+          let textBody = 'Sua reserva foi Confirmada'
+          let htmlBody = '<h3>Reserva confirmada</h3><br><p>Sua reserva do local: <strong>' + locais.local + '</strong> no período: <strong>' + locais.dataInicio + ' até ' + locais.dataFim + '</strong> foi <strong>confirmada</strong>.</p> <small>Este é um E-mail automático, por favor não responda</small>'
+          sendEmail(to, 'Reserva de Local confirmada', textBody, htmlBody)
+        })
+      },
+      cancelarReserva (equipamento) {
+        var _this = this
+        db.ref('Reservas/equipamentos').child(equipamento.key).update({
+          'Status': 'Cancelada'
+        }).then(() => {
+          let user = equipamento.solicitante
+          let to = [user.nome + ' <' + user.email + '>']
+          let textBody = 'Sua reserva foi Cancelada'
+          let htmlBody = '<h3>Reserva cancelada</h3><br><p>Sua reserva do equipamento: <strong>' + equipamento.equipamento + '</strong> no período: <strong>' + equipamento.dataInicio + ' até ' + equipamento.dataFim + '</strong> foi <strong>cancelada</strong>.</p>'
+          if (_this.resposta !== '') {
+            htmlBody += '<p>Sua reserva foi cancelada pelo motivo: ' + _this.resposta + '</p>'
+          }
+          htmlBody += '<small>Este é um E-mail automático, por favor não responda</small>'
+
+          sendEmail(to, 'Reserva de equipamento cancelada', textBody, htmlBody)
+          _this.resposta = ''
+          if (_this.role === 'Comum') {
+            _this.$router.push('/home')
+          } else {
+            _this.closeEquipamentoModal()
+          }
+        })
+      },
+      cancelarReservaLocal (local) {
+        var _this = this
+        db.ref('Reservas/locais').child(local.key).update({
+          'Status': 'Cancelada'
+        }).then(() => {
+          let user = local.solicitante
+          let to = [user.nome + ' <' + user.email + '>']
+          let textBody = 'Sua reserva foi Cancelada'
+          let htmlBody = '<h3>Reserva cancelada</h3><br><p>Sua reserva do local: <strong>' + local.local + '</strong> no período: <strong>' + local.dataInicio + ' até ' + local.dataFim + '</strong> foi <strong>cancelada</strong>.</p>'
+          if (_this.resposta !== '') {
+            htmlBody += '<p>Sua reserva foi cancelada pelo motivo: ' + _this.resposta + '</p>'
+          }
+          htmlBody += '<small>Este é um E-mail automático, por favor não responda</small>'
+
+          sendEmail(to, 'Reserva de local cancelada', textBody, htmlBody)
+          _this.resposta = ''
+          if (_this.role === 'Comum') {
+            _this.$router.push('/home')
+          } else {
+            _this.closeLocalModal()
+          }
+        })
       },
       closeEquipamentoModal () {
         this.visibleEquipamentoModal = false
         this.modalEquip = ''
       },
-      showLocalModal () {
-        this.visibleLocalModal = true
-      },
-      showAtualizaModal (local) {
-        this.local = this.locais[this.locais.map(function (e) { return e.nome }).indexOf(local)]
-        this.edit = true
-        this.showLocalModal()
-      },
       closeLocalModal () {
         this.visibleLocalModal = false
-        this.edit = false
-        this.local = ''
-        this.form.resetFields()
       },
       populaFiltroLocais () {
         var locais = []
