@@ -113,8 +113,8 @@
         <a-row style = "text-align: right; margin-bottom: 5px;">
           <a-button size = "large" @click = "closeCursoModal()" style = "margin-right: 15px;"> Cancelar </a-button>
           
-          <a-button v-if = "edit" size = "large" type = "primary" @click = "atualizaCurso"> Atualizar </a-button>
-          <a-button v-else size = "large" type = "primary" @click = "cadastraCurso"> Cadastrar </a-button>
+          <a-button :loading = "buttonLoading" v-if = "edit" size = "large" type = "primary" @click = "atualizaCurso"> Atualizar </a-button>
+          <a-button :loading = "buttonLoading" v-else size = "large" type = "primary" @click = "cadastraCurso"> Cadastrar </a-button>
         </a-row>
       </a-form>
     </a-modal>
@@ -132,6 +132,7 @@
       return {
         role: null,
         loading: true,
+        buttonLoading: false,
         cursos: [],
         supervisores: [],
         curso: '',
@@ -264,8 +265,11 @@
       },
       async cadastraCurso () {
         let _this = this
+
         this.form.validateFields(async (err, values) => {
           if (!err) {
+            _this.buttonLoading = true
+
             db.ref('Controle/Cursos').child(values.nome).update({
               'Supervisor': values.supervisor
             }).then((data) => {
@@ -274,37 +278,45 @@
                 description: 'Curso ' + values.nome + ' cadastrado com sucesso.'
               }, 1500)
               this.closeCursoModal()
+              _this.buttonLoading = false
             }).catch((err) => {
               _this.$notification.error({
                 message: 'Opps..',
                 description: 'Curso não cadastrado. Erro: ' + err
               })
               this.closeCursoModal()
+              _this.buttonLoading = false
             })
           }
         })
       },
       async atualizaCurso () {
         let _this = this
+
         this.form.validateFields(async (err, values) => {
           if (!err) {
+            _this.buttonLoading = true
+
             db.ref('Controle/Cursos').child(values.nome).update({
               'Supervisor': values.supervisor
             }).then(() => {
               if (values.nome !== _this.curso.nome) {
                 db.ref('Controle/Cursos').child(_this.curso.nome).remove()
               }
+
               _this.$notification.success({
                 message: 'Yey!..',
                 description: 'Curso atualizado com sucesso.'
               }, 1500)
               this.closeCursoModal()
+              _this.buttonLoading = false
             }).catch((err) => {
               _this.$notification.error({
                 message: 'Opps..',
                 description: 'Curso não atualizado. Erro: ' + err
               })
               this.closeCursoModal()
+              _this.buttonLoading = false
             })
           }
         })

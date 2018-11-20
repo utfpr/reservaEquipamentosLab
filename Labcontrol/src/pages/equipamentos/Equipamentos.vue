@@ -192,8 +192,8 @@
         <a-row style = "text-align: right; margin-bottom: 5px;">
           <a-button size = "large" @click = "closeEquipamentoModal()" style = "margin-right: 15px;"> Cancelar </a-button>
           
-          <a-button v-if = "edit" size = "large" type = "primary" @click = "atualizaEquipamento"> Atualizar </a-button>
-          <a-button v-else size = "large" type = "primary" @click = "cadastraEquipamento"> Cadastrar </a-button>
+          <a-button :loading = "buttonLoading" v-if = "edit" size = "large" type = "primary" @click = "atualizaEquipamento"> Atualizar </a-button>
+          <a-button :loading = "buttonLoading" v-else size = "large" type = "primary" @click = "cadastraEquipamento"> Cadastrar </a-button>
         </a-row>
       </a-form>
     </a-modal>
@@ -214,6 +214,7 @@
       return {
         role: null,
         loading: true,
+        buttonLoading: false,
         equipamentos: [],
         locais: [],
         cursos: [],
@@ -401,8 +402,11 @@
       },
       async cadastraEquipamento () {
         let _this = this
+
         this.form.validateFields(async (err, values) => {
           if (!err) {
+            _this.buttonLoading = true
+
             db.ref('Equipamentos').push({
               'Patrimonio': values.patrimonio,
               'Curso': values.curso,
@@ -414,6 +418,7 @@
               'Pop': values.pop ? 'true' : 'false'
             }).then((data) => {
               const key = values.patrimonio
+              _this.buttonLoading = false
               _this.$notification.success({
                 key,
                 message: 'Yey!..',
@@ -436,6 +441,7 @@
                 message: 'Opps..',
                 description: 'Equipamento não cadastrado. Erro: ' + err
               })
+              _this.buttonLoading = false
               this.closeEquipamentoModal()
             })
           }
@@ -443,8 +449,11 @@
       },
       async atualizaEquipamento () {
         let _this = this
+
         this.form.validateFields(async (err, values) => {
           if (!err) {
+            _this.buttonLoading = true
+
             db.ref('Equipamentos').child(_this.equipamento.id).update({
               'Patrimonio': values.patrimonio,
               'Curso': values.curso,
@@ -456,6 +465,7 @@
               'Pop': values.pop ? 'true' : 'false'
             }).then(() => {
               const key = _this.equipamento.id
+              _this.buttonLoading = false
               _this.$notification.success({
                 key,
                 message: 'Yey!..',
@@ -478,6 +488,7 @@
                 message: 'Opps..',
                 description: 'Equipamento não atualizado. Erro: ' + err
               })
+              _this.buttonLoading = false
               this.closeEquipamentoModal()
             })
           }

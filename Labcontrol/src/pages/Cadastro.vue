@@ -102,7 +102,7 @@
         usuarios: []
       }
     },
-    created: function () {
+    mounted: function () {
       let fundo = document.getElementsByClassName('ant-layout-content')
       fundo[0].setAttribute('style', 'background: url(./static/img/background.jpg) !important; background-size: cover !important; margin: 0 !important; padding: 24px !important;')
     },

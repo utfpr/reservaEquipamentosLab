@@ -45,14 +45,16 @@
 
       <a-row :gutter = "16" style = "text-align: center;">
         <a-col :span = "12">
-          <a-form-item label = "Data Início" fieldDecoratorId = "dataInicial" :fieldDecoratorOptions = "{ rules: [{ required: true, message: 'Campo Obrigatório' }] }">
-            <a-date-picker format = "DD/MM/YYYY" :disabledDate = "disabledDateInicial" placeholder = "Selecione Data Inicial" style = "margin-left: 30px;" size = "large" />
+          <a-form-item label = "Data Início" fieldDecoratorId = "dataInicial" :fieldDecoratorOptions = "{ rules: [{ required: true, message: 'Campo Obrigatório' }], initialValue: dateInicial }">
+            <a-date-picker format = "DD/MM/YYYY" :disabledDate = "disabledDateInicial" placeholder = "Selecione Data Inicial" style = "margin-left: 30px;" size = "large" :open = "endOpenDateInicial" @openChange = "handleDateInicialChange" />
           </a-form-item>
         </a-col>
 
         <a-col :span = "12">
-          <a-form-item label = "Hora Início" fieldDecoratorId = "horaInicial" :fieldDecoratorOptions = "{ rules: [{ required: true, message: 'Campo Obrigatório' }] }">
-            <a-time-picker format = "HH:mm" :disabledHours = "disabledHours" :minuteStep = "10" placeholder = "Hora Inicial" style = "margin-left: 30px;" size = "large" hideDisabledOptions />
+          <a-form-item label = "Hora Início" fieldDecoratorId = "horaInicial" :fieldDecoratorOptions = "{ rules: [{ required: true, message: 'Campo Obrigatório' }], initialValue: dateInicial }">
+            <a-time-picker format = "HH:mm" :disabledHours = "disabledHours" :minuteStep = "10" placeholder = "Hora Inicial" style = "margin-left: 30px;" size = "large" hideDisabledOptions :open = "endOpenTimeInicial" @openChange = "handleTimeInicialChange" >
+              <a-button slot = "addon" size = "small" type = "primary" @click = "handleClose"> Ok </a-button>
+            </a-time-picker>
           </a-form-item>
         </a-col>
       </a-row>
@@ -60,13 +62,15 @@
       <a-row :gutter = "16" style = "text-align: center;">
         <a-col :span = "12">
           <a-form-item label = "Data Fim" fieldDecoratorId = "dataFinal" :fieldDecoratorOptions = "{ rules: [{ required: true, message: 'Campo Obrigatório' }] }">
-            <a-date-picker format = "DD/MM/YYYY" :disabledDate = "disabledDateFinal" placeholder = "Selecione Data Final" style = "margin-left: 30px;" size = "large" />
+            <a-date-picker format = "DD/MM/YYYY" :disabledDate = "disabledDateFinal" placeholder = "Selecione Data Final" style = "margin-left: 30px;" size = "large" :open = "endOpenDateFinal" @openChange = "handleDateFinalChange" />
           </a-form-item>
         </a-col>
 
         <a-col :span = "12">
           <a-form-item label = "Hora Fim" fieldDecoratorId = "horaFinal" :fieldDecoratorOptions = "{ rules: [{ required: true, message: 'Campo Obrigatório' }] }">
-            <a-time-picker format = "HH:mm" :disabledHours = "disabledHours" :minuteStep = "10" placeholder = "Hora Final" style = "margin-left: 30px;" size = "large" hideDisabledOptions />
+            <a-time-picker format = "HH:mm" :disabledHours = "disabledHours" :minuteStep = "10" placeholder = "Hora Final" style = "margin-left: 30px;" size = "large" hideDisabledOptions :open = "endOpenTimeFinal" @openChange = "handleTimeFinalChange">
+              <a-button slot = "addon" size = "small" type = "primary" @click = "handleClose"> Ok </a-button>
+            </a-time-picker>
           </a-form-item>
         </a-col>
       </a-row>
@@ -93,7 +97,7 @@
 
       <div style = "text-align: right; margin-top: 20px;">
         <a-button @click = "closeModal"> Voltar </a-button>
-        <a-button @click = "realizaReserva" type = "primary"> Confirmar </a-button>
+        <a-button :loading = "buttonLoading" @click = "realizaReserva" type = "primary"> Confirmar </a-button>
       </div> 
     </a-modal>
   </a-spin>
@@ -111,6 +115,7 @@
     data () {
       return {
         role: null,
+        buttonLoading: false,
         equipamentos: [],
         usuarios: [],
         conflitos: [],
@@ -118,9 +123,14 @@
         parent: this.$parent.$parent.$parent,
         valorItem: this.$route.params.valorItem,
         item: this.$route.params.item,
+        dateInicial: this.$moment(),
         dataInicial: '',
         dataFinal: '',
         tempoMin: 0,
+        endOpenDateInicial: false,
+        endOpenTimeInicial: false,
+        endOpenDateFinal: false,
+        endOpenTimeFinal: false,
         solicitante: auth.currentUser.uid,
         alert: {
           visible: false,
@@ -137,16 +147,36 @@
       let _this = this
       _this.parent.loading = true
 
-      db.ref('Controle/Configuracao/TempoMinAntesReserva').on('value', function (snapshot) {
-        _this.parent.loading = true
-        _this.tempoMin = snapshot.val()
-        _this.parent.loading = false
-      })
-
       db.ref('Usuarios/' + auth.currentUser.uid).on('value', function (snapshot) {
         _this.parent.loading = true
         _this.role = snapshot.val().role
-        _this.parent.loading = false
+
+        db.ref('Controle/Configuracao/TempoMinAntesReserva').on('value', function (snapshot) {
+          _this.tempoMin = snapshot.val()
+
+          _this.dateInicial = _this.$moment(_this.dateInicial).set({
+            'minute': _this.dateInicial.minute() + (10 - _this.dateInicial.minute() % 10)
+          })
+
+          if (_this.role === 'Comum') {
+            _this.dateInicial = _this.$moment(_this.dateInicial).add(4, 'hours')
+          }
+
+          if (_this.dateInicial.hour() < 7 || _this.dateInicial.hour() >= 23) {
+            if (_this.dateInicial.hour() >= 23) {
+              _this.dateInicial = _this.$moment(_this.dateInicial).add(1, 'day')
+            }
+            _this.dateInicial = _this.$moment(_this.dateInicial).set({
+              'hour': '7',
+              'minute': '0'
+            })
+          }
+
+          if (_this.dateInicial.isoWeekday() === 7) {
+            _this.dateInicial = _this.$moment(_this.dateInicial).day(1)
+          }
+          _this.parent.loading = false
+        })
       })
 
       db.ref('Equipamentos').orderByKey().on('value', function (snapshot) {
@@ -191,6 +221,33 @@
       avancar () {
         this.parent.current = 2
       },
+      handleDateInicialChange (open) {
+        this.endOpenDateInicial = open
+        if (!open) {
+          this.endOpenTimeInicial = true
+        }
+      },
+      handleTimeInicialChange (open) {
+        this.endOpenTimeInicial = open
+        if (!open) {
+          this.endOpenDateFinal = true
+        }
+      },
+      handleDateFinalChange (open) {
+        this.endOpenDateFinal = open
+        if (!open) {
+          this.endOpenTimeFinal = true
+        }
+      },
+      handleTimeFinalChange (open) {
+        this.endOpenTimeFinal = open
+      },
+      handleClose () {
+        this.endOpenDateInicial = false
+        this.endOpenTimeInicial = false
+        this.endOpenDateFinal = false
+        this.endOpenTimeFinal = false
+      },
       disabledDateInicial (current) {
         let week = this.$moment(current).isoWeekday()
         let maxDate = this.$moment().set({ 'date': '15', 'month': '06' })
@@ -204,7 +261,6 @@
         }
 
         return (current && current < this.$moment().add(-1, 'days').endOf('day')) ||
-          (week === 6) ||
           (week === 7) ||
           (current && current > maxDate)
       },
@@ -222,12 +278,10 @@
 
         if (this.form.getFieldValue('dataInicial')) {
           return (current && current < this.$moment(this.form.getFieldValue('dataInicial'))) ||
-            (week === 6) ||
             (week === 7) ||
             (current && current > maxDate)
         } else {
           return (current && current < this.$moment().add(-1, 'days').endOf('day')) ||
-            (week === 6) ||
             (week === 7) ||
             (current && current > maxDate)
         }
@@ -351,6 +405,7 @@
       },
       realizaReserva () {
         let _this = this
+        _this.buttonLoading = true
 
         if (_this.item === 'equipamento') {
           if ((_this.role === 'Supervisor' || _this.role === 'admin') && (_this.conflitos.length > 0)) {
@@ -369,6 +424,9 @@
                 htmlBody += '<small>Este é um E-mail automático, por favor não responda</small>'
 
                 sendEmail(to, 'Reserva de equipamento cancelada', textBody, htmlBody)
+                _this.buttonLoading = false
+              }).catch(() => {
+                _this.buttonLoading = false
               })
             })
           }
@@ -409,6 +467,9 @@
                 htmlBody += '<small>Este é um E-mail automático, por favor não responda</small>'
 
                 sendEmail(to, 'Reserva de local cancelada', textBody, htmlBody)
+                _this.buttonLoading = false
+              }).catch(() => {
+                _this.buttonLoading = false
               })
             })
           }
