@@ -270,22 +270,37 @@
       let _this = this
       _this.parent.loading = true
 
-      db.ref('Equipamentos').orderByKey().on('value', function (snapshot) {
+      db.ref('Equipamentos').orderByChild('Status').on('value', function (snapshot) {
+        var desordenados = []
         _this.equipamentos = []
         _this.parent.loading = true
 
         snapshot.forEach(function (item) {
-          _this.equipamentos.push({
-            'id': item.key,
-            'patrimonio': item.val().Patrimonio,
-            'nome': item.val().Nome,
-            'local': item.val().Local,
-            'status': item.val().Status,
-            'curso': item.val().Curso,
-            'marca': item.val().Marca,
-            'especificacao': item.val().Especificacao
-          })
+          if (item.val().Status === 'Normal') {
+            _this.equipamentos.push({
+              'id': item.key,
+              'patrimonio': item.val().Patrimonio,
+              'nome': item.val().Nome,
+              'local': item.val().Local,
+              'status': item.val().Status,
+              'curso': item.val().Curso,
+              'marca': item.val().Marca,
+              'especificacao': item.val().Especificacao
+            })
+          } else {
+            desordenados.push({
+              'id': item.key,
+              'patrimonio': item.val().Patrimonio,
+              'nome': item.val().Nome,
+              'local': item.val().Local,
+              'status': item.val().Status,
+              'curso': item.val().Curso,
+              'marca': item.val().Marca,
+              'especificacao': item.val().Especificacao
+            })
+          }
         })
+        _this.equipamentos = _this.equipamentos.concat(desordenados)
         _this.parent.loading = false
       })
 
@@ -377,5 +392,9 @@
 
   .linkProximo {
     text-decoration: none !important;
+  }
+
+  .ant-tabs-content.ant-tabs-content-animated {
+    min-height: 350px;
   }
 </style>

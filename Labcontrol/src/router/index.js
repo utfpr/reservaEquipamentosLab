@@ -184,10 +184,14 @@ router.beforeEach((to, from, next) => {
 
   firebaseApp.auth().onAuthStateChanged(function (user) {
     if (user) {
-      if (!user.emailVerified && cadastro) next('verificar-email')
-      else if ((!requiresAuth && login) || (!requiresAuth && cadastro)) next('home')
-      else if (!requiresAuth && !login) next()
-      else next()
+      firebaseApp.database().ref('Usuarios/' + firebaseApp.auth().currentUser.uid + '/role').on('value', function (snapshot) {
+        if (!user.emailVerified && cadastro) next('verificar-email')
+        else if ((!requiresAuth && login) || (!requiresAuth && cadastro)) next('home')
+        else if (!requiresAuth && !login) next()
+        else if ((to.name === 'Aulas' || to.name === 'Cursos') && snapshot.val() === 'Comum') next('home')
+        else if (to.name === 'Usuarios' && snapshot.val() !== 'admin') next('home')
+        else next()
+      })
     } else {
       if (requiresAuth) next('login')
       else next()

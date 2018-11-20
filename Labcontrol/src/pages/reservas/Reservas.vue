@@ -19,7 +19,6 @@
         </span>
 
         <a-table :dataSource = "reservaEquipamentos" :columns = "columnsEquipamento" :locale = "{ filterConfirm: 'Ok', filterReset: 'Resetar', emptyText: 'Nenhum Equipamento Cadastrado' }">
-          <span slot = "periodo" slot-scope = "text, record"></span>
           <span slot = "actions" slot-scope = "text, record">
             <a-tooltip v-if = "record.status === 'Pendente' && role !== 'Comum'" placement = "top">
               <template slot = "title">
@@ -31,17 +30,25 @@
               </a-tag>
             </a-tooltip>
 
-            <a-tooltip v-if = "record.status === 'Pendente' " placement = "top">
+            <a-button v-else-if = "record.status !== 'Cancelada' && role !== 'Comum'" class = "ant-tag" disabled>
+              <a-icon style = "color: #52c41a" type = "check" />
+            </a-button>
+
+            <a-tooltip v-if = "record.status === 'Pendente'" placement = "top">
               <template slot = "title">
                 <span> Editar Reserva </span>
               </template>
 
               <a-tag color = "orange" :key = "text" >
-                <router-link :to = "{ name: 'periodoReserva', params: { item: 'equipamento', valorItem: text }}">
+                <router-link :to = "{ name: 'periodoReserva', params: { item: 'reservaEquipamento', valorItem: text }}">
                   <a-icon style = "color: #fa8c16;" type = "edit" />
                 </router-link>
               </a-tag>
             </a-tooltip>
+
+            <a-button v-else-if = "record.status !== 'Cancelada'" class = "ant-tag" disabled>
+              <a-icon style = "color: #fa8c16;" type = "edit" />
+            </a-button>
 
             <a-tooltip v-if = "record.status !== 'Cancelada'" placement = "top">
               <template slot = "title">
@@ -128,17 +135,25 @@
               </a-tag>
             </a-tooltip>
 
+            <a-button v-else-if = "record.status !== 'Cancelada' && role !== 'Comum'" class = "ant-tag" disabled>
+              <a-icon style = "color: #52c41a" type = "check" />
+            </a-button>
+
             <a-tooltip v-if = "record.status === 'Pendente' " placement = "top">
               <template slot = "title">
                 <span> Editar Reserva </span>
               </template>
 
               <a-tag color = "orange" :key = "text" >
-                <router-link :to = "{ name: 'periodoReserva', params: { item: 'equipamento', valorItem: text }}">
+                <router-link :to = "{ name: 'periodoReserva', params: { item: 'reservaLocal', valorItem: text }}">
                   <a-icon style = "color: #fa8c16;" type = "edit" />
                 </router-link>
               </a-tag>
             </a-tooltip>
+
+            <a-button v-else-if = "record.status !== 'Cancelada'" class = "ant-tag" disabled>
+              <a-icon style = "color: #fa8c16;" type = "edit" />
+            </a-button>
 
             <a-tooltip v-if = "record.status !== 'Cancelada'" placement = "top">
               <template slot = "title">
@@ -499,7 +514,7 @@
         })
 
         if (_this.role === 'admin' || _this.role === 'Supervisor') {
-          db.ref('Reservas/locais').orderByKey().on('value', function (snapshot) {
+          db.ref('Reservas/locais').orderByChild('Status').on('value', function (snapshot) {
             _this.reservaLocais = []
             _this.loading = true
 
@@ -513,10 +528,11 @@
                 'status': item.val().Status
               })
             })
+            _this.reservaLocais = _this.reservaLocais.reverse()
             _this.loading = false
           })
 
-          db.ref('Reservas/equipamentos').orderByKey().on('value', function (snapshot) {
+          db.ref('Reservas/equipamentos').orderByChild('Status').on('value', function (snapshot) {
             _this.reservaEquipamentos = []
             _this.loading = true
 
@@ -530,41 +546,83 @@
                 'status': item.val().Status
               })
             })
+            _this.reservaEquipamentos = _this.reservaEquipamentos.reverse()
             _this.loading = false
           })
         } else {
           db.ref('Reservas/locais').orderByChild('Solicitante').equalTo(auth.currentUser.uid).on('value', function (snapshot) {
+            var desordenados = []
             _this.reservaLocais = []
             _this.loading = true
 
             snapshot.forEach(function (item) {
-              _this.reservaLocais.push({
-                'key': item.key,
-                'local': item.val().Local,
-                'solicitante': _this.usuarios[_this.usuarios.map(function (e) { return e.key }).indexOf(item.val().Solicitante)],
-                'dataInicio': item.val().Inicio,
-                'dataFim': item.val().Fim,
-                'status': item.val().Status
-              })
+              if (item.val().Status === 'Confirmada') {
+                _this.reservaLocais.push({
+                  'key': item.key,
+                  'local': item.val().Local,
+                  'solicitante': _this.usuarios[_this.usuarios.map(function (e) { return e.key }).indexOf(item.val().Solicitante)],
+                  'dataInicio': item.val().Inicio,
+                  'dataFim': item.val().Fim,
+                  'status': item.val().Status
+                })
+              } else {
+                desordenados.push({
+                  'key': item.key,
+                  'local': item.val().Local,
+                  'solicitante': _this.usuarios[_this.usuarios.map(function (e) { return e.key }).indexOf(item.val().Solicitante)],
+                  'dataInicio': item.val().Inicio,
+                  'dataFim': item.val().Fim,
+                  'status': item.val().Status
+                })
+              }
             })
+            desordenados = desordenados.sort(function (a, b) {
+              var x = a.status.toLowerCase()
+              var y = b.status.toLowerCase()
+              if (x < y) { return -1 }
+              if (x > y) { return 1 }
+              return 0
+            }).reverse()
+            _this.reservaLocais = _this.reservaLocais.concat(desordenados)
             _this.loading = false
           })
 
           db.ref('Reservas/equipamentos').orderByChild('Solicitante').equalTo(auth.currentUser.uid).on('value', function (snapshot) {
+            var desordenados = []
             _this.reservaEquipamentos = []
             _this.loading = true
 
             snapshot.forEach(function (item) {
-              _this.reservaEquipamentos.push({
-                'key': item.key,
-                'id': item.val().Equipamento,
-                'equipamento': _this.equipamentos[_this.equipamentos.map(function (e) { return e.key }).indexOf(item.val().Equipamento)],
-                'solicitante': _this.usuarios[_this.usuarios.map(function (e) { return e.key }).indexOf(item.val().Solicitante)],
-                'dataInicio': item.val().Inicio,
-                'dataFim': item.val().Fim,
-                'status': item.val().Status
-              })
+              if (item.val().Status === 'Confirmada') {
+                _this.reservaEquipamentos.push({
+                  'key': item.key,
+                  'id': item.val().Equipamento,
+                  'equipamento': _this.equipamentos[_this.equipamentos.map(function (e) { return e.key }).indexOf(item.val().Equipamento)],
+                  'solicitante': _this.usuarios[_this.usuarios.map(function (e) { return e.key }).indexOf(item.val().Solicitante)],
+                  'dataInicio': item.val().Inicio,
+                  'dataFim': item.val().Fim,
+                  'status': item.val().Status
+                })
+              } else {
+                desordenados.push({
+                  'key': item.key,
+                  'id': item.val().Equipamento,
+                  'equipamento': _this.equipamentos[_this.equipamentos.map(function (e) { return e.key }).indexOf(item.val().Equipamento)],
+                  'solicitante': _this.usuarios[_this.usuarios.map(function (e) { return e.key }).indexOf(item.val().Solicitante)],
+                  'dataInicio': item.val().Inicio,
+                  'dataFim': item.val().Fim,
+                  'status': item.val().Status
+                })
+              }
             })
+            desordenados = desordenados.sort(function (a, b) {
+              var x = a.status.toLowerCase()
+              var y = b.status.toLowerCase()
+              if (x < y) { return -1 }
+              if (x > y) { return 1 }
+              return 0
+            }).reverse()
+            _this.reservaEquipamentos = _this.reservaEquipamentos.concat(desordenados)
             _this.loading = false
           })
         }
@@ -714,5 +772,9 @@
 
   .custom-filter-dropdown button {
     margin-right: 8px;
+  }
+
+  .ant-tabs-content.ant-tabs-content-animated {
+    min-height: 350px;
   }
 </style>

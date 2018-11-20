@@ -23,29 +23,37 @@
             <span> Baixar POP </span>
           </template>
 
-          <a-tag @click = "downloadFile(text)" color = "blue" :key = "text" >
+          <a-tag @click = "downloadFile(text)" color = "blue" :key = "text">
             <a-icon type = "file-pdf" />
           </a-tag>
         </a-tooltip>
+
+        <a-button v-else class = "ant-tag" disabled>
+          <a-icon style = "color: #1890ff" type = "file-pdf" />
+        </a-button>
 
         <a-tooltip v-if = "record.status !== 'Quebrado'" placement = "top">
           <template slot = "title">
             <span> Reservar Equipamento </span>
           </template>
 
-          <a-tag color = "green" :key = "text" >
+          <a-tag color = "green" :key = "text">
             <router-link :to = "{ name: 'periodoReserva', params: { item: 'equipamento', valorItem: text }}">
              <a-icon style = "color: #52c41a" type = "database" />
             </router-link>
           </a-tag>
         </a-tooltip>
 
+        <a-button v-else class = "ant-tag" disabled>
+          <a-icon style = "color: #52c41a" type = "database" />
+        </a-button>
+
         <a-tooltip v-if = "role === 'admin' || role === 'Supervisor'" placement = "top">
           <template slot = "title">
             <span> Editar Equipamento </span>
           </template>
 
-          <a-tag @click = "showAtualizaModal(text)" color = "orange" :key = "text" >
+          <a-tag @click = "showAtualizaModal(text)" color = "orange" :key = "text">
             <a-icon type = "edit" />
           </a-tag>
         </a-tooltip>
@@ -55,7 +63,7 @@
             <span> Deletar Equipamento </span>
           </template>
 
-          <a-tag @click = "showConfirmModal(text)" color = "red" :key = "text" >
+          <a-tag @click = "showConfirmModal(text)" color = "red" :key = "text">
             <a-icon type = "delete" />
           </a-tag>
         </a-tooltip>
@@ -292,23 +300,39 @@
       let _this = this
       _this.loading = true
 
-      db.ref('Equipamentos').orderByKey().on('value', function (snapshot) {
-        _this.loading = true
+      db.ref('Equipamentos').orderByChild('Status').on('value', function (snapshot) {
+        var desordenados = []
         _this.equipamentos = []
+        _this.loading = true
 
         snapshot.forEach(function (item) {
-          _this.equipamentos.push({
-            'id': item.key,
-            'patrimonio': item.val().Patrimonio,
-            'nome': item.val().Nome,
-            'local': item.val().Local,
-            'status': item.val().Status,
-            'curso': item.val().Curso,
-            'marca': item.val().Marca,
-            'especificacao': item.val().Especificacao,
-            'pop': item.val().Pop
-          })
+          if (item.val().Status === 'Normal') {
+            _this.equipamentos.push({
+              'id': item.key,
+              'patrimonio': item.val().Patrimonio,
+              'nome': item.val().Nome,
+              'local': item.val().Local,
+              'status': item.val().Status,
+              'curso': item.val().Curso,
+              'marca': item.val().Marca,
+              'especificacao': item.val().Especificacao,
+              'pop': item.val().Pop
+            })
+          } else {
+            desordenados.push({
+              'id': item.key,
+              'patrimonio': item.val().Patrimonio,
+              'nome': item.val().Nome,
+              'local': item.val().Local,
+              'status': item.val().Status,
+              'curso': item.val().Curso,
+              'marca': item.val().Marca,
+              'especificacao': item.val().Especificacao,
+              'pop': item.val().Pop
+            })
+          }
         })
+        _this.equipamentos = _this.equipamentos.concat(desordenados)
         _this.loading = false
       })
 
