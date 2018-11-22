@@ -1,228 +1,205 @@
 <template>
+  <a-spin :spinning = "loading">
+    <a-row style = "margin-bottom: 30px; text-align: center;">
+      <a-col :span = "4">
+        <router-link to = "/aulas">
+          <a-button size = "large">
+            <a-icon type = "arrow-left" /> Voltar
+          </a-button>
+        </router-link>
+      </a-col>
 
-  
-  <div class="container">
-
-    <a-row style = "margin-bottom: 30px;">
-      <a-col :span = "16" :offset = "4" style = "text-align: center">
+      <a-col :span = "16">
         <h1> Agendamento de Aulas </h1>
       </a-col>
-    </a-row>  
-    <div class="row" style = "margin-top: 20px;">
-      <div class="col-md-1 offset-2">
-        Início:
-      </div>
-      <div class="col-md-3">
-        <a-date-picker
-          :disabledDate="disabledStartDate"
-          format="DD/MM/YYYY"
-          v-model="startValue"
-          placeholder="Selecionar"
-          @openChange="handleStartOpenChange"
-        />
-      </div>
-      <div class="col-md-1">
-        Fim:
-      </div>
-      <div class="col-md-3">
-        <a-date-picker
-          :disabledDate="disabledEndDate"
-          format="DD/MM/YYYY"
-          placeholder="Selecionar"
-          v-model="endValue"
-          :open="endOpen"
-          @openChange="handleEndOpenChange"
-        />
-      </div>
-    </div>
-    
-    <hr>
 
-    <div class = "row">
-      <div class="col-12 col-md-12 text-center">
-        <a-button type = "primary" v-if = "role === 'admin' || role === 'Supervisor'" @click = "showAulaModal()" size = "large" icon = "plus" style = "width: 100%; margin-top: 8px;"> Novo </a-button>
-      </div>
-    </div>
+      <a-col :span = "4">
+        <a-button :disabled = "agendamentos.length === 0" size = "large" type = "primary" @click = "confirmarAgendamentos">
+          <a-icon type = "check" /> Concluir
+        </a-button>
+      </a-col>
+    </a-row>
 
-    <a-table :dataSource = "agendamentos" :columns = "columns" :locale = "{ emptyText: 'Nenhum agendamento cadastrado' }">
-      <span slot="horas" slot-scope="text, record">
-        <span>{{record.horaInicio}} Até {{record.horaFim}}</span>
+    <a-form class = "form" layout = "inline" :autoFormCreate = "(form) => { this.form = form }">
+      <a-row class = "form-solicitante" style = "margin: 0px 50px;">
+        <a-form-item label = "Solicitante" fieldDecoratorId = "solicitante" :fieldDecoratorOptions = "{ rules: [{ required: true, message: 'Campo Obrigatório' }], initialValue: solicitante }">
+          <a-select v-model = "solicitante" size = "large" placeholder = "Selecione Solicitante" showSearch notFoundContent = "Usuário não Encontrado" :filterOption = "filterOption">
+            <a-select-option v-for = "solicitante in usuarios" v-bind:key = "solicitante.id" :value = "solicitante.id"> {{solicitante.ra}} - {{solicitante.nome}} </a-select-option>
+          </a-select>
+        </a-form-item>
+      </a-row>
+
+      <a-row :gutter = "16" style = "text-align: center;">
+        <a-col :span = "12">
+          <a-form-item label = "Início" fieldDecoratorId = "dataInicial" :fieldDecoratorOptions = "{ rules: [{ required: true, message: 'Campo Obrigatório' }], initialValue: dateInitInicial }">
+            <a-date-picker format = "DD/MM/YYYY" :disabledDate = "disabledDateInicial" placeholder = "Selecione Data Inicial" style = "margin-left: 30px;" size = "large" @openChange = "handleStartOpenChange" />
+          </a-form-item>
+        </a-col>
+
+        <a-col :span = "12">
+          <a-form-item label = "Fim" fieldDecoratorId = "dataFinal" :fieldDecoratorOptions = "{ rules: [{ required: true, message: 'Campo Obrigatório' }] }">
+            <a-date-picker format = "DD/MM/YYYY" :disabledDate = "disabledDateFinal" placeholder = "Selecione Data Final" style = "margin-left: 30px;" size = "large" :open = "endOpen" @openChange = "handleEndOpenChange" />
+          </a-form-item>
+        </a-col>
+      </a-row>
+    </a-form>
+
+    <hr/>
+
+    <a-row style = "margin-bottom: 30px;">
+      <a-col>
+        <a-button type = "dashed" @click = "showAulaModal()" size = "large" icon = "plus" style = "width: 100%; margin-top: 8px;"> Novo </a-button>
+      </a-col>
+    </a-row>
+
+    <a-table :dataSource = "agendamentos" :columns = "columns" :locale = "{ emptyText: 'Nenhum Agendamento Cadastrado' }">
+      <span slot = "horas" slot-scope = "text, record">
+        <span> {{ record.horaInicio.format('HH:mm') }} Até {{ record.horaFim.format('HH:mm') }} </span>
       </span>
 
-      <span slot="dia" slot-scope="text, record">
-        <span>{{$moment().day(record.dia).format("dddd")}}</span>
+      <span slot = "diaSemana" slot-scope = "text, record">
+        <span> {{ $moment().day(record.diaSemana).format("dddd") }} </span>
       </span>
 
-      <span slot = "actions" slot-scope = "text">
-        <a-tooltip v-if = "role === 'admin' || role === 'Supervisor'" placement = "top">
+      <span slot = "actions" slot-scope = "text, record">
+        <a-tooltip placement = "top">
           <template slot = "title">
-            <span> Deletar agendamento </span>
+            <span> Deletar Agendamento </span>
           </template>
 
-          <a-tag @click = "deleta(agendamento)" color = "red" :key = "text" >
+          <a-tag @click = "deletaAgendamento(record)" color = "red" :key = "text">
             <a-icon type = "delete" />
           </a-tag>
         </a-tooltip>
       </span>    
-    </a-table>  
-
-
-    <div class = "row" v-if="agendamentos.length !== 0">
-      <div class = "col-md-2 offset-8">
-        <router-link :to="{ name: 'Home', params: {}}" class="btn btn-secondary btn-block" v-on:click="autocompleteHide()" > Voltar</router-link>
-      </div>
-
-      <div class = "col-md-2">
-        <span class="btn btn-primary btn-block" v-on:click="submit()"> Confirmar </span>
-      </div>
-    </div>
+    </a-table>
 
     <a-modal
-      
       :visible = "visibleAulaModal"
       :footer = "null"
       @cancel = "closeAulaModal()"
-      style = "padding: 32px 32px 32px; top: 20px;"
-      @ok= "adiciona()"
-      >
+      style = "padding: 32px 32px 32px; top: 20px;">
+
       <div slot = "title">
         <h5> <b> Novo Agendamento </b> </h5>
       </div>
-      <a-form layout = "vertical" :autoFormCreate = "(form) => { this.form = form }">
+
+      <a-form layout = "vertical" :autoFormCreate = "(form) => { this.formAgendamento = form }">
         <a-row :gutter = "16">
-            <a-col :span = "24">
-              <a-form-item label = "Dia da semana" fieldDecoratorId = "dia" :fieldDecoratorOptions = "{ rules: [{ required: true, message: 'Selecione o dia da semana' }] }">
-                <a-select size = "large" placeholder = "Dia da semana"  showSearch notFoundContent = "Status não Encontrado" :filterOption = "filterOption">
-                  <a-select-option value = "1"> Segunda-Feira </a-select-option>
-                  <a-select-option value = "2"> Terça-Feira </a-select-option>
-                  <a-select-option value = "3"> Quarta-Feira </a-select-option>
-                  <a-select-option value = "4"> Quinta-Feira</a-select-option>
-                  <a-select-option value = "5"> Sexta-Feira</a-select-option>
-                </a-select>
-              </a-form-item>
-            </a-col>
-        </a-row>
-        <a-row :gutter = "16">
-            <a-col :span = "12">
-              <a-form-item label = "Hora Inicio" fieldDecoratorId = "horaI" :fieldDecoratorOptions = "{ rules: [{ required: true, message: 'Selecione a hora de inicio da aula' }] }">
-                  <a-time-picker 
-                    v-model="horaI" 
-                    format= 'HH:mm'
-                    placeholder= "Inicio"
-                    :disabledHours="horasDesativadas"
-                    :minuteStep="5"
-                    hideDisabledOptions
-                />
-              </a-form-item>  
-            </a-col>
-            <a-col :span = "12">
-            <a-form-item label = "Hora Inicio" fieldDecoratorId = "horaF" :fieldDecoratorOptions = "{ rules: [{ required: true, message: 'Selecione a hora do fim da aula' }] }">
-                  <a-time-picker 
-                    v-model="horaF" 
-                    format= 'HH:mm'
-                    placeholder= "Fim"
-                    :disabledHours="horasDesativadas"
-                    :minuteStep="5"
-                    hideDisabledOptions
-                />
+          <a-col :span = "24">
+            <a-form-item label = "Dia da Semana" fieldDecoratorId = "diaSemana" :fieldDecoratorOptions = "{ rules: [{ required: true, message: 'Selecione o Dia da Semana' }], initialValue: $moment(dataInicio).get('day') }">
+              <a-select size = "large" placeholder = "Dia da Semana" showSearch notFoundContent = "Dia não Encontrado" :filterOption = "filterOption">
+                <a-select-option :value = "1"> Segunda-Feira </a-select-option>
+                <a-select-option :value = "2"> Terça-Feira </a-select-option>
+                <a-select-option :value = "3"> Quarta-Feira </a-select-option>
+                <a-select-option :value = "4"> Quinta-Feira </a-select-option>
+                <a-select-option :value = "5"> Sexta-Feira </a-select-option>
+                <a-select-option :value = "6"> Sábado </a-select-option>
+              </a-select>
             </a-form-item>
-            </a-col>
+          </a-col>
         </a-row>
+
         <a-row :gutter = "16">
-            <a-col :span = "24">
-              <a-form-item label = "Local" fieldDecoratorId = "local" :fieldDecoratorOptions = "{ rules: [{ required: true, message: 'Selecione o Local' }] }">
-                <a-select size = "large" placeholder = "Locais"  showSearch notFoundContent = "Status não Encontrado" :filterOption = "filterOption">
-                  <a-select-option v-for = "local in locais" v-bind:key = "local" :value = "local.nome">  {{local.nome}} </a-select-option>
-                  
-                </a-select>
-              </a-form-item>
-            </a-col>
-        </a-row>      
+          <a-col :span = "12">
+            <a-form-item label = "Hora Início" fieldDecoratorId = "horaInicio" :fieldDecoratorOptions = "{ rules: [{ required: true, message: 'Selecione Hora Inicial' }, { validator: this.checkTimeInicial }] }">
+              <a-time-picker size = "large" format = 'HH:mm' placeholder = "Inicio" :disabledHours = "disabledHours" :minuteStep = "10" hideDisabledOptions />
+            </a-form-item>  
+          </a-col>
+
+          <a-col :span = "12">
+            <a-form-item label = "Hora Fim" fieldDecoratorId = "horaFim" :fieldDecoratorOptions = "{ rules: [{ required: true, message: 'Selecione Hora Final' }, { validator: this.checkTimeFinal }] }">
+              <a-time-picker size = "large" format = 'HH:mm' placeholder = "Fim" :disabledHours = "disabledHours" :minuteStep = "10" hideDisabledOptions />
+            </a-form-item>
+          </a-col>
+        </a-row>
+
+        <a-row :gutter = "16">
+          <a-col :span = "24">
+            <a-form-item label = "Local" fieldDecoratorId = "local" :fieldDecoratorOptions = "{ rules: [{ required: true, message: 'Selecione o Local' }] }">
+              <a-select size = "large" placeholder = "Selecione Local"  showSearch notFoundContent = "Local não Encontrado" :filterOption = "filterOption">
+                <a-select-option v-for = "local in locais" v-bind:key = "local.nome" :value = "local.nome">  {{local.nome}} </a-select-option>
+              </a-select>
+            </a-form-item>
+          </a-col>
+        </a-row>
+
         <a-row style = "text-align: right; margin-bottom: 5px;">
           <a-button size = "large" @click = "closeAulaModal" style = "margin-right: 15px;"> Cancelar </a-button>
-          <a-button size = "large" type = "primary" @click = "adiciona"> Cadastrar </a-button>
-        </a-row>  
-      </a-form>      
-        
+          <a-button size = "large" type = "primary" @click = "adicionaAgendamento"> Cadastrar </a-button>
+        </a-row>
+      </a-form>
     </a-modal>
-  </div>
+  </a-spin>
 </template>
- 
+
 <script>
-  import moment from 'moment'
-  import datePicker from 'vue-bootstrap-datetimepicker'
   import firebaseApp from '../../firebase-controller.js'
+
   const db = firebaseApp.database()
   const auth = firebaseApp.auth()
+
   export default {
     data () {
       return {
         role: null,
-        startValue: null,
-        endValue: null,
+        loading: true,
         endOpen: false,
-        locais: [],
+        solicitante: auth.currentUser.uid,
+        dateInitInicial: this.$moment(),
+        dataInicio: null,
+        dataFim: null,
         agendamentos: [],
-        horaI: null,
-        horaF: null,
+        usuarios: [],
+        locais: [],
         visibleAulaModal: false,
-        optionsHora: {
-          format: 'HH:mm',
-          locale: 'pt-br',
-          disabledHours: [0, 1, 2, 3, 4, 5, 6, 23],
-          useCurrent: false
-        },
-        optionsInicio: {
-          format: 'DD/MM/YYYY',
-          locale: 'pt-br',
-          minDate: new Date(new Date().setDate(new Date().getDate() - 1)),
-          useCurrent: false
-        },
-        optionsFim: {
-          format: 'DD/MM/YYYY',
-          locale: 'pt-br',
-          minDate: new Date(new Date().setDate(new Date().getDate() - 1)),
-          useCurrent: false
-        },
         columns: [{
           title: 'Dia da Semana',
           dataIndex: 'dia',
           key: 'dia',
-          scopedSlots: { customRender: 'dia' }
+          scopedSlots: { customRender: 'diaSemana' }
         }, {
           title: 'Local',
           dataIndex: 'local',
           key: 'local'
         }, {
-          title: 'Hora Rerservada',
+          title: 'Hora Reservada',
           dataIndex: ['horaInicio', 'horaFim'],
-          key: 'horas',
+          key: 'horaInicio',
           scopedSlots: { customRender: 'horas' }
         }, {
           title: 'Ações',
+          dataIndex: 'id',
           key: 'acoes',
           align: 'center',
           scopedSlots: { customRender: 'actions' }
-        }
-        ]
-      }
-    },
-    components: {
-      datePicker
-    },
-    watch: {
-      startValue (val) {
-        console.log('startValue', val)
-      },
-      endValue (val) {
-        console.log('endValue', val)
+        }]
       }
     },
     beforeMount: function () {
       let _this = this
+      _this.loading = true
+
+      if (_this.dateInitInicial.hour() < 7 || _this.dateInitInicial.hour() >= 23) {
+        if (_this.dateInitInicial.hour() >= 23) {
+          _this.dateInitInicial = _this.$moment(_this.dateInitInicial).add(1, 'day')
+        }
+        _this.dateInitInicial = _this.$moment(_this.dateInitInicial).set({
+          'hour': '7',
+          'minute': '0'
+        })
+      }
+
+      if (_this.dateInitInicial.isoWeekday() === 7) {
+        _this.dateInitInicial = _this.$moment(_this.dateInitInicial).day(1)
+      }
+
       db.ref('Usuarios/' + auth.currentUser.uid + '/role').on('value', function (snapshot) {
+        _this.loading = true
         _this.role = snapshot.val()
+        _this.loading = false
       })
+
       db.ref('Locais').orderByKey().on('value', function (snapshot) {
         _this.loading = true
         _this.locais = []
@@ -234,27 +211,67 @@
         })
         _this.loading = false
       })
+
+      db.ref('Usuarios').orderByKey().on('value', function (snapshot) {
+        _this.usuarios = []
+        _this.loading = true
+
+        snapshot.forEach(function (item) {
+          _this.usuarios.push({
+            'id': item.key,
+            'ra': item.val().RA,
+            'email': item.val().Email,
+            'nome': item.val().Nome + ' ' + item.val().Sobrenome
+          })
+        })
+        _this.loading = false
+      })
     },
     methods: {
-      horasDesativadas (current) {
+      filterOption (input, option) {
+        return option.componentOptions.children[0].text.toLowerCase().indexOf(input.toLowerCase()) >= 0
+      },
+      disabledDateInicial (current) {
+        let week = this.$moment(current).isoWeekday()
+        let maxDate = this.$moment().set({ 'date': '15', 'month': '06' })
+
+        if (this.$moment().get('month') >= 7) {
+          maxDate = this.$moment().set({ 'date': '20', 'month': '11' })
+        }
+
+        if (this.role === 'admin' || this.role === 'Supervisor') {
+          maxDate = this.$moment(maxDate).add(2, 'year')
+        }
+
+        return (current && current < this.$moment().add(-1, 'days').endOf('day')) ||
+          (week === 7) ||
+          (current && current > maxDate)
+      },
+      disabledDateFinal (current) {
+        let week = this.$moment(current).isoWeekday()
+        let maxDate = this.$moment().set({ 'date': '15', 'month': '06' })
+
+        if (this.$moment().get('month') >= 7) {
+          maxDate = this.$moment().set({ 'date': '20', 'month': '11' })
+        }
+
+        if (this.role === 'admin' || this.role === 'Supervisor') {
+          maxDate = this.$moment(maxDate).add('2', 'years')
+        }
+
+        if (this.form.getFieldValue('dataInicial')) {
+          return (current && current < this.$moment().add(-1, 'days').endOf('day')) ||
+            (current && current < this.$moment(this.form.getFieldValue('dataInicial'))) ||
+            (week === 7) ||
+            (current && current > maxDate)
+        } else {
+          return (current && current < this.$moment().add(-1, 'days').endOf('day')) ||
+            (week === 7) ||
+            (current && current > maxDate)
+        }
+      },
+      disabledHours () {
         return [0, 1, 2, 3, 4, 5, 6, 23]
-      },
-      periodoFormatado (inicio, fim) {
-        return this.$moment(new Date(inicio)).format('[Das] HH:mm [até] ') + this.$moment(new Date(fim)).format(' HH:mm')
-      },
-      disabledStartDate (startValue) {
-        const endValue = this.endValue
-        if (!startValue || !endValue) {
-          return startValue && startValue < moment().startOf('day')
-        }
-        return startValue.valueOf() > endValue.valueOf() || startValue < moment().startOf('day')
-      },
-      disabledEndDate (endValue) {
-        const startValue = this.startValue
-        if (!endValue || !startValue) {
-          return endValue && endValue < moment().startOf('day')
-        }
-        return startValue.valueOf() >= endValue.valueOf() || startValue < moment().startOf('day')
       },
       handleStartOpenChange (open) {
         if (!open) {
@@ -265,66 +282,143 @@
         this.endOpen = open
       },
       showAulaModal () {
-        this.visibleAulaModal = true
+        let _this = this
+
+        this.form.validateFields(async (err, values) => {
+          if (!err) {
+            _this.dataInicio = _this.$moment(values.dataInicial, 'DD/MM/YYYY')
+            _this.dataFim = _this.$moment(values.dataFinal, 'DD/MM/YYYY')
+            _this.visibleAulaModal = true
+          }
+        })
       },
       closeAulaModal () {
         this.visibleAulaModal = false
+        this.formAgendamento.resetFields()
       },
-      adiciona () {
+      checkTimeInicial (rule, value, callback) {
+        const form = this.formAgendamento
+        if (value) {
+          form.validateFields(['horaFim'], { force: true })
+        }
+        callback()
+      },
+      checkTimeFinal (rule, value, callback) {
+        let resposta = 'Hora Final deve ser maior que a Inicial!'
+        const form = this.formAgendamento
+        var inicio = this.$moment(value).format('HH:mm')
+        var fim = this.$moment(form.getFieldValue('horaInicio')).format('HH:mm')
+
+        if (value && this.$moment(fim, 'HH:mm').isSameOrAfter(this.$moment(inicio, 'HH:mm'))) {
+          callback(resposta)
+        } else {
+          callback()
+        }
+      },
+      adicionaAgendamento () {
         let _this = this
-        var agendamento = []
-        this.form.validateFields(async (err, values) => {
+
+        this.formAgendamento.validateFields(async (err, values) => {
           if (!err) {
-            agendamento.dia = values.dia
-            agendamento.local = values.local
-            agendamento.horaInicio = this.$moment(new Date(_this.horaI)).format(' HH:mm')
-            agendamento.horaFim = this.$moment(new Date(_this.horaF)).format(' HH:mm')
-            _this.agendamentos.push(agendamento)
+            _this.agendamentos.push({
+              'dia': values.diaSemana,
+              'local': values.local,
+              'diaSemana': values.diaSemana,
+              'horaInicio': this.$moment(values.horaInicio, 'HH:mm'),
+              'horaFim': this.$moment(values.horaFim, 'HH:mm')
+            })
+
             this.closeAulaModal()
-            _this.$notify({
-              group: 'notify',
-              type: 'success',
-              title: 'Yey!',
-              text: 'Agendamento inserido na lista com sucesso'
+            _this.$notification.success({
+              message: 'Yey!..',
+              description: 'Agendamento inserido com sucesso.'
             })
           }
         })
       },
-      deleta (agendamento) {
-        this.agendamentos.splice(this.agendamentos.indexOf(agendamento), 1)
+      deletaAgendamento (record) {
+        this.agendamentos.splice(this.agendamentos.indexOf(record), 1)
       },
-      submit () {
+      confirmarAgendamentos () {
         let _this = this
-        var diaInicio = this.$moment(new Date(_this.startValue)).format('DD/MM/YYYY')
-        var diaFim = this.$moment(new Date(_this.endValue)).format('DD/MM/YYYY')
-        _this.agendamentos.forEach(function (item) {
-          console.log(diaInicio)
-          console.log(diaFim)
-          console.log(item.local)
-          console.log(item.dia)
-          console.log(item.horaInicio)
-          console.log(item.horaFim)
-          db.ref('Reservas/aulas').push({
-            'Inicio': diaInicio,
-            'Fim': diaFim,
-            'Local': item.local,
-            'diaSemana': item.dia,
-            'horaInicio': item.horaInicio,
-            'horaFim': item.horaFim
-          }).then(() => {
-            _this.$notification.success({
-              message: 'Yey!..',
-              description: 'Reserva solicitada com sucesso.'
-            }, 1500)
-            this.$router.push('/reservas')
-          }).catch((err) => {
-            _this.$notification.error({
-              message: 'Opps..',
-              description: 'Reserva não realizada. Erro: ' + err
-            }, 1500)
-          })
+        let i = 0
+
+        this.form.validateFields(async (err, values) => {
+          if (!err) {
+            while (i !== _this.agendamentos.length) {
+              let agendamento = _this.agendamentos[i]
+              db.ref('Reservas/locais').orderByChild('Local').equalTo(agendamento.local).on('value', function (snapshot) {
+                snapshot.forEach(function (reservaLocal) {
+                  // let dataInicialLocal = _this.$moment(reservaLocal.val().Inicio, 'DD/MM/YYYY HH:mm')
+                  // let dataFinalLocal = _this.$moment(reservaLocal.val().Fim, 'DD/MM/YYYY HH:mm')
+
+                  // if ((_this.dataInicial <= dataFinalLocal) && (_this.dataFinal >= dataInicialLocal) && (reservaLocal.val().Status !== 'Cancelada')) {
+                  //   _this.conflitos.push({
+                  //     'id': reservaLocal.key,
+                  //     'tipo': 'local',
+                  //     'dados': reservaLocal.val()
+                  //   })
+                  // }
+                })
+              })
+
+              db.ref('Reservas/aulas').orderByChild('Local').equalTo(agendamento.local).on('value', function (snapshot) {
+                snapshot.forEach(function (reservaAula) {
+                  console.log(reservaAula.val())
+                  // let horaInicio = _this.$moment(reservaAula.val().horaInicio, 'HH:mm')
+                  // let horaFim = _this.$moment(reservaAula.val().horaFim, 'HH:mm')
+
+                  // let dataInicialAula = _this.$moment(reservaAula.val().Inicio, 'DD/MM/YYYY HH:mm').set({
+                  //   'hour': horaInicio.get('hour'),
+                  //   'minute': horaInicio.get('minute'),
+                  //   'second': '0'
+                  // }).day(reservaAula.val().diaSemana)
+
+                  // let dataInicialFimAula = _this.$moment(reservaAula.val().Inicio, 'DD/MM/YYYY HH:mm').set({
+                  //   'hour': horaFim.get('hour'),
+                  //   'minute': horaFim.get('minute'),
+                  //   'second': '0'
+                  // }).day(reservaAula.val().diaSemana)
+
+                  // let dataFinalAula = _this.$moment(reservaAula.val().Fim, 'DD/MM/YYYY HH:mm').set({
+                  //   'hour': horaFim.get('hour'),
+                  //   'minute': horaFim.get('minute'),
+                  //   'second': '0'
+                  // })
+
+                  // while (dataInicialAula <= dataFinalAula) {
+                  //   if ((_this.dataInicial <= dataInicialFimAula) && (_this.dataFinal >= dataInicialAula) && (reservaAula.val().Status !== 'Cancelada')) {
+                  //     _this.conflitosAulas.push({
+                  //       'id': reservaAula.key,
+                  //       'dados': reservaAula.val()
+                  //     })
+                  //     break
+                  //   }
+                  //   dataInicialAula = dataInicialAula.add(7, 'day')
+                  //   dataInicialFimAula = dataInicialFimAula.add(7, 'day')
+                  // }
+                })
+              })
+              i += 1
+            }
+          }
         })
       }
     }
   }
-</script> 
+</script>
+
+<style>
+  .form .ant-form-explain {
+    margin-left: 30px;
+  }
+
+  .form-solicitante .ant-form-item-control-wrapper, .form-solicitante .ant-row.ant-form-item {
+    width: 70%;
+    display: flex;
+  }
+
+  .form-solicitante .ant-form-item-label {
+    margin-right: 15px;
+  }
+</style>

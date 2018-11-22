@@ -39,7 +39,7 @@
 
           <a-tag color = "green" :key = "text">
             <router-link :to = "{ name: 'periodoReserva', params: { item: 'equipamento', valorItem: text }}">
-             <a-icon style = "color: #52c41a" type = "database" />
+              <a-icon style = "color: #52c41a" type = "database" />
             </router-link>
           </a-tag>
         </a-tooltip>

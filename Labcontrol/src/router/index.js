@@ -11,6 +11,7 @@ import Locais from '@/pages/locais/Locais'
 
 import Cursos from '@/pages/cursos/Cursos'
 import Aulas from '@/pages/aulas/Aulas'
+import Agendamento from '@/pages/aulas/AgendamentoAulas'
 import Usuarios from '@/pages/usuarios/Usuarios'
 
 import Reservas from '@/pages/reservas/Reservas'
@@ -23,8 +24,6 @@ import Cadastro from '@/pages/Cadastro'
 import VerificarEmail from '@/pages/VerificarEmail'
 import actionHandler from '@/components/actionHandler'
 import RecuperarSenha from '@/pages/RecuperarSenha'
-
-import Agendamento from '@/pages/aulas/AgendamentoAulas'
 
 Vue.use(Router)
 
@@ -62,7 +61,7 @@ const router = new Router({
       name: 'AgendamentoAulas',
       component: Agendamento,
       meta: {
-        menuKey: '',
+        menuKey: 'aulas',
         requiresAuth: true
       }
     }, {

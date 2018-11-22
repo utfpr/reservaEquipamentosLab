@@ -85,7 +85,7 @@
       <h5 v-if = "item === 'equipamento'"> <b> Item Reservado: </b> {{ item }} - {{ equipamentos[equipamentos.map(function (e) { return e.id }).indexOf(valorItem)].patrimonio }} </h5>
       <h5 v-if = "item === 'local'"> <b> Item Reservado: </b> {{ item }} - {{ valorItem }} </h5>
       <h5 v-if = "item === 'reservaEquipamento'"> <b> Item Reservado (Edição): </b> equipamento - {{ equipamentos[equipamentos.map(function (e) { return e.id }).indexOf(reserva.Equipamento)].patrimonio }} </h5>
-      <h5 v-if = "item === 'local'"> <b> Item Reservado (Edição): </b> local - {{ reserva.Local }} </h5>
+      <h5 v-if = "item === 'ReservaLocal'"> <b> Item Reservado (Edição): </b> local - {{ reserva.Local }} </h5>
       <br />
       <h5> <b> Perído Reservado: </b> {{ $moment(dataInicial).format('DD/MM/YYYY HH:mm') }} - {{ $moment(dataFinal).format('DD/MM/YYYY HH:mm') }} </h5>
       <br />
@@ -179,7 +179,7 @@
             })
           } else {
             if (_this.role === 'Comum') {
-              _this.dateInitInicial = _this.$moment(_this.dateInitInicial).add(4, 'hours')
+              _this.dateInitInicial = _this.$moment(_this.dateInitInicial).add(_this.tempoMin, 'hours')
             }
 
             if (_this.dateInitInicial.hour() < 7 || _this.dateInitInicial.hour() >= 23) {
@@ -349,50 +349,50 @@
                       })
                     }
                   })
+                })
 
-                  db.ref('Reservas/aulas').orderByChild('Local').equalTo(_this.valorItem).on('value', function (snapshot) {
-                    snapshot.forEach(function (reservaAula) {
-                      let horaInicio = _this.$moment(reservaAula.val().horaInicio, 'HH:mm')
-                      let horaFim = _this.$moment(reservaAula.val().horaFim, 'HH:mm')
+                db.ref('Reservas/aulas').orderByChild('Local').equalTo(_this.valorItem).on('value', function (snapshot) {
+                  snapshot.forEach(function (reservaAula) {
+                    let horaInicio = _this.$moment(reservaAula.val().horaInicio, 'HH:mm')
+                    let horaFim = _this.$moment(reservaAula.val().horaFim, 'HH:mm')
 
-                      let dataInicialAula = _this.$moment(reservaAula.val().Inicio, 'DD/MM/YYYY HH:mm').set({
-                        'hour': horaInicio.get('hour'),
-                        'minute': horaInicio.get('minute'),
-                        'second': '0'
-                      }).day(reservaAula.val().diaSemana)
+                    let dataInicialAula = _this.$moment(reservaAula.val().Inicio, 'DD/MM/YYYY HH:mm').set({
+                      'hour': horaInicio.get('hour'),
+                      'minute': horaInicio.get('minute'),
+                      'second': '0'
+                    }).day(reservaAula.val().diaSemana)
 
-                      let dataInicialFimAula = _this.$moment(reservaAula.val().Inicio, 'DD/MM/YYYY HH:mm').set({
-                        'hour': horaFim.get('hour'),
-                        'minute': horaFim.get('minute'),
-                        'second': '0'
-                      }).day(reservaAula.val().diaSemana)
+                    let dataInicialFimAula = _this.$moment(reservaAula.val().Inicio, 'DD/MM/YYYY HH:mm').set({
+                      'hour': horaFim.get('hour'),
+                      'minute': horaFim.get('minute'),
+                      'second': '0'
+                    }).day(reservaAula.val().diaSemana)
 
-                      let dataFinalAula = _this.$moment(reservaAula.val().Fim, 'DD/MM/YYYY HH:mm').set({
-                        'hour': horaFim.get('hour'),
-                        'minute': horaFim.get('minute'),
-                        'second': '0'
-                      })
-
-                      while (dataInicialAula <= dataFinalAula) {
-                        if ((_this.dataInicial <= dataInicialFimAula) && (_this.dataFinal >= dataInicialAula) && (reservaAula.val().Status !== 'Cancelada')) {
-                          _this.conflitosAulas.push({
-                            'id': reservaAula.key,
-                            'dados': reservaAula.val()
-                          })
-                          break
-                        }
-                        dataInicialAula = dataInicialAula.add(7, 'day')
-                        dataInicialFimAula = dataInicialFimAula.add(7, 'day')
-                      }
+                    let dataFinalAula = _this.$moment(reservaAula.val().Fim, 'DD/MM/YYYY HH:mm').set({
+                      'hour': horaFim.get('hour'),
+                      'minute': horaFim.get('minute'),
+                      'second': '0'
                     })
 
-                    if (((_this.role === 'Comum') && (_this.conflitos.length === 0)) || ((_this.role === 'Supervisor' || _this.role === 'admin') && (_this.conflitosAulas.length === 0))) {
-                      _this.avancar()
-                    } else {
-                      _this.alert.message = 'Neste período já existem agendamentos ou aulas marcadas, consulte um supervisor para realizar sua reserva ou escolha outro horário.'
-                      _this.alert.visible = true
+                    while (dataInicialAula <= dataFinalAula) {
+                      if ((_this.dataInicial <= dataInicialFimAula) && (_this.dataFinal >= dataInicialAula) && (reservaAula.val().Status !== 'Cancelada')) {
+                        _this.conflitosAulas.push({
+                          'id': reservaAula.key,
+                          'dados': reservaAula.val()
+                        })
+                        break
+                      }
+                      dataInicialAula = dataInicialAula.add(7, 'day')
+                      dataInicialFimAula = dataInicialFimAula.add(7, 'day')
                     }
                   })
+
+                  if (((_this.role === 'Comum') && (_this.conflitos.length === 0)) || ((_this.role === 'Supervisor' || _this.role === 'admin') && (_this.conflitosAulas.length === 0))) {
+                    _this.avancar()
+                  } else {
+                    _this.alert.message = 'Neste período já existem agendamentos ou aulas marcadas, consulte um supervisor para realizar sua reserva ou escolha outro horário.'
+                    _this.alert.visible = true
+                  }
                 })
               }
             }

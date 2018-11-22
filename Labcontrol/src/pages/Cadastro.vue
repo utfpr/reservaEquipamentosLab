@@ -62,7 +62,7 @@
 
         <a-col :span = "12">
           <a-form-item fieldDecoratorId = "confirmPassword" :fieldDecoratorOptions = "{ rules: [{ required: true, message: 'Campo Obrigatório' }, { validator: this.compareToFirstPassword }] }">
-            <a-input type = "password" placeholder = "Digite sua senha novamente"> 
+            <a-input type = "password" placeholder = "Digite sua senha novamente" onBlur = "handleConfirmBlur"> 
               <a-icon slot = "prefix" type = "lock" style = "color: 'rgba(0,0,0,.25)'" />
             </a-input>
           </a-form-item>
@@ -98,6 +98,7 @@
       return {
         loading: false,
         visible: false,
+        confirmDirty: false,
         cursos: [],
         usuarios: []
       }
@@ -141,6 +142,10 @@
         } else {
           callback()
         }
+      },
+      handleConfirmBlur  (e) {
+        const value = e.target.value
+        this.confirmDirty = this.confirmDirty || !!value
       },
       validateToNextPassword  (rule, value, callback) {
         const form = this.form

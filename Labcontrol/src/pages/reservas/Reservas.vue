@@ -230,7 +230,7 @@
 
       <div style = "text-align: right; margin-top: 20px;">
         <a-button @click = "closeModal()"> Voltar </a-button>
-        <a-button :loading = "buttonLoading" @click = "cancelarReserva(modalEquipamento)" type = "danger"> Cancelar Reserva </a-button>
+        <a-button :loading = "buttonLoading" @click = "cancelarReservaEquipamento(modalEquipamento)" type = "danger"> Cancelar Reserva </a-button>
       </div> 
     </a-modal>
 
@@ -675,6 +675,8 @@
         this.modalLocal = ''
       },
       confirmarReservaEquipamento (record) {
+        let _this = this
+
         db.ref('Reservas/equipamentos').child(record.key).update({
           'Status': 'Confirmada'
         }).then(() => {
@@ -684,9 +686,21 @@
           let htmlBody = '<h3>Reserva confirmada</h3><br><p>Sua reserva do equipamento: <strong>' + record.equipamento + '</strong> no período: <strong>' + record.dataInicio + ' até ' + record.dataFim + '</strong> foi <strong>confirmada</strong>.</p> <small>Este é um E-mail automático, por favor não responda</small>'
 
           sendEmail(to, 'Reserva de equipamento confirmada', textBody, htmlBody)
+
+          _this.$notification.success({
+            message: 'Yey!..',
+            description: 'Reserva confirmada com sucesso.'
+          })
+        }).catch(() => {
+          _this.$notification.error({
+            message: 'Opps..',
+            description: 'Reserva não confirmada.'
+          })
         })
       },
       confirmarReservaLocal (record) {
+        let _this = this
+
         db.ref('Reservas/locais').child(record.key).update({
           'Status': 'Confirmada'
         }).then(() => {
@@ -694,10 +708,21 @@
           let to = [user.nome + ' <' + user.email + '>']
           let textBody = 'Sua reserva foi Confirmada'
           let htmlBody = '<h3>Reserva confirmada</h3><br><p>Sua reserva do local: <strong>' + record.local + '</strong> no período: <strong>' + record.dataInicio + ' até ' + record.dataFim + '</strong> foi <strong>confirmada</strong>.</p> <small>Este é um E-mail automático, por favor não responda</small>'
+
           sendEmail(to, 'Reserva de Local confirmada', textBody, htmlBody)
+
+          _this.$notification.success({
+            message: 'Yey!..',
+            description: 'Reserva confirmada com sucesso.'
+          })
+        }).catch(() => {
+          _this.$notification.error({
+            message: 'Opps..',
+            description: 'Reserva não confirmada.'
+          })
         })
       },
-      cancelarReserva (record) {
+      cancelarReservaEquipamento (record) {
         let _this = this
         _this.buttonLoading = true
 
@@ -720,9 +745,20 @@
             _this.$router.push('/home')
           } else {
             _this.closeModal()
+
+            _this.$notification.success({
+              message: 'Yey!..',
+              description: 'Reserva cancelada com sucesso.'
+            })
           }
         }).catch(() => {
           _this.buttonLoading = false
+          _this.closeModal()
+  
+          _this.$notification.error({
+            message: 'Opps..',
+            description: 'Reserva não cancelada.'
+          })
         })
       },
       cancelarReservaLocal (record) {
@@ -748,9 +784,20 @@
             _this.$router.push('/home')
           } else {
             _this.closeModal()
+
+            _this.$notification.success({
+              message: 'Yey!..',
+              description: 'Reserva cancelada com sucesso.'
+            })
           }
         }).catch(() => {
           _this.buttonLoading = false
+          _this.closeModal()
+
+          _this.$notification.error({
+            message: 'Opps..',
+            description: 'Reserva não cancelada.'
+          })
         })
       }
     }
