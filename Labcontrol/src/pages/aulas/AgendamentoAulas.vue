@@ -14,7 +14,7 @@
       </a-col>
 
       <a-col :span = "4">
-        <a-button :disabled = "agendamentos.length === 0" size = "large" type = "primary" @click = "confirmarAgendamentos">
+        <a-button :loading = "buttonLoadingConcluir" :disabled = "agendamentos.length === 0" size = "large" type = "primary" @click = "confirmarAgendamentos">
           <a-icon type = "check" /> Concluir
         </a-button>
       </a-col>
@@ -130,11 +130,41 @@
         </a-row>
       </a-form>
     </a-modal>
+
+    <a-modal :visible = "modal.visible" :footer = "null" @cancel = "closeModal()" style = "padding: 32px 32px 24px;">
+      <a-icon type = "question-circle-o" style = "color: #faad14; font-size: 22px; margin-right: 16px" />
+      <span> <b> Deseja confirmar seus agendamentos?! </b> </span> <br/><br/>
+      <small>
+        <p><a-avatar :size = "15" style = "backgroundColor: #ff4d4f;" /> Conflitos com aulas (não serão confirmados). </p>
+        <p><a-avatar :size = "15" style = "backgroundColor: #faad14;" /> Conflitos com reservas de locais (agendamentos serão confirmados, mas reservas de locais conflitantes serão cancelados). </p>
+        <p><a-avatar :size = "15" style = "backgroundColor: #87d068;" /> Sem conflitos (serão confirmados). </p>
+      </small>
+      <p> Leia atentamente a legenda acima para poder confirmar seu agendamento! </p>
+
+      <a-list size = "small" itemLayout = "horizontal" :dataSource = "agendamentos">
+        <a-list-item slot = "renderItem" slot-scope = "item, index">
+          <a-list-item-meta>
+            <span slot = "description"> [{{ item.local }}] {{ $moment().day(item.diaSemana).format('dddd') }}. Das {{ item.horaInicio.format('HH:mm') }} até {{ item.horaFim.format('HH:mm') }} </span>
+            <a-avatar slot = "avatar" :size = "20" v-if = "item.conflitosAula.length > 0" style = "backgroundColor: #ff4d4f;" />
+            <a-avatar slot = "avatar" :size = "20" v-else-if = "item.conflitosLocal.length > 0" style = "backgroundColor: #faad14;" />
+            <a-avatar slot = "avatar" :size = "20" v-else style = "backgroundColor: #87d068;" />
+          </a-list-item-meta>
+        </a-list-item>
+      </a-list>
+
+      <span> <i> Esta ação não poderá ser desfeita. </i> </span> <br/>
+
+      <div style = "text-align: right; margin-top: 20px;">
+        <a-button @click = "closeModal"> Voltar </a-button>
+        <a-button :loading = "buttonLoading" @click = "realizaReserva" type = "primary"> Confirmar </a-button>
+      </div> 
+    </a-modal>
   </a-spin>
 </template>
 
 <script>
   import firebaseApp from '../../firebase-controller.js'
+  import { sendEmail } from '../../emailAPI.js'
 
   const db = firebaseApp.database()
   const auth = firebaseApp.auth()
@@ -144,6 +174,8 @@
       return {
         role: null,
         loading: true,
+        buttonLoadingConcluir: false,
+        buttonLoading: false,
         endOpen: false,
         solicitante: auth.currentUser.uid,
         dateInitInicial: this.$moment(),
@@ -173,7 +205,10 @@
           key: 'acoes',
           align: 'center',
           scopedSlots: { customRender: 'actions' }
-        }]
+        }],
+        modal: {
+          visible: false
+        }
       }
     },
     beforeMount: function () {
@@ -296,6 +331,12 @@
         this.visibleAulaModal = false
         this.formAgendamento.resetFields()
       },
+      openModal () {
+        this.modal.visible = true
+      },
+      closeModal () {
+        this.modal.visible = false
+      },
       checkTimeInicial (rule, value, callback) {
         const form = this.formAgendamento
         if (value) {
@@ -321,11 +362,12 @@
         this.formAgendamento.validateFields(async (err, values) => {
           if (!err) {
             _this.agendamentos.push({
-              'dia': values.diaSemana,
               'local': values.local,
               'diaSemana': values.diaSemana,
               'horaInicio': this.$moment(values.horaInicio, 'HH:mm'),
-              'horaFim': this.$moment(values.horaFim, 'HH:mm')
+              'horaFim': this.$moment(values.horaFim, 'HH:mm'),
+              'conflitosLocal': [],
+              'conflitosAula': []
             })
 
             this.closeAulaModal()
@@ -341,68 +383,168 @@
       },
       confirmarAgendamentos () {
         let _this = this
-        let i = 0
 
         this.form.validateFields(async (err, values) => {
           if (!err) {
-            while (i !== _this.agendamentos.length) {
-              let agendamento = _this.agendamentos[i]
-              db.ref('Reservas/locais').orderByChild('Local').equalTo(agendamento.local).on('value', function (snapshot) {
+            _this.buttonLoadingConcluir = true
+
+            _this.agendamentos.forEach(function (agendamento) {
+              agendamento.conflitosLocal = []
+              agendamento.conflitosAula = []
+
+              db.ref('Reservas/locais').on('value', function (snapshot) {
                 snapshot.forEach(function (reservaLocal) {
-                  // let dataInicialLocal = _this.$moment(reservaLocal.val().Inicio, 'DD/MM/YYYY HH:mm')
-                  // let dataFinalLocal = _this.$moment(reservaLocal.val().Fim, 'DD/MM/YYYY HH:mm')
+                  let dataInicialLocal = _this.$moment(reservaLocal.val().Inicio, 'DD/MM/YYYY HH:mm')
+                  let dataFinalLocal = _this.$moment(reservaLocal.val().Fim, 'DD/MM/YYYY HH:mm')
 
-                  // if ((_this.dataInicial <= dataFinalLocal) && (_this.dataFinal >= dataInicialLocal) && (reservaLocal.val().Status !== 'Cancelada')) {
-                  //   _this.conflitos.push({
-                  //     'id': reservaLocal.key,
-                  //     'tipo': 'local',
-                  //     'dados': reservaLocal.val()
-                  //   })
-                  // }
+                  let horaInicio = _this.$moment(agendamento.horaInicio, 'HH:mm')
+                  let horaFim = _this.$moment(agendamento.horaFim, 'HH:mm')
+
+                  let dataInicialAula = _this.$moment(values.dataInicial, 'DD/MM/YYYY HH:mm').set({
+                    'hour': horaInicio.get('hour'),
+                    'minute': horaInicio.get('minute'),
+                    'second': '0'
+                  }).day(agendamento.diaSemana)
+
+                  let dataInicialFimAula = _this.$moment(values.dataInicial, 'DD/MM/YYYY HH:mm').set({
+                    'hour': horaFim.get('hour'),
+                    'minute': horaFim.get('minute'),
+                    'second': '0'
+                  }).day(agendamento.diaSemana)
+
+                  let dataFinalAula = _this.$moment(values.dataFinal, 'DD/MM/YYYY HH:mm').set({
+                    'hour': horaFim.get('hour'),
+                    'minute': horaFim.get('minute'),
+                    'second': '0'
+                  }).day(agendamento.diaSemana)
+
+                  if (dataInicialAula.day() < _this.$moment(values.dataInicial, 'DD/MM/YYYY HH:mm').day()) {
+                    dataInicialAula = dataInicialAula.add(7, 'day')
+                    dataInicialFimAula = dataInicialFimAula.add(7, 'day')
+                  }
+
+                  while (dataInicialAula <= dataFinalAula) {
+                    if ((dataInicialLocal <= dataInicialFimAula) && (dataFinalLocal >= dataInicialAula) &&
+                      (reservaLocal.val().Status !== 'Cancelada') && (reservaLocal.val().Local === agendamento.local)) {
+                      agendamento.conflitosLocal.push({
+                        'id': reservaLocal.key,
+                        'dados': reservaLocal.val()
+                      })
+                      break
+                    }
+                    dataInicialAula = dataInicialAula.add(7, 'day')
+                    dataInicialFimAula = dataInicialFimAula.add(7, 'day')
+                  }
                 })
               })
 
-              db.ref('Reservas/aulas').orderByChild('Local').equalTo(agendamento.local).on('value', function (snapshot) {
+              db.ref('Reservas/aulas').on('value', function (snapshot) {
                 snapshot.forEach(function (reservaAula) {
-                  console.log(reservaAula.val())
-                  // let horaInicio = _this.$moment(reservaAula.val().horaInicio, 'HH:mm')
-                  // let horaFim = _this.$moment(reservaAula.val().horaFim, 'HH:mm')
+                  let dataInicioAula = _this.$moment(reservaAula.val().Inicio, 'DD/MM/YYYY')
+                  let dataFimAula = _this.$moment(reservaAula.val().Fim, 'DD/MM/YYYY')
+                  let horaInicioAula = _this.$moment(reservaAula.val().horaInicio, 'HH:mm')
+                  let horaFimAula = _this.$moment(reservaAula.val().horaFim, 'HH:mm')
 
-                  // let dataInicialAula = _this.$moment(reservaAula.val().Inicio, 'DD/MM/YYYY HH:mm').set({
-                  //   'hour': horaInicio.get('hour'),
-                  //   'minute': horaInicio.get('minute'),
-                  //   'second': '0'
-                  // }).day(reservaAula.val().diaSemana)
+                  let dataInicioAgendamento = _this.$moment(values.dataInicial.format('DD/MM/YYYY'), 'DD/MM/YYYY')
+                  let dataFimAgendamento = _this.$moment(values.dataFinal.format('DD/MM/YYYY'), 'DD/MM/YYYY')
+                  let horaInicioAgendamento = _this.$moment(agendamento.horaInicio.format('HH:mm'), 'HH:mm')
+                  let horaFimAgendamento = _this.$moment(agendamento.horaFim.format('HH:mm'), 'HH:mm')
 
-                  // let dataInicialFimAula = _this.$moment(reservaAula.val().Inicio, 'DD/MM/YYYY HH:mm').set({
-                  //   'hour': horaFim.get('hour'),
-                  //   'minute': horaFim.get('minute'),
-                  //   'second': '0'
-                  // }).day(reservaAula.val().diaSemana)
-
-                  // let dataFinalAula = _this.$moment(reservaAula.val().Fim, 'DD/MM/YYYY HH:mm').set({
-                  //   'hour': horaFim.get('hour'),
-                  //   'minute': horaFim.get('minute'),
-                  //   'second': '0'
-                  // })
-
-                  // while (dataInicialAula <= dataFinalAula) {
-                  //   if ((_this.dataInicial <= dataInicialFimAula) && (_this.dataFinal >= dataInicialAula) && (reservaAula.val().Status !== 'Cancelada')) {
-                  //     _this.conflitosAulas.push({
-                  //       'id': reservaAula.key,
-                  //       'dados': reservaAula.val()
-                  //     })
-                  //     break
-                  //   }
-                  //   dataInicialAula = dataInicialAula.add(7, 'day')
-                  //   dataInicialFimAula = dataInicialFimAula.add(7, 'day')
-                  // }
+                  if ((dataInicioAgendamento <= dataFimAula) && (dataFimAgendamento >= dataInicioAula) &&
+                    (horaInicioAgendamento < horaFimAula) && (horaFimAgendamento > horaInicioAula) &&
+                    (reservaAula.val().Status !== 'Cancelada') && (reservaAula.val().diaSemana === agendamento.diaSemana) && (reservaAula.val().Local === agendamento.local)) {
+                    agendamento.conflitosAula.push({
+                      'id': reservaAula.key,
+                      'dados': reservaAula.val()
+                    })
+                  }
                 })
               })
-              i += 1
-            }
+            })
+
+            _this.buttonLoadingConcluir = false
+            _this.openModal()
           }
         })
+      },
+      realizaReserva () {
+        let _this = this
+        let erros = []
+        this.buttonLoading = true
+
+        this.agendamentos.forEach(function (agendamento) {
+          var agendamentoResposta = ' [' + agendamento.local + '] ' + _this.$moment().day(agendamento.diaSemana).format('dddd') + '. Das ' + agendamento.horaInicio.format('HH:mm') + ' até ' + agendamento.horaFim.format('HH:mm')
+
+          if (agendamento.conflitosAula.length > 0) {
+            erros.push(agendamento)
+          } else if (agendamento.conflitosLocal.length > 0) {
+            agendamento.conflitosLocal.forEach(function (local) {
+              db.ref('Reservas/locais').child(local.id).update({
+                'Status': 'Cancelada'
+              }).then(() => {
+                let user = _this.usuarios[_this.usuarios.map(function (e) { return e.id }).indexOf(local.dados.Solicitante)]
+                let to = [user.nome + ' <' + user.email + '>']
+                let textBody = 'Sua reserva foi cancelada'
+                let htmlBody = '<h3>Reserva cancelada</h3><br><p>Sua reserva do local: <strong>' + local.dados.Local + '</strong> no período: <strong>' + _this.$moment(_this.dataInicial).format('DD/MM/YYYY') + ' até ' + _this.$moment(_this.dataFinal).format('DD/MM/YYYY') + '</strong> foi <strong>cancelada</strong>.</p>'
+                htmlBody += '<p>Sua reserva foi cancelada pelo motivo: Aula criada no mesmo horário</p>'
+                htmlBody += '<small>Este é um E-mail automático, por favor não responda</small>'
+
+                sendEmail(to, 'Reserva de local cancelada', textBody, htmlBody)
+              }).catch(() => { })
+            })
+
+            db.ref('Reservas/aulas').push({
+              'Local': agendamento.local,
+              'Inicio': _this.$moment(_this.dataInicio).format('DD/MM/YYYY'),
+              'Fim': _this.$moment(_this.dataFim).format('DD/MM/YYYY'),
+              'diaSemana': agendamento.diaSemana,
+              'horaInicio': _this.$moment(agendamento.horaInicio).format('HH:mm'),
+              'horaFim': _this.$moment(agendamento.horaFim).format('HH:mm'),
+              'Solicitante': _this.solicitante,
+              'Status': 'Confirmada'
+            }).then(() => {
+              _this.$notification.warning({
+                message: 'Yey!..',
+                description: 'Agendamento' + agendamentoResposta + ' solicitada com sucesso.'
+              }, 1500)
+            }).catch((err) => {
+              erros.push(agendamento)
+              _this.$notification.error({
+                message: 'Opps..',
+                description: 'Agendamento' + agendamentoResposta + ' não realizada. Erro: ' + err
+              }, 1500)
+            })
+          } else {
+            db.ref('Reservas/aulas').push({
+              'Local': agendamento.local,
+              'Inicio': _this.$moment(_this.dataInicio).format('DD/MM/YYYY'),
+              'Fim': _this.$moment(_this.dataFim).format('DD/MM/YYYY'),
+              'diaSemana': agendamento.diaSemana,
+              'horaInicio': _this.$moment(agendamento.horaInicio).format('HH:mm'),
+              'horaFim': _this.$moment(agendamento.horaFim).format('HH:mm'),
+              'Solicitante': _this.solicitante,
+              'Status': 'Confirmada'
+            }).then(() => {
+              _this.$notification.success({
+                message: 'Yey!..',
+                description: 'Agendamento' + agendamentoResposta + ' solicitada com sucesso.'
+              }, 1500)
+            }).catch((err) => {
+              erros.push(agendamento)
+              _this.$notification.error({
+                message: 'Opps..',
+                description: 'Agendamento' + agendamentoResposta + ' não realizada. Erro: ' + err
+              }, 1500)
+            })
+          }
+        })
+        if (erros.length > 0) {
+          this.agendamentos = erros
+          this.buttonLoading = false
+          this.closeModal()
+        } else {
+          this.$router.push('/aulas')
+        }
       }
     }
   }
@@ -420,5 +562,9 @@
 
   .form-solicitante .ant-form-item-label {
     margin-right: 15px;
+  }
+
+  .ant-avatar > * {
+    line-height: 24px !important;
   }
 </style>
