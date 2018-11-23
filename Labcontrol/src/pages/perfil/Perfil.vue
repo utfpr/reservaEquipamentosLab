@@ -107,7 +107,7 @@
             </a-form-item>
 
             <a-form-item :labelCol = "{ span: 6 }" :wrapperCol = "{ span: 12 }"  label = "Confirmar Senha" fieldDecoratorId = "confirmarSenha" :fieldDecoratorOptions = "{ rules: [{ required: true, message: 'Campo Obrigatório' }, { validator: this.compareToFirstPassword }] }">
-              <a-input type = "password" size = "large" @focus = "checkSenha" placeholder = "Confirme senha" />
+              <a-input type = "password" size = "large" @focus = "checkSenha" placeholder = "Confirme senha" onBlur = "handleConfirmBlur" />
             </a-form-item>
 
             <a-row style = "text-align: right;">
@@ -145,6 +145,7 @@
         usuario: '',
         usuarios: [],
         cursos: [],
+        confirmDirty: false,
         editable: false
       }
     },
@@ -247,6 +248,10 @@
       },
       filterOption (input, option) {
         return option.componentOptions.children[0].text.toLowerCase().indexOf(input.toLowerCase()) >= 0
+      },
+      handleConfirmBlur  (e) {
+        const value = e.target.value
+        this.confirmDirty = this.confirmDirty || !!value
       },
       compareToFirstPassword  (rule, value, callback) {
         let resposta = 'Duas senhas incompatíveis'

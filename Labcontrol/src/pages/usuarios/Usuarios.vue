@@ -21,6 +21,10 @@
             <a-icon type = "arrow-down" />
           </a-tag>
         </a-tooltip>
+
+        <a-button v-else class = "ant-tag" disabled>
+          <a-icon style = "color: #fa8c16" type = "arrow-down" />
+        </a-button>
         
         <a-tooltip v-if = "record.type !== 'admin'" placement = "top">
           <template slot = "title">
@@ -31,6 +35,10 @@
             <a-icon type = "arrow-up" />
           </a-tag>
         </a-tooltip>
+
+        <a-button v-else class = "ant-tag" disabled>
+          <a-icon style = "color: #52c41a" type = "arrow-up" />
+        </a-button>
         
         <a-tooltip placement = "top">
           <template slot = "title">
@@ -179,22 +187,35 @@
       let _this = this
       _this.loading = true
 
-      db.ref('Usuarios').orderByKey().on('value', function (snapshot) {
+      db.ref('Usuarios').orderByChild('role').on('value', function (snapshot) {
+        var desordenados = []
         _this.usuarios = []
         _this.loading = true
 
         snapshot.forEach(function (item) {
           if (auth.currentUser.uid !== item.key) {
-            _this.usuarios.push({
-              'id': item.key,
-              'ra': item.val().RA,
-              'email': item.val().Email,
-              'type': item.val().role,
-              'nome': item.val().Nome + ' ' + item.val().Sobrenome,
-              'curso': item.val().Curso
-            })
+            if (item.val().role === 'Comum') {
+              _this.usuarios.push({
+                'id': item.key,
+                'ra': item.val().RA,
+                'email': item.val().Email,
+                'type': item.val().role,
+                'nome': item.val().Nome + ' ' + item.val().Sobrenome,
+                'curso': item.val().Curso
+              })
+            } else {
+              desordenados.push({
+                'id': item.key,
+                'ra': item.val().RA,
+                'email': item.val().Email,
+                'type': item.val().role,
+                'nome': item.val().Nome + ' ' + item.val().Sobrenome,
+                'curso': item.val().Curso
+              })
+            }
           }
         })
+        _this.usuarios = _this.usuarios.concat(desordenados)
         _this.loading = false
       })
 

@@ -3,7 +3,8 @@
     <a-row style = "text-align: center; margin-bottom: 30px;">
       <a-col :span = "4">
         <a-button v-if = "parent.current === 1" size = "large" @click = "parent.voltar">
-          <a-icon type = "arrow-left" /> Voltar
+          <span v-if = "item === 'equipamento' || item === 'local'"> <a-icon type = "arrow-left" /> Voltar </span>
+          <span v-else> <a-icon type = "close" /> Cancelar </span>
         </a-button>
         
         <a-button v-if = "parent.current === 2" size = "large" @click = "voltar">
@@ -17,7 +18,11 @@
       </a-col>
 
       <a-col :span = "4">
-        <a-button v-if = "parent.current === 1" size = "large" type = "primary" @click = "verificaDados">
+        <a-button v-if = "parent.current === 1 && (item === 'equipamento' || item === 'local')" size = "large" type = "primary" @click = "verificaDados">
+          Próximo <a-icon type = "arrow-right" />
+        </a-button>
+
+        <a-button v-if = "parent.current === 1 && (item === 'reservaEquipamento' || item === 'reservaLocal')" size = "large" type = "primary" @click = "verificaDadosEdicao">
           Próximo <a-icon type = "arrow-right" />
         </a-button>
 
@@ -45,28 +50,32 @@
 
       <a-row :gutter = "16" style = "text-align: center;">
         <a-col :span = "12">
-          <a-form-item label = "Data Início" fieldDecoratorId = "dataInicial" :fieldDecoratorOptions = "{ rules: [{ required: true, message: 'Campo Obrigatório' }] }">
+          <a-form-item label = "Data Início" fieldDecoratorId = "dataInicial" :fieldDecoratorOptions = "{ rules: [{ required: true, message: 'Campo Obrigatório' }], initialValue: dateInitInicial }">
             <a-date-picker format = "DD/MM/YYYY" :disabledDate = "disabledDateInicial" placeholder = "Selecione Data Inicial" style = "margin-left: 30px;" size = "large" />
           </a-form-item>
         </a-col>
 
         <a-col :span = "12">
-          <a-form-item label = "Hora Início" fieldDecoratorId = "horaInicial" :fieldDecoratorOptions = "{ rules: [{ required: true, message: 'Campo Obrigatório' }] }">
-            <a-time-picker format = "HH:mm" :disabledHours = "disabledHours" :minuteStep = "10" placeholder = "Hora Inicial" style = "margin-left: 30px;" size = "large" hideDisabledOptions />
+          <a-form-item label = "Hora Início" fieldDecoratorId = "horaInicial" :fieldDecoratorOptions = "{ rules: [{ required: true, message: 'Campo Obrigatório' }], initialValue: dateInitInicial }">
+            <a-time-picker format = "HH:mm" :disabledHours = "disabledHours" :minuteStep = "10" placeholder = "Hora Inicial" style = "margin-left: 30px;" size = "large" hideDisabledOptions>
+              <a-button slot = "addon" size = "small" type = "primary"> Ok </a-button>
+            </a-time-picker>
           </a-form-item>
         </a-col>
       </a-row>
 
       <a-row :gutter = "16" style = "text-align: center;">
         <a-col :span = "12">
-          <a-form-item label = "Data Fim" fieldDecoratorId = "dataFinal" :fieldDecoratorOptions = "{ rules: [{ required: true, message: 'Campo Obrigatório' }] }">
+          <a-form-item label = "Data Fim" fieldDecoratorId = "dataFinal" :fieldDecoratorOptions = "{ rules: [{ required: true, message: 'Campo Obrigatório' }], initialValue: dateInitFinal }">
             <a-date-picker format = "DD/MM/YYYY" :disabledDate = "disabledDateFinal" placeholder = "Selecione Data Final" style = "margin-left: 30px;" size = "large" />
           </a-form-item>
         </a-col>
 
         <a-col :span = "12">
-          <a-form-item label = "Hora Fim" fieldDecoratorId = "horaFinal" :fieldDecoratorOptions = "{ rules: [{ required: true, message: 'Campo Obrigatório' }] }">
-            <a-time-picker format = "HH:mm" :disabledHours = "disabledHours" :minuteStep = "10" placeholder = "Hora Final" style = "margin-left: 30px;" size = "large" hideDisabledOptions />
+          <a-form-item label = "Hora Fim" fieldDecoratorId = "horaFinal" :fieldDecoratorOptions = "{ rules: [{ required: true, message: 'Campo Obrigatório' }], initialValue: dateInitFinal }">
+            <a-time-picker format = "HH:mm" :disabledHours = "disabledHours" :minuteStep = "10" placeholder = "Hora Final" style = "margin-left: 30px;" size = "large" hideDisabledOptions>
+              <a-button slot = "addon" size = "small" type = "primary"> Ok </a-button>
+            </a-time-picker>
           </a-form-item>
         </a-col>
       </a-row>
@@ -75,6 +84,8 @@
     <a-row v-if = "parent.current === 2">
       <h5 v-if = "item === 'equipamento'"> <b> Item Reservado: </b> {{ item }} - {{ equipamentos[equipamentos.map(function (e) { return e.id }).indexOf(valorItem)].patrimonio }} </h5>
       <h5 v-if = "item === 'local'"> <b> Item Reservado: </b> {{ item }} - {{ valorItem }} </h5>
+      <h5 v-if = "item === 'reservaEquipamento'"> <b> Item Reservado (Edição): </b> equipamento - {{ equipamentos[equipamentos.map(function (e) { return e.id }).indexOf(reserva.Equipamento)].patrimonio }} </h5>
+      <h5 v-if = "item === 'ReservaLocal'"> <b> Item Reservado (Edição): </b> local - {{ reserva.Local }} </h5>
       <br />
       <h5> <b> Perído Reservado: </b> {{ $moment(dataInicial).format('DD/MM/YYYY HH:mm') }} - {{ $moment(dataFinal).format('DD/MM/YYYY HH:mm') }} </h5>
       <br />
@@ -93,7 +104,7 @@
 
       <div style = "text-align: right; margin-top: 20px;">
         <a-button @click = "closeModal"> Voltar </a-button>
-        <a-button @click = "realizaReserva" type = "primary"> Confirmar </a-button>
+        <a-button :loading = "buttonLoading" @click = "realizaReserva" type = "primary"> Confirmar </a-button>
       </div> 
     </a-modal>
   </a-spin>
@@ -111,6 +122,7 @@
     data () {
       return {
         role: null,
+        buttonLoading: false,
         equipamentos: [],
         usuarios: [],
         conflitos: [],
@@ -118,6 +130,9 @@
         parent: this.$parent.$parent.$parent,
         valorItem: this.$route.params.valorItem,
         item: this.$route.params.item,
+        dateInitInicial: this.$moment(),
+        dateInitFinal: null,
+        reserva: '',
         dataInicial: '',
         dataFinal: '',
         tempoMin: 0,
@@ -137,16 +152,53 @@
       let _this = this
       _this.parent.loading = true
 
-      db.ref('Controle/Configuracao/TempoMinAntesReserva').on('value', function (snapshot) {
-        _this.parent.loading = true
-        _this.tempoMin = snapshot.val()
-        _this.parent.loading = false
-      })
-
       db.ref('Usuarios/' + auth.currentUser.uid).on('value', function (snapshot) {
         _this.parent.loading = true
         _this.role = snapshot.val().role
-        _this.parent.loading = false
+
+        db.ref('Controle/Configuracao/TempoMinAntesReserva').on('value', function (snapshot) {
+          _this.tempoMin = snapshot.val()
+
+          _this.dateInitInicial = _this.$moment(_this.dateInitInicial).set({
+            'minute': _this.dateInitInicial.minute() + (10 - _this.dateInitInicial.minute() % 10)
+          })
+
+          if (_this.item === 'reservaEquipamento') {
+            db.ref('Reservas/equipamentos/' + _this.valorItem).on('value', function (snapshot) {
+              _this.solicitante = snapshot.val().Solicitante
+              _this.dateInitInicial = _this.$moment(snapshot.val().Inicio, 'DD/MM/YYYY HH:mm')
+              _this.dateInitFinal = _this.$moment(snapshot.val().Fim, 'DD/MM/YYYY HH:mm')
+              _this.reserva = snapshot.val()
+            })
+          } else if (_this.item === 'reservaLocal') {
+            db.ref('Reservas/locais/' + _this.valorItem).on('value', function (snapshot) {
+              _this.solicitante = snapshot.val().Solicitante
+              _this.dateInitInicial = _this.$moment(snapshot.val().Inicio, 'DD/MM/YYYY HH:mm')
+              _this.dateInitFinal = _this.$moment(snapshot.val().Fim, 'DD/MM/YYYY HH:mm')
+              _this.reserva = snapshot.val()
+            })
+          } else {
+            if (_this.role === 'Comum') {
+              _this.dateInitInicial = _this.$moment(_this.dateInitInicial).add(_this.tempoMin, 'hours')
+            }
+
+            if (_this.dateInitInicial.hour() < 7 || _this.dateInitInicial.hour() >= 23) {
+              if (_this.dateInitInicial.hour() >= 23) {
+                _this.dateInitInicial = _this.$moment(_this.dateInitInicial).add(1, 'day')
+              }
+              _this.dateInitInicial = _this.$moment(_this.dateInitInicial).set({
+                'hour': '7',
+                'minute': '0'
+              })
+            }
+
+            if (_this.dateInitInicial.isoWeekday() === 7) {
+              _this.dateInitInicial = _this.$moment(_this.dateInitInicial).day(1)
+            }
+          }
+
+          _this.parent.loading = false
+        })
       })
 
       db.ref('Equipamentos').orderByKey().on('value', function (snapshot) {
@@ -204,7 +256,6 @@
         }
 
         return (current && current < this.$moment().add(-1, 'days').endOf('day')) ||
-          (week === 6) ||
           (week === 7) ||
           (current && current > maxDate)
       },
@@ -221,13 +272,12 @@
         }
 
         if (this.form.getFieldValue('dataInicial')) {
-          return (current && current < this.$moment(this.form.getFieldValue('dataInicial'))) ||
-            (week === 6) ||
+          return (current && current < this.$moment().add(-1, 'days').endOf('day')) ||
+            (current && current < this.$moment(this.form.getFieldValue('dataInicial'))) ||
             (week === 7) ||
             (current && current > maxDate)
         } else {
           return (current && current < this.$moment().add(-1, 'days').endOf('day')) ||
-            (week === 6) ||
             (week === 7) ||
             (current && current > maxDate)
         }
@@ -299,8 +349,122 @@
                       })
                     }
                   })
+                })
 
-                  db.ref('Reservas/aulas').orderByChild('Local').equalTo(_this.valorItem).on('value', function (snapshot) {
+                db.ref('Reservas/aulas').orderByChild('Local').equalTo(_this.valorItem).on('value', function (snapshot) {
+                  snapshot.forEach(function (reservaAula) {
+                    let horaInicio = _this.$moment(reservaAula.val().horaInicio, 'HH:mm')
+                    let horaFim = _this.$moment(reservaAula.val().horaFim, 'HH:mm')
+
+                    let dataInicialAula = _this.$moment(reservaAula.val().Inicio, 'DD/MM/YYYY HH:mm').set({
+                      'hour': horaInicio.get('hour'),
+                      'minute': horaInicio.get('minute'),
+                      'second': '0'
+                    }).day(reservaAula.val().diaSemana)
+
+                    let dataInicialFimAula = _this.$moment(reservaAula.val().Inicio, 'DD/MM/YYYY HH:mm').set({
+                      'hour': horaFim.get('hour'),
+                      'minute': horaFim.get('minute'),
+                      'second': '0'
+                    }).day(reservaAula.val().diaSemana)
+
+                    let dataFinalAula = _this.$moment(reservaAula.val().Fim, 'DD/MM/YYYY HH:mm').set({
+                      'hour': horaFim.get('hour'),
+                      'minute': horaFim.get('minute'),
+                      'second': '0'
+                    })
+
+                    while (dataInicialAula <= dataFinalAula) {
+                      if ((_this.dataInicial <= dataInicialFimAula) && (_this.dataFinal >= dataInicialAula) && (reservaAula.val().Status !== 'Cancelada')) {
+                        _this.conflitosAulas.push({
+                          'id': reservaAula.key,
+                          'dados': reservaAula.val()
+                        })
+                        break
+                      }
+                      dataInicialAula = dataInicialAula.add(7, 'day')
+                      dataInicialFimAula = dataInicialFimAula.add(7, 'day')
+                    }
+                  })
+
+                  if (((_this.role === 'Comum') && (_this.conflitos.length === 0)) || ((_this.role === 'Supervisor' || _this.role === 'admin') && (_this.conflitosAulas.length === 0))) {
+                    _this.avancar()
+                  } else {
+                    _this.alert.message = 'Neste período já existem agendamentos ou aulas marcadas, consulte um supervisor para realizar sua reserva ou escolha outro horário.'
+                    _this.alert.visible = true
+                  }
+                })
+              }
+            }
+          }
+        })
+      },
+      verificaDadosEdicao () {
+        let _this = this
+        _this.alert.visible = false
+
+        this.form.validateFields(async (err, values) => {
+          if (!err) {
+            _this.dataInicial = this.$moment(values.dataInicial).set({
+              'hour': values.horaInicial.get('hour'),
+              'minute': values.horaInicial.get('minute'),
+              'second': '0'
+            })
+
+            _this.dataFinal = this.$moment(values.dataFinal).set({
+              'hour': values.horaFinal.get('hour'),
+              'minute': values.horaFinal.get('minute'),
+              'second': '0'
+            })
+
+            if (_this.dataFinal < _this.dataInicial || (_this.dataInicial < this.$moment() && !(_this.dataInicial.isSame(_this.dateInitInicial)))) {
+              _this.alert.message = 'Período Inválido.'
+              _this.alert.visible = true
+            } else if (this.role === 'Comum' && _this.dataInicial < this.$moment().add(this.tempoMin, 'hours')) {
+              _this.alert.message = 'Período Inválido. Horas Mínimas de Reserva: ' + this.tempoMin + 'h.'
+              _this.alert.visible = true
+            } else {
+              _this.conflitos = []
+              _this.conflitosAulas = []
+
+              if (this.item === 'reservaEquipamento') {
+                db.ref('Reservas/equipamentos').orderByChild('Equipamento').equalTo(_this.reserva.Equipamento).on('value', function (snapshot) {
+                  snapshot.forEach(function (reservaEquip) {
+                    let dataInicialEquip = _this.$moment(reservaEquip.val().Inicio, 'DD/MM/YYYY HH:mm')
+                    let dataFinalEquip = _this.$moment(reservaEquip.val().Fim, 'DD/MM/YYYY HH:mm')
+
+                    if ((_this.dataInicial <= dataFinalEquip) && (_this.dataFinal >= dataInicialEquip) && (reservaEquip.val().Status !== 'Cancelada') && (_this.valorItem !== reservaEquip.key)) {
+                      _this.conflitos.push({
+                        'id': reservaEquip.key,
+                        'tipo': 'equipamento',
+                        'dados': reservaEquip.val()
+                      })
+                    }
+                  })
+
+                  if (_this.conflitos.length === 0 || _this.role === 'Supervisor' || _this.role === 'admin') {
+                    _this.avancar()
+                  } else {
+                    _this.alert.message = 'Neste período já existem agendamentos marcados, consulte um supervisor para realizar sua reserva ou escolha outro horário.'
+                    _this.alert.visible = true
+                  }
+                })
+              } else {
+                db.ref('Reservas/locais').orderByChild('Local').equalTo(_this.reserva.Local).on('value', function (snapshot) {
+                  snapshot.forEach(function (reservaLocal) {
+                    let dataInicialLocal = _this.$moment(reservaLocal.val().Inicio, 'DD/MM/YYYY HH:mm')
+                    let dataFinalLocal = _this.$moment(reservaLocal.val().Fim, 'DD/MM/YYYY HH:mm')
+
+                    if ((_this.dataInicial <= dataFinalLocal) && (_this.dataFinal >= dataInicialLocal) && (reservaLocal.val().Status !== 'Cancelada') && (_this.valorItem !== reservaLocal.key)) {
+                      _this.conflitos.push({
+                        'id': reservaLocal.key,
+                        'tipo': 'local',
+                        'dados': reservaLocal.val()
+                      })
+                    }
+                  })
+
+                  db.ref('Reservas/aulas').orderByChild('Local').equalTo(_this.reserva.Local).on('value', function (snapshot) {
                     snapshot.forEach(function (reservaAula) {
                       let horaInicio = _this.$moment(reservaAula.val().horaInicio, 'HH:mm')
                       let horaFim = _this.$moment(reservaAula.val().horaFim, 'HH:mm')
@@ -351,8 +515,9 @@
       },
       realizaReserva () {
         let _this = this
+        _this.buttonLoading = true
 
-        if (_this.item === 'equipamento') {
+        if (_this.item === 'equipamento' || _this.item === 'reservaEquipamento') {
           if ((_this.role === 'Supervisor' || _this.role === 'admin') && (_this.conflitos.length > 0)) {
             _this.conflitos.forEach(function (equipamento) {
               db.ref('Reservas/equipamentos').child(equipamento.id).update({
@@ -369,30 +534,55 @@
                 htmlBody += '<small>Este é um E-mail automático, por favor não responda</small>'
 
                 sendEmail(to, 'Reserva de equipamento cancelada', textBody, htmlBody)
+                _this.buttonLoading = false
+              }).catch(() => {
+                _this.buttonLoading = false
               })
             })
           }
 
-          db.ref('Reservas/equipamentos').push({
-            'Equipamento': _this.valorItem,
-            'Inicio': _this.$moment(_this.dataInicial).format('DD/MM/YYYY HH:mm'),
-            'Fim': _this.$moment(_this.dataFinal).format('DD/MM/YYYY HH:mm'),
-            'Solicitante': _this.solicitante,
-            'Status': (_this.role === 'Supervisor' || _this.role === 'admin') ? 'Confirmada' : 'Pendente'
-          }).then(() => {
-            _this.$notification.success({
-              message: 'Yey!..',
-              description: 'Reserva solicitada com sucesso.'
-            }, 1500)
+          if (_this.item === 'reservaEquipamento') {
+            db.ref('Reservas/equipamentos').child(_this.valorItem).update({
+              'Inicio': _this.$moment(_this.dataInicial).format('DD/MM/YYYY HH:mm'),
+              'Fim': _this.$moment(_this.dataFinal).format('DD/MM/YYYY HH:mm'),
+              'Solicitante': _this.solicitante,
+              'Status': (_this.role === 'Supervisor' || _this.role === 'admin') ? 'Confirmada' : _this.reserva.Status
+            }).then(() => {
+              _this.$notification.success({
+                message: 'Yey!..',
+                description: 'Reserva atualizada com sucesso.'
+              }, 1500)
 
-            _this.closeModal()
-            this.$router.push('/reservas')
-          }).catch((err) => {
-            _this.$notification.error({
-              message: 'Opps..',
-              description: 'Reserva não realizada. Erro: ' + err
+              _this.closeModal()
+              this.$router.push('/reservas')
+            }).catch((err) => {
+              _this.$notification.error({
+                message: 'Opps..',
+                description: 'Reserva não atualizada. Erro: ' + err
+              })
             })
-          })
+          } else {
+            db.ref('Reservas/equipamentos').push({
+              'Equipamento': _this.valorItem,
+              'Inicio': _this.$moment(_this.dataInicial).format('DD/MM/YYYY HH:mm'),
+              'Fim': _this.$moment(_this.dataFinal).format('DD/MM/YYYY HH:mm'),
+              'Solicitante': _this.solicitante,
+              'Status': (_this.role === 'Supervisor' || _this.role === 'admin') ? 'Confirmada' : 'Pendente'
+            }).then(() => {
+              _this.$notification.success({
+                message: 'Yey!..',
+                description: 'Reserva solicitada com sucesso.'
+              }, 1500)
+
+              _this.closeModal()
+              this.$router.push('/reservas')
+            }).catch((err) => {
+              _this.$notification.error({
+                message: 'Opps..',
+                description: 'Reserva não realizada. Erro: ' + err
+              })
+            })
+          }
         } else {
           if ((_this.role === 'Supervisor' || _this.role === 'admin') && (_this.conflitos.length > 0)) {
             _this.conflitos.forEach(function (local) {
@@ -409,30 +599,55 @@
                 htmlBody += '<small>Este é um E-mail automático, por favor não responda</small>'
 
                 sendEmail(to, 'Reserva de local cancelada', textBody, htmlBody)
+                _this.buttonLoading = false
+              }).catch(() => {
+                _this.buttonLoading = false
               })
             })
           }
 
-          db.ref('Reservas/locais').push({
-            'Local': _this.valorItem,
-            'Inicio': _this.$moment(_this.dataInicial).format('DD/MM/YYYY HH:mm'),
-            'Fim': _this.$moment(_this.dataFinal).format('DD/MM/YYYY HH:mm'),
-            'Solicitante': _this.solicitante,
-            'Status': (_this.role === 'Supervisor' || _this.role === 'admin') ? 'Confirmada' : 'Pendente'
-          }).then(() => {
-            _this.$notification.success({
-              message: 'Yey!..',
-              description: 'Reserva solicitada com sucesso.'
-            }, 1500)
+          if (_this.item === 'reservaLocal') {
+            db.ref('Reservas/locais').child(_this.valorItem).update({
+              'Inicio': _this.$moment(_this.dataInicial).format('DD/MM/YYYY HH:mm'),
+              'Fim': _this.$moment(_this.dataFinal).format('DD/MM/YYYY HH:mm'),
+              'Solicitante': _this.solicitante,
+              'Status': (_this.role === 'Supervisor' || _this.role === 'admin') ? 'Confirmada' : _this.reserva.Status
+            }).then(() => {
+              _this.$notification.success({
+                message: 'Yey!..',
+                description: 'Reserva atualizada com sucesso.'
+              }, 1500)
 
-            _this.closeModal()
-            this.$router.push('/reservas')
-          }).catch((err) => {
-            _this.$notification.error({
-              message: 'Opps..',
-              description: 'Reserva não realizada. Erro: ' + err
-            }, 1500)
-          })
+              _this.closeModal()
+              this.$router.push('/reservas')
+            }).catch((err) => {
+              _this.$notification.error({
+                message: 'Opps..',
+                description: 'Reserva não atualizada. Erro: ' + err
+              })
+            })
+          } else {
+            db.ref('Reservas/locais').push({
+              'Local': _this.valorItem,
+              'Inicio': _this.$moment(_this.dataInicial).format('DD/MM/YYYY HH:mm'),
+              'Fim': _this.$moment(_this.dataFinal).format('DD/MM/YYYY HH:mm'),
+              'Solicitante': _this.solicitante,
+              'Status': (_this.role === 'Supervisor' || _this.role === 'admin') ? 'Confirmada' : 'Pendente'
+            }).then(() => {
+              _this.$notification.success({
+                message: 'Yey!..',
+                description: 'Reserva solicitada com sucesso.'
+              }, 1500)
+
+              _this.closeModal()
+              this.$router.push('/reservas')
+            }).catch((err) => {
+              _this.$notification.error({
+                message: 'Opps..',
+                description: 'Reserva não realizada. Erro: ' + err
+              }, 1500)
+            })
+          }
         }
       },
       openModal () {

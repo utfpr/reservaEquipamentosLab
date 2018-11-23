@@ -11,6 +11,7 @@ import Locais from '@/pages/locais/Locais'
 
 import Cursos from '@/pages/cursos/Cursos'
 import Aulas from '@/pages/aulas/Aulas'
+import Agendamento from '@/pages/aulas/AgendamentoAulas'
 import Usuarios from '@/pages/usuarios/Usuarios'
 
 import Reservas from '@/pages/reservas/Reservas'
@@ -23,8 +24,6 @@ import Cadastro from '@/pages/Cadastro'
 import VerificarEmail from '@/pages/VerificarEmail'
 import actionHandler from '@/components/actionHandler'
 import RecuperarSenha from '@/pages/RecuperarSenha'
-
-import Agendamento from '@/pages/aulas/AgendamentoAulas'
 
 Vue.use(Router)
 
@@ -62,7 +61,7 @@ const router = new Router({
       name: 'AgendamentoAulas',
       component: Agendamento,
       meta: {
-        menuKey: '',
+        menuKey: 'aulas',
         requiresAuth: true
       }
     }, {
@@ -140,7 +139,6 @@ const router = new Router({
       }
     }, {
       path: '/reservar',
-      name: 'novaReserva',
       component: novaReserva,
       meta: {
         menuKey: 'reservas',
@@ -185,10 +183,14 @@ router.beforeEach((to, from, next) => {
 
   firebaseApp.auth().onAuthStateChanged(function (user) {
     if (user) {
-      if (!user.emailVerified && cadastro) next('verificar-email')
-      else if ((!requiresAuth && login) || (!requiresAuth && cadastro)) next('home')
-      else if (!requiresAuth && !login) next()
-      else next()
+      firebaseApp.database().ref('Usuarios/' + firebaseApp.auth().currentUser.uid + '/role').on('value', function (snapshot) {
+        if (!user.emailVerified && cadastro) next('verificar-email')
+        else if ((!requiresAuth && login) || (!requiresAuth && cadastro)) next('home')
+        else if (!requiresAuth && !login) next()
+        else if ((to.name === 'Aulas' || to.name === 'Cursos') && snapshot.val() === 'Comum') next('home')
+        else if (to.name === 'Usuarios' && snapshot.val() !== 'admin') next('home')
+        else next()
+      })
     } else {
       if (requiresAuth) next('login')
       else next()

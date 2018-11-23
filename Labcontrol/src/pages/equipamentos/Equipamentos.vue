@@ -23,29 +23,37 @@
             <span> Baixar POP </span>
           </template>
 
-          <a-tag @click = "downloadFile(text)" color = "blue" :key = "text" >
+          <a-tag @click = "downloadFile(text)" color = "blue" :key = "text">
             <a-icon type = "file-pdf" />
           </a-tag>
         </a-tooltip>
+
+        <a-button v-else class = "ant-tag" disabled>
+          <a-icon style = "color: #1890ff" type = "file-pdf" />
+        </a-button>
 
         <a-tooltip v-if = "record.status !== 'Quebrado'" placement = "top">
           <template slot = "title">
             <span> Reservar Equipamento </span>
           </template>
 
-          <a-tag color = "green" :key = "text" >
+          <a-tag color = "green" :key = "text">
             <router-link :to = "{ name: 'periodoReserva', params: { item: 'equipamento', valorItem: text }}">
-             <a-icon style = "color: #52c41a" type = "database" />
+              <a-icon style = "color: #52c41a" type = "database" />
             </router-link>
           </a-tag>
         </a-tooltip>
+
+        <a-button v-else class = "ant-tag" disabled>
+          <a-icon style = "color: #52c41a" type = "database" />
+        </a-button>
 
         <a-tooltip v-if = "role === 'admin' || role === 'Supervisor'" placement = "top">
           <template slot = "title">
             <span> Editar Equipamento </span>
           </template>
 
-          <a-tag @click = "showAtualizaModal(text)" color = "orange" :key = "text" >
+          <a-tag @click = "showAtualizaModal(text)" color = "orange" :key = "text">
             <a-icon type = "edit" />
           </a-tag>
         </a-tooltip>
@@ -55,7 +63,7 @@
             <span> Deletar Equipamento </span>
           </template>
 
-          <a-tag @click = "showConfirmModal(text)" color = "red" :key = "text" >
+          <a-tag @click = "showConfirmModal(text)" color = "red" :key = "text">
             <a-icon type = "delete" />
           </a-tag>
         </a-tooltip>
@@ -192,8 +200,8 @@
         <a-row style = "text-align: right; margin-bottom: 5px;">
           <a-button size = "large" @click = "closeEquipamentoModal()" style = "margin-right: 15px;"> Cancelar </a-button>
           
-          <a-button v-if = "edit" size = "large" type = "primary" @click = "atualizaEquipamento"> Atualizar </a-button>
-          <a-button v-else size = "large" type = "primary" @click = "cadastraEquipamento"> Cadastrar </a-button>
+          <a-button :loading = "buttonLoading" v-if = "edit" size = "large" type = "primary" @click = "atualizaEquipamento"> Atualizar </a-button>
+          <a-button :loading = "buttonLoading" v-else size = "large" type = "primary" @click = "cadastraEquipamento"> Cadastrar </a-button>
         </a-row>
       </a-form>
     </a-modal>
@@ -214,6 +222,7 @@
       return {
         role: null,
         loading: true,
+        buttonLoading: false,
         equipamentos: [],
         locais: [],
         cursos: [],
@@ -291,23 +300,39 @@
       let _this = this
       _this.loading = true
 
-      db.ref('Equipamentos').orderByKey().on('value', function (snapshot) {
-        _this.loading = true
+      db.ref('Equipamentos').orderByChild('Status').on('value', function (snapshot) {
+        var desordenados = []
         _this.equipamentos = []
+        _this.loading = true
 
         snapshot.forEach(function (item) {
-          _this.equipamentos.push({
-            'id': item.key,
-            'patrimonio': item.val().Patrimonio,
-            'nome': item.val().Nome,
-            'local': item.val().Local,
-            'status': item.val().Status,
-            'curso': item.val().Curso,
-            'marca': item.val().Marca,
-            'especificacao': item.val().Especificacao,
-            'pop': item.val().Pop
-          })
+          if (item.val().Status === 'Normal') {
+            _this.equipamentos.push({
+              'id': item.key,
+              'patrimonio': item.val().Patrimonio,
+              'nome': item.val().Nome,
+              'local': item.val().Local,
+              'status': item.val().Status,
+              'curso': item.val().Curso,
+              'marca': item.val().Marca,
+              'especificacao': item.val().Especificacao,
+              'pop': item.val().Pop
+            })
+          } else {
+            desordenados.push({
+              'id': item.key,
+              'patrimonio': item.val().Patrimonio,
+              'nome': item.val().Nome,
+              'local': item.val().Local,
+              'status': item.val().Status,
+              'curso': item.val().Curso,
+              'marca': item.val().Marca,
+              'especificacao': item.val().Especificacao,
+              'pop': item.val().Pop
+            })
+          }
         })
+        _this.equipamentos = _this.equipamentos.concat(desordenados)
         _this.loading = false
       })
 
@@ -401,8 +426,11 @@
       },
       async cadastraEquipamento () {
         let _this = this
+
         this.form.validateFields(async (err, values) => {
           if (!err) {
+            _this.buttonLoading = true
+
             db.ref('Equipamentos').push({
               'Patrimonio': values.patrimonio,
               'Curso': values.curso,
@@ -414,6 +442,7 @@
               'Pop': values.pop ? 'true' : 'false'
             }).then((data) => {
               const key = values.patrimonio
+              _this.buttonLoading = false
               _this.$notification.success({
                 key,
                 message: 'Yey!..',
@@ -436,6 +465,7 @@
                 message: 'Opps..',
                 description: 'Equipamento não cadastrado. Erro: ' + err
               })
+              _this.buttonLoading = false
               this.closeEquipamentoModal()
             })
           }
@@ -443,8 +473,11 @@
       },
       async atualizaEquipamento () {
         let _this = this
+
         this.form.validateFields(async (err, values) => {
           if (!err) {
+            _this.buttonLoading = true
+
             db.ref('Equipamentos').child(_this.equipamento.id).update({
               'Patrimonio': values.patrimonio,
               'Curso': values.curso,
@@ -456,6 +489,7 @@
               'Pop': values.pop ? 'true' : 'false'
             }).then(() => {
               const key = _this.equipamento.id
+              _this.buttonLoading = false
               _this.$notification.success({
                 key,
                 message: 'Yey!..',
@@ -478,6 +512,7 @@
                 message: 'Opps..',
                 description: 'Equipamento não atualizado. Erro: ' + err
               })
+              _this.buttonLoading = false
               this.closeEquipamentoModal()
             })
           }
