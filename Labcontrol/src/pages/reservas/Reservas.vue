@@ -415,211 +415,210 @@
       db.ref('Usuarios/' + auth.currentUser.uid + '/role').on('value', function (snapshot) {
         _this.loading = true
         _this.role = snapshot.val()
-        _this.loading = false
-      })
 
-      db.ref('Locais').orderByKey().on('value', function (snapshot) {
-        _this.local = []
-        _this.loading = true
-
-        snapshot.forEach(function (item) {
-          _this.local.push({
-            'local': item.key,
-            'curso': item.val().Curso,
-            'descricao': item.val().Descricao,
-            'supervisor': item.val().Supervisor
-          })
-        })
-        _this.loading = false
-      })
-
-      db.ref('Usuarios').orderByChild('role').equalTo('Supervisor').on('value', (snapshot) => {
-        _this.supervisores = []
-        _this.loading = true
-
-        snapshot.forEach(function (item) {
-          _this.supervisores.push({
-            'key': item.key,
-            'curso': item.val().Curso,
-            'email': item.val().Email,
-            'nome': item.val().Nome,
-            'RA': item.val().RA
-          })
-        })
-        _this.loading = false
-      })
-
-      db.ref('Equipamentos').orderByKey().on('value', function (snapshot) {
-        _this.equipamento = []
-        _this.loading = true
-
-        snapshot.forEach(function (item) {
-          _this.equipamento.push({
-            'key': item.key,
-            'patrimonio': item.val().Patrimonio,
-            'nome': item.val().Nome,
-            'local': item.val().Local,
-            'status': item.val().Status
-          })
-        })
-        _this.loading = false
-      })
-
-      db.ref('Usuarios').orderByKey().on('value', function (snapshot) {
-        _this.usuarios = []
-        _this.loading = true
-
-        snapshot.forEach(function (item) {
-          _this.usuarios.push({
-            'key': item.key,
-            'curso': item.val().Curso,
-            'email': item.val().Email,
-            'RA': item.val().RA,
-            'nomeCompleto': item.val().Nome + ' ' + item.val().Sobrenome,
-            'nome': item.val().Nome,
-            'sobrenome': item.val().Sobrenome,
-            'role': item.val().role
-          })
-        })
-        _this.loading = false
-      })
-
-      if (_this.role === 'admin' || _this.role === 'Supervisor') {
-        db.ref('Reservas/locais').orderByKey().on('value', function (snapshot) {
-          _this.Reservalocais = []
+        db.ref('Locais').orderByKey().on('value', function (snapshot) {
+          _this.local = []
           _this.loading = true
 
           snapshot.forEach(function (item) {
-            var solicitante
-            var supervisor
-            var val = _this.usuarios.map(function (e) { return e.key }).indexOf(item.val().Solicitante)
-            if (val === -1) {
-              solicitante = 'Error'
-            } else {
-              solicitante = _this.usuarios[_this.usuarios.map(function (e) { return e.key }).indexOf(item.val().Solicitante)]
-            }
-            val = _this.supervisores.map(function (e) { return e.key }).indexOf(item.val().Supervisor)
-            if (val === -1) {
-              supervisor = 'Error'
-            } else {
-              supervisor = _this.supervisores[_this.supervisores.map(function (e) { return e.key }).indexOf(item.val().Supervisor)].nome
-            }
-            _this.Reservalocais.push({
+            _this.local.push({
+              'local': item.key,
+              'curso': item.val().Curso,
+              'descricao': item.val().Descricao,
+              'supervisor': item.val().Supervisor
+            })
+          })
+          _this.loading = false
+        })
+
+        db.ref('Usuarios').orderByChild('role').equalTo('Supervisor').on('value', (snapshot) => {
+          _this.supervisores = []
+          _this.loading = true
+
+          snapshot.forEach(function (item) {
+            _this.supervisores.push({
               'key': item.key,
+              'curso': item.val().Curso,
+              'email': item.val().Email,
+              'nome': item.val().Nome,
+              'RA': item.val().RA
+            })
+          })
+          _this.loading = false
+        })
+
+        db.ref('Equipamentos').orderByKey().on('value', function (snapshot) {
+          _this.equipamento = []
+          _this.loading = true
+
+          snapshot.forEach(function (item) {
+            _this.equipamento.push({
+              'key': item.key,
+              'patrimonio': item.val().Patrimonio,
+              'nome': item.val().Nome,
               'local': item.val().Local,
-              'solicitante': solicitante,
-              'supervisor': supervisor, // esta dando erro tem que arrumar o banco.
-              'dataInicio': item.val().Inicio,
-              'dataFim': item.val().Fim,
               'status': item.val().Status
             })
           })
           _this.loading = false
         })
 
-        db.ref('Reservas/equipamentos').orderByKey().on('value', function (snapshot) {
-          _this.Reservaequip = []
+        db.ref('Usuarios').orderByKey().on('value', function (snapshot) {
+          _this.usuarios = []
           _this.loading = true
 
           snapshot.forEach(function (item) {
-            var solicitante
-            var val = _this.usuarios.map(function (e) { return e.key }).indexOf(item.val().Solicitante)
-            if (val === -1) {
-              solicitante = 'Error'
-            } else {
-              solicitante = _this.usuarios[_this.usuarios.map(function (e) { return e.key }).indexOf(item.val().Solicitante)]
-            }
-            var local
-            var equipamento
-            val = _this.equipamento.map(function (e) { return e.key }).indexOf(item.val().Equipamento)
-            if (val === -1) {
-              local = 'Error'
-            } else {
-              local = _this.equipamento[_this.equipamento.map(function (e) { return e.key }).indexOf(item.val().Equipamento)].local
-              equipamento = _this.equipamento[_this.equipamento.map(function (e) { return e.key }).indexOf(item.val().Equipamento)].patrimonio
-            }
-            _this.Reservaequip.push({
+            _this.usuarios.push({
               'key': item.key,
-              'id': item.val().Equipamento,
-              'equipamento': equipamento,
-              'local': local,
-              'solicitante': solicitante,
-              'dataInicio': item.val().Inicio,
-              'dataFim': item.val().Fim,
-              'status': item.val().Status
-            })
-          })
-          _this.loading = false
-        })
-      } else {
-        db.ref('Reservas/locais').orderByChild('Solicitante').equalTo(auth.currentUser.uid).on('value', function (snapshot) {
-          _this.Reservalocais = []
-          _this.loading = true
-
-          snapshot.forEach(function (item) {
-            console.log('item =', item.val())
-            var solicitante
-            var supervisor
-            var val = _this.usuarios.map(function (e) { return e.key }).indexOf(item.val().Solicitante)
-            if (val === -1) {
-              solicitante = 'Error'
-            } else {
-              solicitante = _this.usuarios[_this.usuarios.map(function (e) { return e.key }).indexOf(item.val().Solicitante)]
-            }
-            val = _this.supervisores.map(function (e) { return e.key }).indexOf(item.val().Supervisor)
-            if (val === -1) {
-              supervisor = 'Error'
-            } else {
-              supervisor = _this.supervisores[_this.supervisores.map(function (e) { return e.key }).indexOf(item.val().Supervisor)].nome
-            }
-            _this.Reservalocais.push({
-              'key': item.key,
-              'local': item.val().Local,
-              'solicitante': solicitante,
-              'supervisor': supervisor, // esta dando erro tem que arrumar o banco.
-              'dataInicio': item.val().Inicio,
-              'dataFim': item.val().Fim,
-              'status': item.val().Status
+              'curso': item.val().Curso,
+              'email': item.val().Email,
+              'RA': item.val().RA,
+              'nomeCompleto': item.val().Nome + ' ' + item.val().Sobrenome,
+              'nome': item.val().Nome,
+              'sobrenome': item.val().Sobrenome,
+              'role': item.val().role
             })
           })
           _this.loading = false
         })
 
-        db.ref('Reservas/equipamentos').orderByChild('Solicitante').equalTo(auth.currentUser.uid).on('value', function (snapshot) {
-          _this.Reservaequip = []
-          _this.loading = true
+        if (_this.role === 'admin' || _this.role === 'Supervisor') {
+          db.ref('Reservas/locais').orderByKey().on('value', function (snapshot) {
+            _this.Reservalocais = []
+            _this.loading = true
 
-          snapshot.forEach(function (item) {
-            var solicitante
-            var val = _this.usuarios.map(function (e) { return e.key }).indexOf(item.val().Solicitante)
-            if (val === -1) {
-              solicitante = 'Error'
-            } else {
-              solicitante = _this.usuarios[_this.usuarios.map(function (e) { return e.key }).indexOf(item.val().Solicitante)]
-            }
-            var local
-            var equipamento
-            val = _this.equipamento.map(function (e) { return e.key }).indexOf(item.val().Equipamento)
-            if (val === -1) {
-              local = 'Error'
-            } else {
-              local = _this.equipamento[_this.equipamento.map(function (e) { return e.key }).indexOf(item.val().Equipamento)].local
-              equipamento = _this.equipamento[_this.equipamento.map(function (e) { return e.key }).indexOf(item.val().Equipamento)].patrimonio
-            }
-            _this.Reservaequip.push({
-              'key': item.key,
-              'id': item.val().Equipamento,
-              'equipamento': equipamento,
-              'local': local,
-              'solicitante': solicitante,
-              'dataInicio': item.val().Inicio,
-              'dataFim': item.val().Fim,
-              'status': item.val().Status
+            snapshot.forEach(function (item) {
+              var solicitante
+              var supervisor
+              var val = _this.usuarios.map(function (e) { return e.key }).indexOf(item.val().Solicitante)
+              if (val === -1) {
+                solicitante = 'Error'
+              } else {
+                solicitante = _this.usuarios[_this.usuarios.map(function (e) { return e.key }).indexOf(item.val().Solicitante)]
+              }
+              val = _this.supervisores.map(function (e) { return e.key }).indexOf(item.val().Supervisor)
+              if (val === -1) {
+                supervisor = 'Error'
+              } else {
+                supervisor = _this.supervisores[_this.supervisores.map(function (e) { return e.key }).indexOf(item.val().Supervisor)].nome
+              }
+              _this.Reservalocais.push({
+                'key': item.key,
+                'local': item.val().Local,
+                'solicitante': solicitante,
+                'supervisor': supervisor, // esta dando erro tem que arrumar o banco.
+                'dataInicio': item.val().Inicio,
+                'dataFim': item.val().Fim,
+                'status': item.val().Status
+              })
             })
+            _this.loading = false
           })
-          _this.loading = false
-        })
-      }
+
+          db.ref('Reservas/equipamentos').orderByKey().on('value', function (snapshot) {
+            _this.Reservaequip = []
+            _this.loading = true
+
+            snapshot.forEach(function (item) {
+              var solicitante
+              var val = _this.usuarios.map(function (e) { return e.key }).indexOf(item.val().Solicitante)
+              if (val === -1) {
+                solicitante = 'Error'
+              } else {
+                solicitante = _this.usuarios[_this.usuarios.map(function (e) { return e.key }).indexOf(item.val().Solicitante)]
+              }
+              var local
+              var equipamento
+              val = _this.equipamento.map(function (e) { return e.key }).indexOf(item.val().Equipamento)
+              if (val === -1) {
+                local = 'Error'
+              } else {
+                local = _this.equipamento[_this.equipamento.map(function (e) { return e.key }).indexOf(item.val().Equipamento)].local
+                equipamento = _this.equipamento[_this.equipamento.map(function (e) { return e.key }).indexOf(item.val().Equipamento)].patrimonio
+              }
+              _this.Reservaequip.push({
+                'key': item.key,
+                'id': item.val().Equipamento,
+                'equipamento': equipamento,
+                'local': local,
+                'solicitante': solicitante,
+                'dataInicio': item.val().Inicio,
+                'dataFim': item.val().Fim,
+                'status': item.val().Status
+              })
+            })
+            _this.loading = false
+          })
+        } else {
+          db.ref('Reservas/locais').orderByChild('Solicitante').equalTo(auth.currentUser.uid).on('value', function (snapshot) {
+            _this.Reservalocais = []
+            _this.loading = true
+
+            snapshot.forEach(function (item) {
+              console.log('item =', item.val())
+              var solicitante
+              var supervisor
+              var val = _this.usuarios.map(function (e) { return e.key }).indexOf(item.val().Solicitante)
+              if (val === -1) {
+                solicitante = 'Error'
+              } else {
+                solicitante = _this.usuarios[_this.usuarios.map(function (e) { return e.key }).indexOf(item.val().Solicitante)]
+              }
+              val = _this.supervisores.map(function (e) { return e.key }).indexOf(item.val().Supervisor)
+              if (val === -1) {
+                supervisor = 'Error'
+              } else {
+                supervisor = _this.supervisores[_this.supervisores.map(function (e) { return e.key }).indexOf(item.val().Supervisor)].nome
+              }
+              _this.Reservalocais.push({
+                'key': item.key,
+                'local': item.val().Local,
+                'solicitante': solicitante,
+                'supervisor': supervisor, // esta dando erro tem que arrumar o banco.
+                'dataInicio': item.val().Inicio,
+                'dataFim': item.val().Fim,
+                'status': item.val().Status
+              })
+            })
+            _this.loading = false
+          })
+
+          db.ref('Reservas/equipamentos').orderByChild('Solicitante').equalTo(auth.currentUser.uid).on('value', function (snapshot) {
+            _this.Reservaequip = []
+            _this.loading = true
+
+            snapshot.forEach(function (item) {
+              var solicitante
+              var val = _this.usuarios.map(function (e) { return e.key }).indexOf(item.val().Solicitante)
+              if (val === -1) {
+                solicitante = 'Error'
+              } else {
+                solicitante = _this.usuarios[_this.usuarios.map(function (e) { return e.key }).indexOf(item.val().Solicitante)]
+              }
+              var local
+              var equipamento
+              val = _this.equipamento.map(function (e) { return e.key }).indexOf(item.val().Equipamento)
+              if (val === -1) {
+                local = 'Error'
+              } else {
+                local = _this.equipamento[_this.equipamento.map(function (e) { return e.key }).indexOf(item.val().Equipamento)].local
+                equipamento = _this.equipamento[_this.equipamento.map(function (e) { return e.key }).indexOf(item.val().Equipamento)].patrimonio
+              }
+              _this.Reservaequip.push({
+                'key': item.key,
+                'id': item.val().Equipamento,
+                'equipamento': equipamento,
+                'local': local,
+                'solicitante': solicitante,
+                'dataInicio': item.val().Inicio,
+                'dataFim': item.val().Fim,
+                'status': item.val().Status
+              })
+            })
+            _this.loading = false
+          })
+        }
+      })
     },
     methods: {
       handleSearch (inputText, selectedKeys, confirm) {
