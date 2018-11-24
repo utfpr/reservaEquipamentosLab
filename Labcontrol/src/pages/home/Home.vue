@@ -5,19 +5,8 @@
       <div v-if="role !== 'Comum'" class="container">
         <resumo-supervisor :month="resumo.month" :day="resumo.day" :time="resumo.time" :reservasEquipConfirmadasLength="resumo.reservas_equip_confirmadas_length" :reservasEquipPendentesLength="resumo.reservas_equip_pendentes_length" :equipamentosQuebradosLength="resumo.equipamentos_quebrados_length" :equipamentosManutencaoLength="resumo.equipamentos_manutencao_length" :reservasLocalConfirmadasLength="resumo.reservas_local_confirmadas_length" :reservasLocalPendentesLength="resumo.reservas_local_pendentes_length" :reservas="resumo.reservados" :diaResumo="resumo.dia"></resumo-supervisor>
       </div>
-<<<<<<< HEAD
       <div v-if="role === 'Comum'" class="container">
-=======
-      <div v-if="!loader.loading && role !== 'Comum'" class="container">
-        <resumo-supervisor :month="resumo.month" :day="resumo.day" :time="resumo.time" :reservasEquipConfirmadasLength="resumo.reservas_equip_confirmadas_length" :reservasEquipPendentesLength="resumo.reservas_equip_pendentes_length" :equipamentosQuebradosLength="resumo.equipamentos_quebrados_length" :equipamentosManutencaoLength="resumo.equipamentos_manutencao_length" :reservasLocalConfirmadasLength="resumo.reservas_local_confirmadas_length" :reservasLocalPendentesLength="resumo.reservas_local_pendentes_length" :reservas="resumo.reservados" :diaResumo="resumo.dia"></resumo-supervisor>
-      </div>
-      <div v-if="!loader.loading && role === 'Comum'" class="container">
-<<<<<<< HEAD
-        <resumo-comum :reservasUser="resumo.reservasUser"></resumo-comum>
-=======
->>>>>>> def7643cc4231883d098e356f5737ab28f535885
-        <resumo-comum :month="resumo.month" :reservasUser="resumo.reservasUser"></resumo-comum>
->>>>>>> cbcd22ef43b4d8cd01ea1165749589087c2f8450
+        <resumo-comum></resumo-comum>
       </div>
     </div>
   </div>
@@ -71,10 +60,6 @@ export default {
     }
   },
   components: {
-<<<<<<< HEAD
-=======
-    RingLoader,
->>>>>>> def7643cc4231883d098e356f5737ab28f535885
     ResumoSupervisor,
     ResumoComum
   },
@@ -189,7 +174,6 @@ export default {
         snapshot.forEach(function (childSnapshot) {
           _this.equipamentos.quebrados.push(childSnapshot.key)
           // _this.resumo.equipamentos_quebrados_length = _this.resumo.equipamentos_quebrados_length + 1
-<<<<<<< HEAD
         })
         _this.resumo.equipamentos_quebrados_length = _this.equipamentos.quebrados.length
         _this.loader.loading = false
@@ -205,23 +189,6 @@ export default {
         _this.resumo.reservas_local_pendentes_length = _this.reservas.localPendentes.length
         _this.loader.loading = false
       })
-=======
-        })
-        _this.resumo.equipamentos_quebrados_length = _this.equipamentos.quebrados.length
-        _this.loader.loading = false
-      })
-      db.ref('Reservas/locais').orderByChild('Status').equalTo('Pendente').on('value', function (snapshot) {
-        _this.loader.loading = true
-        _this.reservas.localPendentes = []
-        _this.resumo.reservas_local_pendentes_length = 0
-        snapshot.forEach(function (childSnapshot) {
-          _this.reservas.localPendentes.push(childSnapshot.key)
-          // _this.resumo.reservas_local_pendentes_length = _this.resumo.reservas_local_pendentes_length + 1
-        })
-        _this.resumo.reservas_local_pendentes_length = _this.reservas.localPendentes.length
-        _this.loader.loading = false
-      })
->>>>>>> def7643cc4231883d098e356f5737ab28f535885
       db.ref('Reservas/locais').orderByChild('Status').equalTo('Confirmada').on('value', function (snapshot) {
         _this.loader.loading = true
         _this.reservas.localConfirmadas = []

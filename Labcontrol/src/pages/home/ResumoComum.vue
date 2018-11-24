@@ -15,7 +15,7 @@
                   />
                 </a-col>
                 <a-col :span="12" type = "flex" justify = "space-around" align = "middle"> 
-                  "Nov"
+                  {{this.data}}
                 </a-col>
                 <a-col :span="6" type = "flex" justify = "space-around" align = "middle"> 
                   <a-icon 
@@ -35,14 +35,15 @@
             <a-col :span="16" :offset="6">
               <a-tabs @change="callback" type="card">
                 <a-tab-pane tab="Reservas de Equipamentos" key="1">
-                  <a-list size="small" bordered :dataSource="reservasUser">
+                
+                  <a-list size="small" bordered :dataSource="reservasEquip">
                     <a-list-item slot="renderItem" slot-scope="item, index">{{item}}</a-list-item>
                     <h3 slot="header">Reservas de Equipamentos</h3>
                     <div slot="footer">Footer</div>
                   </a-list>
                 </a-tab-pane>
                 <a-tab-pane tab="Reservas de Locais" key="2">
-                  <a-list size="small" bordered :dataSource="reservasUser">
+                  <a-list size="small" bordered :dataSource="reservasLocais">
                     <a-list-item slot="renderItem" slot-scope="item, index">{{item}}</a-list-item>
                     <h3 slot="header">Reservas de Locais</h3>
                     <div slot="footer">Footer</div>
@@ -65,48 +66,90 @@
 <script>
 import moment from 'moment'
 import 'moment/locale/pt-br'
-// import firebaseApp from '../../firebase-controller.js'
+import firebaseApp from '../../firebase-controller.js'
 // import {Icon} from 'antd'
 
-// const db = firebaseApp.database()
+const db = firebaseApp.database()
 
 export default {
-  constructor () {
-    this.state = {
+  data () {
+    return {
       data: moment().hours(0).minutes(0).seconds(0).milliseconds(0),
+      mounth: moment().hours(0).minutes(0).seconds(0).milliseconds(0),
       equipamentos: [],
       locais: [],
-      aulas: []
+      aulas: [],
+      reservasEquip: [],
+      reservasLocais: [],
+      reservasUser: []
     }
   },
   name: 'ResumoComum',
-  props: {
-    // month: { type: String, default: 'Jan', required: true },
-    reservasUser: { type: Array }
+
+  beforeMount: function () {
+    let _this = this
+    db.ref('Equipamentos').orderByKey().on('value', function (snapshot) {
+      _this.equipamentos = []
+      snapshot.forEach(function (item) {
+        _this.equipamentos.push({
+          'key': item.key,
+          'patrimonio': item.val().Patrimonio,
+          'nome': item.val().Nome,
+          'local': item.val().Local,
+          'status': item.val().Status
+        })
+      })
+      console.log('equipamentos', _this.equipamentos)
+      db.ref('Reservas/equipamentos').orderByChild('Status').equalTo('Confirmada').on('value', function (snapshot) {
+        _this.reservasEquip = []
+        snapshot.forEach(function (item) {
+          var local
+          var equipamento
+          var val
+          val = _this.equipamentos.map(function (e) { return e.key }).indexOf(item.val().Equipamento)
+          if (val === -1) {
+            local = 'Error'
+          } else {
+            local = _this.equipamentos[_this.equipamentos.map(function (e) { return e.key }).indexOf(item.val().Equipamento)].local
+            equipamento = _this.equipamentos[_this.equipamentos.map(function (e) { return e.key }).indexOf(item.val().Equipamento)].patrimonio
+          }
+          _this.reservasEquip.push({
+            'id': item.val().Equipamento,
+            'equipamento': equipamento,
+            'local': local,
+            'dataInicio': item.val().Inicio,
+            'dataFim': item.val().Fim,
+            'status': item.val().Status
+          })
+        })
+        console.log('banana', _this.reservasEquip)
+      })
+    })
   },
   methods: {
+
     callback (key) {
       console.log(key + this.reservasUser)
     },
 
     onPanelChange (value) {
-      var data = value._d
-      data = moment().hours(0).minutes(0).seconds(0).milliseconds(0)
-      this.setState({ data })
-      console.log('data: ', data._d)
-      // let _this = this
-      console.log('estou aqui')
-      // db.ref('Reservas/equipamentos').OrderByKey().on('value', function (snapshot) {
-      //   _this.equipamentos = []
-      //   snapshot.forEach(function (item) {
-      //     _this.equipamentos.push({
-      //       'Equipamento': item.val().Equipamento,
-      //       'Inicio': item.val().Inicio,
-      //       'Fim': item.val().Fim
-      //     })
-      //   })
-      //   console.log('Este é o equipamento: ', _this.equipamentos)
-      // })
+      var data = value.format('DD/MM/YYYY HH:MM')
+      let _this = this
+      moment(data).format()
+      console.log('data: ', data)
+      // let _this = this'
+      // console.log('estou aqui', this.state.data)
+      db.ref('Reservas/equipamentos').OrderBy('Inicio').equalTo(data).on('value', function (snapshot) {
+        _this.equipamentos = []
+        snapshot.forEach(function (item) {
+          _this.equipamentos.push({
+            'Equipamento': item.val().Equipamento,
+            'Inicio': item.val().Inicio,
+            'Fim': item.val().Fim
+          })
+        })
+        console.log('Este é o equipamento: ', _this.equipamentos)
+      })
     }
   }
 
