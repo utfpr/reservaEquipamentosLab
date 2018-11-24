@@ -27,33 +27,47 @@
 <!-- Parte tabs -->
         <br/>
         <div>
-          <a-carousel arrows>
-            <div
-              slot="prevArrow" slot-scope="props"
-              class="custom-slick-arrow"
-              style="left: 10px;zIndex: 1"
-            >
-              <a-icon type="left-circle" />
-            </div>
-            <div
-              slot="nextArrow" slot-scope="props"
-              class="custom-slick-arrow"
-              style="right: 10px"
-            >
-              <a-icon type="right-circle" />
-            </div>
-            
-            <div>
+          <a-row>
+            <a-col :span = "4" style="text-align: center;">
+              <a-button size = "large" icon = "left" style = "margin-top: 8px;"></a-button>
+            </a-col>
+
+            <a-col :span = "16" style="text-align: center;">
               <h3> Agendados  para  {{ diaResumo.date() }}/{{ diaResumo.month() }}/{{ diaResumo.year() }} </h3>
+            </a-col>
+
+            <a-col :span = "4" style="text-align: center;">
+              <h3><a-icon type = "right" /></h3>
+            </a-col>
+          </a-row>
+          
+            
+<!-- ++++++++++++++++++++++++++ -->
+
+            <a-list
+              itemLayout="horizontal"
+              :dataSource="reservas"
+            >
+              <a-list-item slot="renderItem" slot-scope="item, index">
+                <a-list-item-meta>
+                  <span slot="title" >{{item[0]}}</span>
+                  <span slot="description" > Início: {{item[1].Inicio}} - Fim: {{item[1].Fim}} - Solicitante: {{item[2].Nome}} {{item[2].Sobrenome}} </span>
+                  <a-avatar slot="avatar" src="https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png" />
+                </a-list-item-meta>
+              </a-list-item>
+            </a-list>
+            
+           <!-- <div>
+              
               <br/>
 
                 <div v-for="reserva in reservas">
-                  <h5>{{reserva[0]}} - Início: {{reserva[1].Inicio}} - Fim: {{reserva[1].Fim}} - Solicitante: {{reserva[2].Nome}} {{reserva[2].Sobrenome}}</h5>
+                  <h5></h5>
                 </div>
 
-            </div>
+            </div> -->
             <!-- <div></div> -->
-          </a-carousel>
+
         </div>
 
 
@@ -120,12 +134,12 @@ export default {
 }
 </style>
 <style>
-.ant-card-bordered {
-  border: 1px solid rgb(232, 232, 232);
+.ant-card {
+  border-bottom: 1px solid rgb(232, 232, 232);
+  border-top: 1px solid rgb(232, 232, 232);
 }
 .ant-card-head {
   font-size: 24px;
-  background: #f7f7f7;
   border-bottom: 1px solid rgb(232, 232, 232);
 }
 .ant-card-head-title {

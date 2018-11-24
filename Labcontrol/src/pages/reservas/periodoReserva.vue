@@ -372,7 +372,12 @@
                       'hour': horaFim.get('hour'),
                       'minute': horaFim.get('minute'),
                       'second': '0'
-                    })
+                    }).day(reservaAula.val().diaSemana)
+
+                    if (dataInicialAula.day() < _this.$moment(reservaAula.val().Inicio, 'DD/MM/YYYY HH:mm').day()) {
+                      dataInicialAula = dataInicialAula.add(7, 'day')
+                      dataInicialFimAula = dataInicialFimAula.add(7, 'day')
+                    }
 
                     while (dataInicialAula <= dataFinalAula) {
                       if ((_this.dataInicial <= dataInicialFimAula) && (_this.dataFinal >= dataInicialAula) && (reservaAula.val().Status !== 'Cancelada')) {
@@ -485,7 +490,12 @@
                         'hour': horaFim.get('hour'),
                         'minute': horaFim.get('minute'),
                         'second': '0'
-                      })
+                      }).day(reservaAula.val().diaSemana)
+
+                      if (dataInicialAula.day() < _this.$moment(reservaAula.val().Inicio, 'DD/MM/YYYY HH:mm').day()) {
+                        dataInicialAula = dataInicialAula.add(7, 'day')
+                        dataInicialFimAula = dataInicialFimAula.add(7, 'day')
+                      }
 
                       while (dataInicialAula <= dataFinalAula) {
                         if ((_this.dataInicial <= dataInicialFimAula) && (_this.dataFinal >= dataInicialAula) && (reservaAula.val().Status !== 'Cancelada')) {

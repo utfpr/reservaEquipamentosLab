@@ -75,7 +75,7 @@
             <span> Cancelar Aula </span>
           </template>
 
-          <a-tag @click = "showConfirmModal(text)" color = "red" :key = "text">
+          <a-tag @click = "showModal(text)" color = "red" :key = "text">
             <a-icon type = "close" />
           </a-tag>
         </a-tooltip>
@@ -108,7 +108,7 @@
 
       <div style = "text-align: right; margin-top: 20px;">
         <a-button @click = "closeModal()"> Voltar </a-button>
-        <a-button :loading = "buttonLoading" @click = "cancelarAula(modalAula)" type = "danger"> Cancelar Aula </a-button>
+        <a-button :loading = "buttonLoading" @click = "cancelarAula()" type = "danger"> Cancelar Aula </a-button>
       </div> 
     </a-modal>
   </a-spin>    
@@ -334,11 +334,11 @@
         this.visibleModal = false
         this.modalAula = ''
       },
-      cancelarAula (record) {
+      cancelarAula () {
         let _this = this
         _this.buttonLoading = true
 
-        db.ref('Reservas/aulas').child(record.id).update({
+        db.ref('Reservas/aulas').child(_this.modalAula).update({
           'Status': 'Cancelada'
         }).then(() => {
           _this.buttonLoading = false
