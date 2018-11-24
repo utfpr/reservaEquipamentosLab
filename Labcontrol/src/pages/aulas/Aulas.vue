@@ -17,6 +17,58 @@
         <p> <b> Solicitante: </b> {{ record.solicitante.nomeCompleto }} </p>
       </span>
 
+      <a-icon slot = "filterIconDate" slot-scope = "filtered" type = "calendar" :style = "{ color: filtered ? '#108ee9' : '#aaa' }" />
+      <div slot = "filterDropdownHoraInicio" slot-scope = "{ setSelectedKeys, selectedKeys, confirm, clearFilters }" class = 'custom-filter-dropdown'>
+            <a-time-picker
+              ref = "horaInicioInput"
+              format = "HH:mm"
+              :disabledHours = "disabledHours"
+              :minuteStep = "10" 
+              hideDisabledOptions
+              :value = "searchHoraInicio"
+              placeholder = "Hora Inicial:"
+              @change = "(date, dateString) => searchByDate(date, dateString, 'searchHoraInicio', setSelectedKeys, confirm)"
+            />
+            <a-button @click = "() => handleResetDate('searchDataInicio', clearFilters)"> Resetar </a-button>
+      </div>
+
+      <div slot = "filterDropdownHoraFim" slot-scope = "{ setSelectedKeys, selectedKeys, confirm, clearFilters }" class = 'custom-filter-dropdown'>
+            <a-time-picker
+              ref = "horaFimInput"
+              format = "HH:mm"
+              :disabledHours = "disabledHours"
+              :minuteStep = "10" 
+              hideDisabledOptions
+              :value = "searchHoraFinal"
+              placeholder = "Hora Inicial:"
+              @change = "(date, dateString) => searchByDate(date, dateString, 'searchHoraFinal', setSelectedKeys, confirm)"
+            />
+            <a-button @click = "() => handleResetDate('searchDataInicio', clearFilters)"> Resetar </a-button>
+      </div>
+
+      <a-icon slot = "filterIconHora" slot-scope = "filtered" type = "clock-circle-o" :style = "{ color: filtered ? '#108ee9' : '#aaa' }" />
+      <div slot = "filterDropdownDataInicio" slot-scope = "{ setSelectedKeys, selectedKeys, confirm, clearFilters }" class = 'custom-filter-dropdown'>
+            <a-date-picker
+              ref = "inicioInput"
+              format = "DD/MM/YYYY"
+              :value = "searchDataInicio"
+              placeholder = "Data Inicial:"
+              @change = "(date, dateString) => searchByDate(date, dateString, 'searchDataInicio', setSelectedKeys, confirm)"
+            />
+            <a-button @click = "() => handleResetDate('searchDataInicio', clearFilters)"> Resetar </a-button>
+      </div>
+
+      <div slot = "filterDropdownDataFim" slot-scope = "{ setSelectedKeys, selectedKeys, confirm, clearFilters }" class = 'custom-filter-dropdown'>
+            <a-date-picker
+              ref = "fimInput"
+              format = "DD/MM/YYYY"
+              :value = "searchDataFim"
+              placeholder = "Data Final:"
+              @change = "(date, dateString) => searchByDate(date, dateString, 'searchDataFim', setSelectedKeys, confirm)"
+            />
+            <a-button @click = "() => handleResetDate('searchDataFim', clearFilters)"> Resetar </a-button>
+      </div>
+
       <span slot = "actions" slot-scope = "text, record">
         <a-tooltip v-if = "record.status === 'Confirmada'" placement = "top">
           <template slot = "title">
@@ -33,7 +85,7 @@
         </a-button>
       </span>
 
-      <span slot = "diaSemana" slot-scope = "text, record">
+      <span slot = "diaSemana" slot-scope = "text">
         <span> {{ $moment().day(text).format("dddd") }} </span>
       </span>
 
@@ -77,6 +129,7 @@
         aulas: [],
         usuarios: [],
         modalAula: '',
+        searchDataInicio: null,
         visibleModal: false,
         columns: [{
           title: 'Local',
@@ -87,24 +140,92 @@
         }, {
           title: 'Data Início',
           dataIndex: 'inicio',
-          key: 'inicio'
+          key: 'inicio',
+          scopedSlots: {
+            filterDropdown: 'filterDropdownDataInicio',
+            filterIcon: 'filterIconDate'
+          },
+          onFilter: (value, record) => this.$moment(value, 'DD/MM/YYYY') <= this.$moment(record.inicio, 'DD/MM/YYYY'),
+          onFilterDropdownVisibleChange: (visible) => {
+            if (visible) {
+              setTimeout(() => {
+                this.$refs.inicioInput.focus()
+              })
+            }
+          }
         }, {
           title: 'Data Fim',
           dataIndex: 'fim',
-          key: 'fim'
+          key: 'fim',
+          scopedSlots: {
+            filterDropdown: 'filterDropdownDataFim',
+            filterIcon: 'filterIconDate'
+          },
+          onFilter: (value, record) => this.$moment(value, 'DD/MM/YYYY') >= this.$moment(record.fim, 'DD/MM/YYYY'),
+          onFilterDropdownVisibleChange: (visible) => {
+            if (visible) {
+              setTimeout(() => {
+                this.$refs.fimInput.focus()
+              })
+            }
+          }
         }, {
           title: 'Dia da Semana',
           dataIndex: 'diaSemana',
           key: 'diaSemana',
-          scopedSlots: { customRender: 'diaSemana' }
+          scopedSlots: { customRender: 'diaSemana' },
+          filters: [{
+            text: 'Segunda-feira',
+            value: '1'
+          }, {
+            text: 'Terça-feira',
+            value: '2'
+          }, {
+            text: 'Quarta-feira',
+            value: '3'
+          }, {
+            text: 'Quinta-feira',
+            value: '4'
+          }, {
+            text: 'Sexta-feira',
+            value: '5'
+          }, {
+            text: 'Sábado',
+            value: '6'
+          }],
+          onFilter: (value, record) => record.diaSemana === value
         }, {
           title: 'Horário Início',
           dataIndex: 'horaInicio',
-          key: 'horaInicio'
+          key: 'horaInicio',
+          scopedSlots: {
+            filterDropdown: 'filterDropdownHoraInicio',
+            filterIcon: 'filterIconHora'
+          },
+          onFilter: (value, record) => this.$moment(value, 'HH:mm') <= this.$moment(record.horaInicio, 'HH:mm'),
+          onFilterDropdownVisibleChange: (visible) => {
+            if (visible) {
+              setTimeout(() => {
+                this.$refs.horaInicioInput.focus()
+              })
+            }
+          }
         }, {
           title: 'Horário Fim',
           dataIndex: 'horaFim',
-          key: 'horaFim'
+          key: 'horaFim',
+          scopedSlots: {
+            filterDropdown: 'filterDropdownHoraFim',
+            filterIcon: 'filterIconHora'
+          },
+          onFilter: (value, record) => this.$moment(value, 'HH:mm') >= this.$moment(record.horaFim, 'HH:mm'),
+          onFilterDropdownVisibleChange: (visible) => {
+            if (visible) {
+              setTimeout(() => {
+                this.$refs.horaFimInput.focus()
+              })
+            }
+          }
         }, {
           title: 'Status',
           dataIndex: 'status',
@@ -189,6 +310,21 @@
         })
 
         return locais
+      },
+      disabledHours () {
+        return [0, 1, 2, 3, 4, 5, 6, 23]
+      },
+      handleSearch (inputText, selectedKeys, confirm) {
+        confirm()
+        this[inputText] = selectedKeys[0]
+      },
+      searchByDate (date, dateString, inputText, setSelectedKeys, confirm) {
+        setSelectedKeys(dateString ? [dateString] : [])
+        this.handleSearch(inputText, [date], confirm)
+      },
+      handleResetDate (inputText, clearFilters) {
+        clearFilters()
+        this[inputText] = null
       },
       showEquipamentoModal (aula) {
         this.modalAula = aula
