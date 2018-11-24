@@ -193,7 +193,7 @@
             text: 'Sábado',
             value: '6'
           }],
-          onFilter: (value, record) => record.diaSemana === value
+          onFilter: (value, record) => record.diaSemana.toString() === value
         }, {
           title: 'Horário Início',
           dataIndex: 'horaInicio',
