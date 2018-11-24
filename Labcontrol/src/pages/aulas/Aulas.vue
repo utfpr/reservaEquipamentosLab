@@ -29,7 +29,7 @@
               placeholder = "Hora Inicial:"
               @change = "(date, dateString) => searchByDate(date, dateString, 'searchHoraInicio', setSelectedKeys, confirm)"
             />
-            <a-button @click = "() => handleResetDate('searchDataInicio', clearFilters)"> Resetar </a-button>
+            <a-button @click = "() => handleResetDate('searchHoraInicio', clearFilters)"> Resetar </a-button>
       </div>
 
       <div slot = "filterDropdownHoraFim" slot-scope = "{ setSelectedKeys, selectedKeys, confirm, clearFilters }" class = 'custom-filter-dropdown'>
@@ -43,7 +43,7 @@
               placeholder = "Hora Inicial:"
               @change = "(date, dateString) => searchByDate(date, dateString, 'searchHoraFinal', setSelectedKeys, confirm)"
             />
-            <a-button @click = "() => handleResetDate('searchDataInicio', clearFilters)"> Resetar </a-button>
+            <a-button @click = "() => handleResetDate('searchHoraFinal', clearFilters)"> Resetar </a-button>
       </div>
 
       <a-icon slot = "filterIconHora" slot-scope = "filtered" type = "clock-circle-o" :style = "{ color: filtered ? '#108ee9' : '#aaa' }" />
@@ -359,4 +359,22 @@
       }
     }
   }
-</script>    
+</script>
+
+<style>
+  .custom-filter-dropdown {
+    padding: 8px;
+    border-radius: 6px;
+    background: #fff;
+    box-shadow: 0 1px 6px rgba(0, 0, 0, .2);
+  }
+
+  .custom-filter-dropdown input {
+    width: 130px;
+    margin-right: 8px;
+  }
+
+  .custom-filter-dropdown button {
+    margin-right: 8px;
+  }
+</style>
