@@ -14,10 +14,10 @@
 
 <script>
   export default {
-    name: 'novaReserva',
     data () {
       return {
-        current: 0
+        current: 0,
+        loading: true
       }
     },
     methods: {

@@ -36,7 +36,7 @@
           </template>
 
           <a-tag color = "green" :key = "text" >
-            <router-link :to = "{ name: 'periodoReserva', params: { item: 'local', valorItem: text} }">
+            <router-link :to = "{ name: 'periodoReserva', params: { item: 'local', valorItem: text }}">
              <a-icon style = "color: #52c41a" type = "database" />
             </router-link>
           </a-tag>
@@ -161,8 +161,8 @@
         <a-row style = "text-align: right; margin-bottom: 5px;">
           <a-button size = "large" @click = "closeLocalModal()" style = "margin-right: 15px;"> Cancelar </a-button>
           
-          <a-button v-if = "edit" size = "large" type = "primary" @click = "atualizaLocal"> Atualizar </a-button>
-          <a-button v-else size = "large" type = "primary" @click = "cadastraLocal"> Cadastrar </a-button>
+          <a-button :loading = "buttonLoading" v-if = "edit" size = "large" type = "primary" @click = "atualizaLocal"> Atualizar </a-button>
+          <a-button :loading = "buttonLoading" v-else size = "large" type = "primary" @click = "cadastraLocal"> Cadastrar </a-button>
         </a-row>
       </a-form>
     </a-modal>
@@ -180,6 +180,7 @@
       return {
         role: null,
         loading: true,
+        buttonLoading: false,
         locais: [],
         cursos: [],
         supervisores: [],
@@ -360,8 +361,11 @@
       },
       async cadastraLocal () {
         let _this = this
+
         this.form.validateFields(async (err, values) => {
           if (!err) {
+            _this.buttonLoading = true
+
             db.ref('Locais').child(values.nome).update({
               'Supervisor': values.supervisor,
               'Curso': values.curso,
@@ -372,20 +376,25 @@
                 description: 'Local ' + values.nome + ' cadastrado com sucesso.'
               }, 1500)
               this.closeLocalModal()
+              _this.buttonLoading = false
             }).catch((err) => {
               _this.$notification.error({
                 message: 'Opps..',
                 description: 'Local não cadastrado. Erro: ' + err
               })
               this.closeLocalModal()
+              _this.buttonLoading = false
             })
           }
         })
       },
       async atualizaLocal () {
         let _this = this
+
         this.form.validateFields(async (err, values) => {
           if (!err) {
+            _this.buttonLoading = true
+
             db.ref('Locais').child(values.nome).update({
               'Supervisor': values.supervisor,
               'Curso': values.curso,
@@ -399,12 +408,14 @@
                 description: 'Local atualizado com sucesso.'
               }, 1500)
               this.closeLocalModal()
+              _this.buttonLoading = false
             }).catch((err) => {
               _this.$notification.error({
                 message: 'Opps..',
                 description: 'Local não atualizado. Erro: ' + err
               })
               this.closeLocalModal()
+              _this.buttonLoading = false
             })
           }
         })

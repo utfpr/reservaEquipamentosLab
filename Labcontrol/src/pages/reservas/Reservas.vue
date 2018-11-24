@@ -1,6 +1,5 @@
 <template>
-  <div>
-  <!-- <a-spin :spinning = "loading"> -->
+  <a-spin :spinning = "loading">
     <a-row style = "margin-bottom: 30px;">
       <a-col :span = "16" :offset = "4" style = "text-align: center">
         <h1> Reservas </h1>
@@ -12,53 +11,62 @@
         </router-link>
       </a-col>
     </a-row>
-    <a-tabs defaultActiveKey="1">
-      <a-tab-pane key="1">
-        <span slot="tab">
-          <a-icon class = "fa fa-flask" />
-          Equipamentos
+
+    <a-tabs defaultActiveKey = "1">
+      <a-tab-pane key = "1">
+        <span slot = "tab">
+          <a-icon class = "fa fa-flask" /> Equipamentos
         </span>
-        <a-table :dataSource = "Reservaequip" :columns = "columnsEquip" :locale = "{ filterConfirm: 'Ok', filterReset: 'Resetar', emptyText: 'Nenhum Equipamento Cadastrado' }">
+
+        <a-table :dataSource = "reservaEquipamentos" :columns = "columnsEquipamento" :locale = "{ filterConfirm: 'Ok', filterReset: 'Resetar', emptyText: 'Nenhum Equipamento Cadastrado' }">
           <span slot = "actions" slot-scope = "text, record">
-            <a-tooltip v-if = "record.status === 'Pendente'" placement = "top">
+            <a-tooltip v-if = "record.status === 'Pendente' && role !== 'Comum'" placement = "top">
               <template slot = "title">
                 <span> Confirmar Reserva</span>
               </template>
 
-              <a-tag color = "green" :key = "text" >
+              <a-tag @click = "confirmarReservaEquipamento(record)" color = "green" :key = "text" >
                 <a-icon style = "color: #52c41a" type = "check" />
               </a-tag>
             </a-tooltip>
 
-            <!-- Editar Reserva -->
-            <a-tooltip v-if = "record.status === 'Pendente' " placement = "top">
+            <a-button v-else-if = "record.status !== 'Cancelada' && role !== 'Comum'" class = "ant-tag" disabled>
+              <a-icon style = "color: #52c41a" type = "check" />
+            </a-button>
+
+            <a-tooltip v-if = "record.status === 'Pendente'" placement = "top">
               <template slot = "title">
                 <span> Editar Reserva </span>
               </template>
 
               <a-tag color = "orange" :key = "text" >
-                <router-link :to = "{ name: 'periodoReserva', params: { item: 'equipamento', valorItem: text} }">
+                <router-link :to = "{ name: 'periodoReserva', params: { item: 'reservaEquipamento', valorItem: text }}">
                   <a-icon style = "color: #fa8c16;" type = "edit" />
                 </router-link>
               </a-tag>
             </a-tooltip>
+
+            <a-button v-else-if = "record.status !== 'Cancelada'" class = "ant-tag" disabled>
+              <a-icon style = "color: #fa8c16;" type = "edit" />
+            </a-button>
 
             <a-tooltip v-if = "record.status !== 'Cancelada'" placement = "top">
               <template slot = "title">
                 <span> Cancelar Reserva </span>
               </template>
 
-              <a-tag @click = "showEquipamentoModal(text)" color = "red" :key = "text" >
+              <a-tag @click = "showEquipamentoModal(record)" color = "red" :key = "text" >
                 <a-icon type = "close" />
               </a-tag>
             </a-tooltip>
           </span>
 
           <a-icon slot = "filterIcon" slot-scope = "filtered" type='search' :style = "{ color: filtered ? '#108ee9' : '#aaa' }" />
+          <a-icon slot = "filterIconDate" slot-scope = "filtered" type = "calendar" :style = "{ color: filtered ? '#108ee9' : '#aaa' }" />
 
           <div slot = "filterDropdownEquipamento" slot-scope = "{ setSelectedKeys, selectedKeys, confirm, clearFilters }" class = 'custom-filter-dropdown'>
             <a-input
-              ref = "EquipamentoInput"
+              ref = "equipamentoInput"
               placeholder = 'Buscar Equipamento...'
               :value = "selectedKeys[0]"
               @change = "e => setSelectedKeys(e.target.value ? [e.target.value] : [])"
@@ -80,173 +88,178 @@
             <a-button @click = "() => handleReset('searchSolicitante', clearFilters)"> Resetar </a-button>
           </div>
 
+          <div slot = "filterDropdownDataInicio" slot-scope = "{ setSelectedKeys, selectedKeys, confirm, clearFilters }" class = 'custom-filter-dropdown'>
+            <a-date-picker
+              ref = "dataInicioInput"
+              format = "DD/MM/YYYY"
+              :value = "searchDataInicioEquipamento"
+              placeholder = "Data Inicial:"
+              @change = "(date, dateString) => searchByDate(date, dateString, 'searchDataInicioEquipamento', setSelectedKeys, confirm)"
+            />
+            <a-button @click = "() => handleResetDate('searchDataInicioEquipamento', clearFilters)"> Resetar </a-button>
+          </div>
+
+          <div slot = "filterDropdownDataFim" slot-scope = "{ setSelectedKeys, selectedKeys, confirm, clearFilters }" class = 'custom-filter-dropdown'>
+            <a-date-picker
+              ref = "dataFimInput"
+              format = "DD/MM/YYYY"
+              :value = "searchDataFimEquipamento"
+              placeholder = "Data Final:"
+              @change = "(date, dateString) => searchByDate(date, dateString, 'searchDataFimEquipamento', setSelectedKeys, confirm)"
+            />
+            <a-button @click = "() => handleResetDate('searchDataFimEquipamento', clearFilters)"> Resetar </a-button>
+          </div>
+
           <span slot = "statusTag" slot-scope = "tag">
             <a-tag v-if = "tag == 'Confirmada'" color = "green" :key = "tag"> {{tag}} </a-tag>
             <a-tag v-if = "tag == 'Cancelada'" color = "red" :key = "tag"> {{tag}} </a-tag>
             <a-tag v-if = "tag == 'Pendente'" color = "blue" :key = "tag"> {{tag}} </a-tag>
           </span>
         </a-table>
-
       </a-tab-pane>
-      <a-tab-pane key="2">
-        <span slot="tab">
-          <a-icon class = "fa fa-map-marker-alt" />
-          Locais
+
+      <a-tab-pane key = "2">
+        <span slot = "tab">
+          <a-icon class = "fa fa-map-marker-alt" /> Locais
         </span>
-          <a-table :dataSource = "Reservalocais" :columns = "columnsLocal" :locale = "{ filterConfirm: 'Ok', filterReset: 'Resetar', emptyText: 'Nenhum Local Cadastrado' }">
-            <span slot = "actions" slot-scope = "text">
-              <a-tooltip v-if = "role === 'admin' || role === 'Supervisor'" placement = "top">
-                <template slot = "title">
-                  <span> Confirmar Reserva </span>
-                </template>
+        
+        <a-table :dataSource = "reservaLocais" :columns = "columnsLocal" :locale = "{ filterConfirm: 'Ok', filterReset: 'Resetar', emptyText: 'Nenhum Local Cadastrado' }">
+          <span slot = "actions" slot-scope = "text, record">
+            <a-tooltip v-if = "record.status === 'Pendente' && role !== 'Comum'" placement = "top">
+              <template slot = "title">
+                <span> Confirmar Reserva</span>
+              </template>
 
-                <a-tag color = "green" :key = "text" >
-                  <router-link :to = "{ name: 'periodoReserva', params: { item: 'local', valorItem: text} }">
-                  <a-icon style = "color: #52c41a" type = "database" />
-                  </router-link>
-                </a-tag>
-              </a-tooltip>
+              <a-tag @click = "confirmarReservaLocal(record)" color = "green" :key = "text" >
+                <a-icon style = "color: #52c41a" type = "check" />
+              </a-tag>
+            </a-tooltip>
 
-              <a-tooltip v-if = "role === 'admin' || role === 'Supervisor'" placement = "top">
-                <template slot = "title">
-                  <span> Cancelar Reserva </span>
-                </template>
+            <a-button v-else-if = "record.status !== 'Cancelada' && role !== 'Comum'" class = "ant-tag" disabled>
+              <a-icon style = "color: #52c41a" type = "check" />
+            </a-button>
 
-                <a-tag @click = "showLocalModal(text)" color = "red" :key = "text" >
-                  <a-icon type = "delete" />
-                </a-tag>
+            <a-tooltip v-if = "record.status === 'Pendente' " placement = "top">
+              <template slot = "title">
+                <span> Editar Reserva </span>
+              </template>
 
-              </a-tooltip>
-            </span>
+              <a-tag color = "orange" :key = "text" >
+                <router-link :to = "{ name: 'periodoReserva', params: { item: 'reservaLocal', valorItem: text }}">
+                  <a-icon style = "color: #fa8c16;" type = "edit" />
+                </router-link>
+              </a-tag>
+            </a-tooltip>
 
-            <a-icon slot = "filterIcon" slot-scope = "filtered" type='search' :style = "{ color: filtered ? '#108ee9' : '#aaa' }" />
-            
-            <!-- <div slot = "filterDropdownNome" slot-scope = "{ setSelectedKeys, selectedKeys, confirm, clearFilters }" class = 'custom-filter-dropdown'>
-              <a-input
-                ref = "nomeInput"
-                placeholder = 'Buscar nome...'
-                :value = "selectedKeys[0]"
-                @change = "e => setSelectedKeys(e.target.value ? [e.target.value] : [])"
-                @pressEnter = "() => handleSearch('searchNome', selectedKeys, confirm)"
-              />
-              <a-button type = 'primary' @click = "() => handleSearch('searchNome', selectedKeys, confirm)"> Buscar </a-button>
-              <a-button @click = "() => handleReset('searchNome', clearFilters)"> Resetar </a-button>
-            </div> -->
+            <a-button v-else-if = "record.status !== 'Cancelada'" class = "ant-tag" disabled>
+              <a-icon style = "color: #fa8c16;" type = "edit" />
+            </a-button>
 
-            <div slot = "filterDropdownSolicitante" slot-scope = "{ setSelectedKeys, selectedKeys, confirm, clearFilters }" class = 'custom-filter-dropdown'>
-              <a-input
-                ref = "solicitanteInput"
-                placeholder = 'Buscar solicitante...'
-                :value = "selectedKeys[0]"
-                @change = "e => setSelectedKeys(e.target.value ? [e.target.value] : [])"
-                @pressEnter = "() => handleSearch('searchSolicitante', selectedKeys, confirm)"
-              />
-              <a-button type = 'primary' @click = "() => handleSearch('searchSolicitante', selectedKeys, confirm)"> Buscar </a-button>
-              <a-button @click = "() => handleReset('searchSolicitante', clearFilters)"> Resetar </a-button>
-            </div>
-            
-            <!-- <div slot = "filterDropdownSupervisor" slot-scope = "{ setSelectedKeys, selectedKeys, confirm, clearFilters }" class = 'custom-filter-dropdown'>
-              <a-input
-                ref = "supervisorInput"
-                placeholder = 'Buscar Supervisor...'
-                :value = "selectedKeys[0]"
-                @change = "e => setSelectedKeys(e.target.value ? [e.target.value] : [])"
-                @pressEnter = "() => handleSearch('searchSupervisor', selectedKeys, confirm)"
-              />
-              <a-button type = 'primary' @click = "() => handleSearch('searchSupervisor', selectedKeys, confirm)"> Buscar </a-button>
-              <a-button @click = "() => handleReset('searchSupervisor', clearFilters)"> Resetar </a-button>
-            </div> -->
-            <span slot = "statusTag" slot-scope = "tag">
-              <a-tag v-if = "tag === 'Confirmada'" color = "green" :key = "tag"> {{tag}} </a-tag>
-              <a-tag v-if = "tag === 'Cancelada'" color = "red" :key = "tag"> {{tag}} </a-tag>
-              <a-tag v-if = "tag === 'Pendente'" color = "blue" :key = "tag"> {{tag}} </a-tag>
-            </span>
-          </a-table>
+            <a-tooltip v-if = "record.status !== 'Cancelada'" placement = "top">
+              <template slot = "title">
+                <span> Cancelar Reserva </span>
+              </template>
+
+              <a-tag @click = "showLocalModal(record)" color = "red" :key = "text" >
+                <a-icon type = "close" />
+              </a-tag>
+            </a-tooltip>
+          </span>
+
+          <a-icon slot = "filterIcon" slot-scope = "filtered" type = "search" :style = "{ color: filtered ? '#108ee9' : '#aaa' }" />
+          <a-icon slot = "filterIconDate" slot-scope = "filtered" type = "calendar" :style = "{ color: filtered ? '#108ee9' : '#aaa' }" />
+    
+          <div slot = "filterDropdownSolicitante" slot-scope = "{ setSelectedKeys, selectedKeys, confirm, clearFilters }" class = 'custom-filter-dropdown'>
+            <a-input
+              ref = "solicitanteInput"
+              placeholder = 'Buscar solicitante...'
+              :value = "selectedKeys[0]"
+              @change = "e => setSelectedKeys(e.target.value ? [e.target.value] : [])"
+              @pressEnter = "() => handleSearch('searchSolicitante', selectedKeys, confirm)"
+            />
+            <a-button type = 'primary' @click = "() => handleSearch('searchSolicitante', selectedKeys, confirm)"> Buscar </a-button>
+            <a-button @click = "() => handleReset('searchSolicitante', clearFilters)"> Resetar </a-button>
+          </div>
+
+          <div slot = "filterDropdownDataInicio" slot-scope = "{ setSelectedKeys, selectedKeys, confirm, clearFilters }" class = 'custom-filter-dropdown'>
+            <a-date-picker
+              ref = "dataInicioInput"
+              format = "DD/MM/YYYY"
+              :value = "searchDataInicioLocal"
+              placeholder = "Data Inicial:"
+              @change = "(date, dateString) => searchByDate(date, dateString, 'searchDataInicioLocal', setSelectedKeys, confirm)"
+            />
+            <a-button @click = "() => handleResetDate('searchDataInicioLocal', clearFilters)"> Resetar </a-button>
+          </div>
+
+          <div slot = "filterDropdownDataFim" slot-scope = "{ setSelectedKeys, selectedKeys, confirm, clearFilters }" class = 'custom-filter-dropdown'>
+            <a-date-picker
+              ref = "dataFimInput"
+              format = "DD/MM/YYYY"
+              :value = "searchDataFimLocal"
+              placeholder = "Data Final:"
+              @change = "(date, dateString) => searchByDate(date, dateString, 'searchDataFimLocal', setSelectedKeys, confirm)"
+            />
+            <a-button @click = "() => handleResetDate('searchDataFimLocal', clearFilters)"> Resetar </a-button>
+          </div>
+
+          <span slot = "statusTag" slot-scope = "tag">
+            <a-tag v-if = "tag === 'Confirmada'" color = "green" :key = "tag"> {{tag}} </a-tag>
+            <a-tag v-if = "tag === 'Cancelada'" color = "red" :key = "tag"> {{tag}} </a-tag>
+            <a-tag v-if = "tag === 'Pendente'" color = "blue" :key = "tag"> {{tag}} </a-tag>
+          </span>
+        </a-table>
       </a-tab-pane>
     </a-tabs>
-
     
     <a-modal
       :visible = "visibleEquipamentoModal"
       :footer = "null"
-      @cancel = "closeEquipamentoModal()"
+      @cancel = "closeModal()"
       style = "padding: 32px 32px 24px;">
 
       <a-icon type = "question-circle-o" style = "color: #faad14; font-size: 22px; margin-right: 16px" />
       <span> <b> Cuidado! </b> </span> <br/><br/>
-      <span > Realmente deseja cancelar esta Reserva do Equipamento: <b><i>{{modalEquip}}</i></b>? </span> <br/>
-      <a-textarea placeholder="Digite o motivo do cancelamento aqui" :autosize="{ minRows: 5, maxRows: 5 }" /><br/><br/>
+      <span > Realmente deseja cancelar esta Reserva do Equipamento: <b><i> {{modalEquipamento.equipamento}} </i></b>? </span> <br/>
+
+      <span v-if = "role === 'Supervisor' || role === 'admin'">
+        <a-textarea v-model = "resposta" placeholder = "Digite o motivo do cancelamento aqui" :autosize = "{ minRows: 5, maxRows: 5 }" /> <br/><br/>
+      </span>
+
       <span > <i> Esta ação não poderá ser desfeita. </i> </span> <br/>
 
       <div style = "text-align: right; margin-top: 20px;">
-        <a-button @click = "closeEquipamentoModal()"> Voltar </a-button>
-        <a-button @click = "deletaLocal()" type = "danger"> Cancelar </a-button>
+        <a-button @click = "closeModal()"> Voltar </a-button>
+        <a-button :loading = "buttonLoading" @click = "cancelarReservaEquipamento(modalEquipamento)" type = "danger"> Cancelar Reserva </a-button>
       </div> 
     </a-modal>
 
     <a-modal
-      v-if = "role === 'admin' || role === 'Supervisor'"
       :visible = "visibleLocalModal"
       :footer = "null"
-      @cancel = "closeLocalModal()"
-      style = "padding: 32px 32px 24px; top: 20px;">
+      @cancel = "closeModal()"
+      style = "padding: 32px 32px 24px;">
+
+      <a-icon type = "question-circle-o" style = "color: #faad14; font-size: 22px; margin-right: 16px" />
+      <span> <b> Cuidado! </b> </span> <br/><br/>
+      <span > Realmente deseja cancelar esta Reserva de Local?: <b><i> {{modalLocal.local}} </i></b>? </span> <br/>
       
-      <div slot = "title">
-        <h5 v-if = "edit"> <b> {{local.nome}} </b> </h5>
-        <h5 v-else > <b> Novo Local </b> </h5>
-      </div>
+      <span v-if = "role === 'Supervisor' || role === 'admin'">
+        <a-textarea v-model = "resposta" placeholder = "Digite o motivo do cancelamento aqui" :autosize = "{ minRows: 5, maxRows: 5 }" /><br/><br/>
+      </span>
+      <span > <i> Esta ação não poderá ser desfeita. </i> </span> <br/>
 
-      <a-form layout = "vertical" :autoFormCreate = "(form) => { this.form = form }">
-        <a-row :gutter = "16">
-          <a-col :span = "24">
-            <a-form-item label = "Sala" fieldDecoratorId = "nome" :fieldDecoratorOptions = "{ rules: [{ required: true, message: 'Campo Obrigatório' }, { validator: this.checkUnique }], initialValue: local.nome }">
-              <a-input size = "large" placeholder = "Digite bloco e sala" @focus = "checkInput" />
-            </a-form-item>
-          </a-col>
-        </a-row>
-
-        <a-row :gutter = "16">
-          <a-col :span = "24">
-            <a-form-item label = "Supervisor" fieldDecoratorId = "supervisor" :fieldDecoratorOptions = "{ rules: [{ required: true, message: 'Selecione Supervisor' }], initialValue: local.supervisor }">
-              <a-select size = "large" placeholder = "Selecione supervisor" @focus = "checkSelect('supervisor')" showSearch notFoundContent = "Supervisor não Encontrado" :filterOption = "filterOption">
-                <a-select-option v-for = "supervisor in supervisores" v-bind:key = "supervisor" :value = "supervisor"> {{supervisor}} </a-select-option>
-              </a-select>
-            </a-form-item>
-          </a-col>
-        </a-row>
-
-        <a-row :gutter = "16">
-          <a-col :span = "24">
-            <a-form-item label = "Cursos" fieldDecoratorId = "curso" :fieldDecoratorOptions = "{ rules: [{ required: true, message: 'Selecione Curso' }], initialValue: local.curso }">
-              <a-select size = "large" placeholder = "Selecione curso" @focus = "checkSelect('curso')" showSearch notFoundContent = "Curso não Encontrado" :filterOption = "filterOption">
-                <a-select-option v-for = "curso in cursos" v-bind:key = "curso" :value = "curso"> {{curso}} </a-select-option>
-              </a-select>
-            </a-form-item>
-          </a-col>
-        </a-row>
-
-        <a-row :gutter = "16">
-          <a-col :span = "24">
-            <a-form-item label = "Descrição" fieldDecoratorId = "descricao" :fieldDecoratorOptions = "{ rules: [{ required: true, message: 'Campo Obrigatório' }], initialValue: local.descricao }">
-              <a-textarea placeholder = "Digite descrição do laboratório" :autosize = "{ minRows: 3, maxRows: 6 }" @focus = "checkInput" />
-            </a-form-item>
-          </a-col>
-        </a-row>
-
-        <a-row style = "text-align: right; margin-bottom: 5px;">
-          <a-button size = "large" @click = "closeLocalModal()" style = "margin-right: 15px;"> Cancelar </a-button>
-          
-          <a-button v-if = "edit" size = "large" type = "primary" @click = "atualizaLocal"> Atualizar </a-button>
-          <a-button v-else size = "large" type = "primary" @click = "cadastraLocal"> Cadastrar </a-button>
-        </a-row>
-      </a-form>
+      <div style = "text-align: right; margin-top: 20px;">
+        <a-button @click = "closeModal()"> Voltar </a-button>
+        <a-button :loading = "buttonLoading" @click = "cancelarReservaLocal(modalLocal)" type = "danger"> Cancelar Reserva </a-button>
+      </div> 
     </a-modal>
-  </div>
-  <!-- </a-spin> -->
+  </a-spin>
 </template>
 
 <script>
   import firebaseApp from '../../firebase-controller.js'
+  import { sendEmail } from '../../emailAPI.js'
 
   const db = firebaseApp.database()
   const auth = firebaseApp.auth()
@@ -255,26 +268,27 @@
     data () {
       return {
         role: null,
-        // loading: false,
-        cursos: [],
-        supervisores: [],
+        loading: true,
+        buttonLoading: false,
+        resposta: '',
         usuarios: [],
-        Reservaequip: [],
-        Reservalocais: [],
-        local: [],
         locais: [],
-        equipamento: [],
-        searchNome: '',
-        searchSupervisor: '',
-        columnsEquip: [{
+        equipamentos: [],
+        reservaEquipamentos: [],
+        reservaLocais: [],
+        searchDataInicioEquipamento: null,
+        searchDataInicioLocal: null,
+        searchDataFimEquipamento: null,
+        searchDataFimLocal: null,
+        columnsEquipamento: [{
           title: 'Equipamento',
-          dataIndex: 'equipamento',
-          key: 'equipamento',
+          dataIndex: 'equipamento.nome',
+          key: 'equipamento.nome',
           scopedSlots: {
             filterDropdown: 'filterDropdownEquipamento',
             filterIcon: 'filterIcon'
           },
-          onFilter: (value, record) => record.equipamento.toLowerCase().includes(value.toLowerCase()),
+          onFilter: (value, record) => record.equipamento.nome.toLowerCase().includes(value.toLowerCase()),
           onFilterDropdownVisibleChange: (visible) => {
             if (visible) {
               setTimeout(() => {
@@ -284,19 +298,19 @@
           }
         }, {
           title: 'Local',
-          dataIndex: 'local',
-          key: 'local',
+          dataIndex: 'equipamento.local',
+          key: 'equipamento.local',
           filters: this.populaFiltroLocais(),
-          onFilter: (value, record) => record.local === value
+          onFilter: (value, record) => record.equipamento.local === value
         }, {
           title: 'Solicitante',
-          dataIndex: 'solicitante',
-          key: 'solicitante',
+          dataIndex: 'solicitante.nomeCompleto',
+          key: 'solicitante.key',
           scopedSlots: {
             filterDropdown: 'filterDropdownSolicitante',
             filterIcon: 'filterIcon'
           },
-          onFilter: (value, record) => record.solicitante.toLowerCase().includes(value.toLowerCase()),
+          onFilter: (value, record) => record.solicitante.nomeCompleto.toLowerCase().includes(value.toLowerCase()),
           onFilterDropdownVisibleChange: (visible) => {
             if (visible) {
               setTimeout(() => {
@@ -305,14 +319,14 @@
             }
           }
         }, {
-          title: 'Data Inicio',
+          title: 'Data Início',
           dataIndex: 'dataInicio',
           key: 'dataInicio',
           scopedSlots: {
             filterDropdown: 'filterDropdownDataInicio',
-            filterIcon: 'filterIcon'
+            filterIcon: 'filterIconDate'
           },
-          onFilter: (value, record) => record.dataInicio.toLowerCase().includes(value.toLowerCase()),
+          onFilter: (value, record) => this.$moment(value, 'DD/MM/YYYY') <= this.$moment(record.dataInicio, 'DD/MM/YYYY'),
           onFilterDropdownVisibleChange: (visible) => {
             if (visible) {
               setTimeout(() => {
@@ -326,9 +340,9 @@
           key: 'dataFim',
           scopedSlots: {
             filterDropdown: 'filterDropdownDataFim',
-            filterIcon: 'filterIcon'
+            filterIcon: 'filterIconDate'
           },
-          onFilter: (value, record) => record.dataFim.toLowerCase().includes(value.toLowerCase()),
+          onFilter: (value, record) => this.$moment(value, 'DD/MM/YYYY') >= this.$moment(record.dataFim, 'DD/MM/YYYY'),
           onFilterDropdownVisibleChange: (visible) => {
             if (visible) {
               setTimeout(() => {
@@ -336,7 +350,6 @@
               })
             }
           }
-        }, {
         }, {
           title: 'Status',
           dataIndex: 'status',
@@ -346,16 +359,16 @@
             text: 'Cancelada',
             value: 'Cancelada'
           }, {
-            text: 'Confirmada',
-            value: 'Confirmada'
-          }, {
             text: 'Pendente',
             value: 'Pendente'
+          }, {
+            text: 'Confirmada',
+            value: 'Confirmada'
           }],
           onFilter: (value, record) => record.status === value
         }, {
           title: 'Ações',
-          dataIndex: 'id',
+          dataIndex: 'key',
           key: 'acoes',
           align: 'center',
           scopedSlots: { customRender: 'actions' }
@@ -368,13 +381,13 @@
           onFilter: (value, record) => record.local === value
         }, {
           title: 'Solicitante',
-          dataIndex: 'solicitante',
-          key: 'solicitante',
+          dataIndex: 'solicitante.nomeCompleto',
+          key: 'solicitante.key',
           scopedSlots: {
             filterDropdown: 'filterDropdownSolicitante',
             filterIcon: 'filterIcon'
           },
-          onFilter: (value, record) => record.solicitante.toLowerCase().includes(value.toLowerCase()),
+          onFilter: (value, record) => record.solicitante.nomeCompleto.toLowerCase().includes(value.toLowerCase()),
           onFilterDropdownVisibleChange: (visible) => {
             if (visible) {
               setTimeout(() => {
@@ -383,14 +396,14 @@
             }
           }
         }, {
-          title: 'Data Inicio',
+          title: 'Data Início',
           dataIndex: 'dataInicio',
           key: 'dataInicio',
           scopedSlots: {
             filterDropdown: 'filterDropdownDataInicio',
-            filterIcon: 'filterIcon'
+            filterIcon: 'filterIconDate'
           },
-          onFilter: (value, record) => record.dataInicio.toLowerCase().includes(value.toLowerCase()),
+          onFilter: (value, record) => this.$moment(value, 'DD/MM/YYYY') <= this.$moment(record.dataInicio, 'DD/MM/YYYY'),
           onFilterDropdownVisibleChange: (visible) => {
             if (visible) {
               setTimeout(() => {
@@ -404,9 +417,9 @@
           key: 'dataFim',
           scopedSlots: {
             filterDropdown: 'filterDropdownDataFim',
-            filterIcon: 'filterIcon'
+            filterIcon: 'filterIconDate'
           },
-          onFilter: (value, record) => record.dataFim.toLowerCase().includes(value.toLowerCase()),
+          onFilter: (value, record) => this.$moment(value, 'DD/MM/YYYY') >= this.$moment(record.dataFim, 'DD/MM/YYYY'),
           onFilterDropdownVisibleChange: (visible) => {
             if (visible) {
               setTimeout(() => {
@@ -423,40 +436,39 @@
             text: 'Cancelada',
             value: 'Cancelada'
           }, {
-            text: 'Confirmada',
-            value: 'Confirmada'
-          }, {
             text: 'Pendente',
             value: 'Pendente'
+          }, {
+            text: 'Confirmada',
+            value: 'Confirmada'
           }],
           onFilter: (value, record) => record.status === value
         }, {
           title: 'Ações',
-          dataIndex: 'local',
+          dataIndex: 'key',
           key: 'acoes',
           align: 'center',
           scopedSlots: { customRender: 'actions' }
         }],
+        modalEquipamento: '',
+        modalLocal: '',
         visibleEquipamentoModal: false,
-        modalEquip: '',
-        visibleLocalModal: false,
-        edit: false
+        visibleLocalModal: false
       }
     },
     beforeMount: function () {
       let _this = this
-      _this.loading = true
+  
       db.ref('Usuarios/' + auth.currentUser.uid + '/role').on('value', function (snapshot) {
-        // _this.loading = true
+        _this.loading = true
         _this.role = snapshot.val()
-        // _this.loading = false
-        // todos os locais
+
         db.ref('Locais').orderByKey().on('value', function (snapshot) {
-          // _this.loading = true
-          _this.local = []
+          _this.locais = []
+          _this.loading = true
 
           snapshot.forEach(function (item) {
-            _this.local.push({
+            _this.locais.push({
               'local': item.key,
               'curso': item.val().Curso,
               'descricao': item.val().Descricao,
@@ -465,28 +477,13 @@
           })
           _this.loading = false
         })
-        // todos os Supervisores
-        db.ref('Usuarios').orderByChild('role').equalTo('Supervisor').on('value', (snapshot) => {
-          // _this.loading = true
-          _this.supervisores = []
 
-          snapshot.forEach(function (item) {
-            _this.supervisores.push({
-              'key': item.key,
-              'curso': item.val().Curso,
-              'email': item.val().Email,
-              'nome': item.val().Nome,
-              'RA': item.val().RA
-            })
-          })
-          _this.loading = false
-        })
-        // todos os Equipamentos
         db.ref('Equipamentos').orderByKey().on('value', function (snapshot) {
-          // _this.loading = true
+          _this.equipamentos = []
+          _this.loading = true
 
           snapshot.forEach(function (item) {
-            _this.equipamento.push({
+            _this.equipamentos.push({
               'key': item.key,
               'patrimonio': item.val().Patrimonio,
               'nome': item.val().Nome,
@@ -496,149 +493,136 @@
           })
           _this.loading = false
         })
-        // todos os Usuarios
+
         db.ref('Usuarios').orderByKey().on('value', function (snapshot) {
-          // _this.loading = true
+          _this.usuarios = []
+          _this.loading = true
 
           snapshot.forEach(function (item) {
             _this.usuarios.push({
               'key': item.key,
               'curso': item.val().Curso,
               'email': item.val().Email,
-              'nome': item.val().Nome,
               'RA': item.val().RA,
+              'nomeCompleto': item.val().Nome + ' ' + item.val().Sobrenome,
+              'nome': item.val().Nome,
               'sobrenome': item.val().Sobrenome,
               'role': item.val().role
             })
           })
           _this.loading = false
         })
+
         if (_this.role === 'admin' || _this.role === 'Supervisor') {
-          // Reservas dos Locais
-          db.ref('Reservas/locais').orderByKey().on('value', function (snapshot) {
-            // _this.loading = true
-            snapshot.forEach(function (item) {
-              var solicitante
-              var supervisor
-              var val = _this.usuarios.map(function (e) { return e.key }).indexOf(item.val().Solicitante)
-              if (val === -1) {
-                solicitante = 'Error'
-              } else {
-                solicitante = _this.usuarios[_this.usuarios.map(function (e) { return e.key }).indexOf(item.val().Solicitante)].nome
-              }
-              val = _this.supervisores.map(function (e) { return e.key }).indexOf(item.val().Supervisor)
-              if (val === -1) {
-                supervisor = 'Error'
-              } else {
-                supervisor = _this.supervisores[_this.supervisores.map(function (e) { return e.key }).indexOf(item.val().Supervisor)].nome
-              }
-              _this.Reservalocais.push({
-                'local': item.val().Local,
-                'solicitante': solicitante,
-                'supervisor': supervisor, // esta dando erro tem que arrumar o banco.
-                'dataInicio': item.val().Inicio,
-                'dataFim': item.val().Fim,
-                'status': item.val().Status
-              })
-            })
-            _this.loading = false
-          })
-          // Reservas dos Equipamentos
-          db.ref('Reservas/equipamentos').orderByKey().on('value', function (snapshot) {
-            // _this.loading = true
+          db.ref('Reservas/locais').orderByChild('Status').on('value', function (snapshot) {
+            _this.reservaLocais = []
+            _this.loading = true
 
             snapshot.forEach(function (item) {
-              var solicitante
-              var val = _this.usuarios.map(function (e) { return e.key }).indexOf(item.val().Solicitante)
-              if (val === -1) {
-                solicitante = 'Error'
-              } else {
-                solicitante = _this.usuarios[_this.usuarios.map(function (e) { return e.key }).indexOf(item.val().Solicitante)].nome
-              }
-              var local
-              var equipamento
-              val = _this.equipamento.map(function (e) { return e.key }).indexOf(item.val().Equipamento)
-              if (val === -1) {
-                local = 'Error'
-              } else {
-                local = _this.equipamento[_this.equipamento.map(function (e) { return e.key }).indexOf(item.val().Equipamento)].local
-                equipamento = _this.equipamento[_this.equipamento.map(function (e) { return e.key }).indexOf(item.val().Equipamento)].patrimonio
-              }
-              _this.Reservaequip.push({
-                'id': item.val().Equipamento,
-                'equipamento': equipamento,
-                'local': local,
-                'solicitante': solicitante,
+              _this.reservaLocais.push({
+                'key': item.key,
+                'local': item.val().Local,
+                'solicitante': _this.usuarios[_this.usuarios.map(function (e) { return e.key }).indexOf(item.val().Solicitante)],
                 'dataInicio': item.val().Inicio,
                 'dataFim': item.val().Fim,
                 'status': item.val().Status
               })
             })
+            _this.reservaLocais = _this.reservaLocais.reverse()
+            _this.loading = false
+          })
+
+          db.ref('Reservas/equipamentos').orderByChild('Status').on('value', function (snapshot) {
+            _this.reservaEquipamentos = []
+            _this.loading = true
+
+            snapshot.forEach(function (item) {
+              _this.reservaEquipamentos.push({
+                'key': item.key,
+                'equipamento': _this.equipamentos[_this.equipamentos.map(function (e) { return e.key }).indexOf(item.val().Equipamento)],
+                'solicitante': _this.usuarios[_this.usuarios.map(function (e) { return e.key }).indexOf(item.val().Solicitante)],
+                'dataInicio': item.val().Inicio,
+                'dataFim': item.val().Fim,
+                'status': item.val().Status
+              })
+            })
+            _this.reservaEquipamentos = _this.reservaEquipamentos.reverse()
             _this.loading = false
           })
         } else {
-          // Reservas dos Locais
           db.ref('Reservas/locais').orderByChild('Solicitante').equalTo(auth.currentUser.uid).on('value', function (snapshot) {
-            // _this.loading = true
-            console.log('entrou')
-            snapshot.forEach(function (item) {
-              console.log('item =', item.val())
-              var solicitante
-              var supervisor
-              var val = _this.usuarios.map(function (e) { return e.key }).indexOf(item.val().Solicitante)
-              if (val === -1) {
-                solicitante = 'Error'
-              } else {
-                solicitante = _this.usuarios[_this.usuarios.map(function (e) { return e.key }).indexOf(item.val().Solicitante)].nome
-              }
-              val = _this.supervisores.map(function (e) { return e.key }).indexOf(item.val().Supervisor)
-              if (val === -1) {
-                supervisor = 'Error'
-              } else {
-                supervisor = _this.supervisores[_this.supervisores.map(function (e) { return e.key }).indexOf(item.val().Supervisor)].nome
-              }
-              _this.Reservalocais.push({
-                'local': item.val().Local,
-                'solicitante': solicitante,
-                'supervisor': supervisor, // esta dando erro tem que arrumar o banco.
-                'dataInicio': item.val().Inicio,
-                'dataFim': item.val().Fim,
-                'status': item.val().Status
-              })
-            })
-            _this.loading = false
-          })
-          // Reservas dos Equipamentos
-          db.ref('Reservas/equipamentos').orderByChild('Solicitante').equalTo(auth.currentUser.uid).on('value', function (snapshot) {
-            // _this.loading = true
+            var desordenados = []
+            _this.reservaLocais = []
+            _this.loading = true
 
             snapshot.forEach(function (item) {
-              var solicitante
-              var val = _this.usuarios.map(function (e) { return e.key }).indexOf(item.val().Solicitante)
-              if (val === -1) {
-                solicitante = 'Error'
+              if (item.val().Status === 'Confirmada') {
+                _this.reservaLocais.push({
+                  'key': item.key,
+                  'local': item.val().Local,
+                  'solicitante': _this.usuarios[_this.usuarios.map(function (e) { return e.key }).indexOf(item.val().Solicitante)],
+                  'dataInicio': item.val().Inicio,
+                  'dataFim': item.val().Fim,
+                  'status': item.val().Status
+                })
               } else {
-                solicitante = _this.usuarios[_this.usuarios.map(function (e) { return e.key }).indexOf(item.val().Solicitante)].nome
+                desordenados.push({
+                  'key': item.key,
+                  'local': item.val().Local,
+                  'solicitante': _this.usuarios[_this.usuarios.map(function (e) { return e.key }).indexOf(item.val().Solicitante)],
+                  'dataInicio': item.val().Inicio,
+                  'dataFim': item.val().Fim,
+                  'status': item.val().Status
+                })
               }
-              var local
-              var equipamento
-              val = _this.equipamento.map(function (e) { return e.key }).indexOf(item.val().Equipamento)
-              if (val === -1) {
-                local = 'Error'
-              } else {
-                local = _this.equipamento[_this.equipamento.map(function (e) { return e.key }).indexOf(item.val().Equipamento)].local
-                equipamento = _this.equipamento[_this.equipamento.map(function (e) { return e.key }).indexOf(item.val().Equipamento)].patrimonio
-              }
-              _this.Reservaequip.push({
-                'id': item.val().Equipamento,
-                'equipamento': equipamento,
-                'local': local,
-                'solicitante': solicitante,
-                'dataInicio': item.val().Inicio,
-                'dataFim': item.val().Fim,
-                'status': item.val().Status
-              })
             })
+            desordenados = desordenados.sort(function (a, b) {
+              var x = a.status.toLowerCase()
+              var y = b.status.toLowerCase()
+              if (x < y) { return -1 }
+              if (x > y) { return 1 }
+              return 0
+            }).reverse()
+            _this.reservaLocais = _this.reservaLocais.concat(desordenados)
+            _this.loading = false
+          })
+
+          db.ref('Reservas/equipamentos').orderByChild('Solicitante').equalTo(auth.currentUser.uid).on('value', function (snapshot) {
+            var desordenados = []
+            _this.reservaEquipamentos = []
+            _this.loading = true
+
+            snapshot.forEach(function (item) {
+              if (item.val().Status === 'Confirmada') {
+                _this.reservaEquipamentos.push({
+                  'key': item.key,
+                  'id': item.val().Equipamento,
+                  'equipamento': _this.equipamentos[_this.equipamentos.map(function (e) { return e.key }).indexOf(item.val().Equipamento)],
+                  'solicitante': _this.usuarios[_this.usuarios.map(function (e) { return e.key }).indexOf(item.val().Solicitante)],
+                  'dataInicio': item.val().Inicio,
+                  'dataFim': item.val().Fim,
+                  'status': item.val().Status
+                })
+              } else {
+                desordenados.push({
+                  'key': item.key,
+                  'id': item.val().Equipamento,
+                  'equipamento': _this.equipamentos[_this.equipamentos.map(function (e) { return e.key }).indexOf(item.val().Equipamento)],
+                  'solicitante': _this.usuarios[_this.usuarios.map(function (e) { return e.key }).indexOf(item.val().Solicitante)],
+                  'dataInicio': item.val().Inicio,
+                  'dataFim': item.val().Fim,
+                  'status': item.val().Status
+                })
+              }
+            })
+            desordenados = desordenados.sort(function (a, b) {
+              var x = a.status.toLowerCase()
+              var y = b.status.toLowerCase()
+              if (x < y) { return -1 }
+              if (x > y) { return 1 }
+              return 0
+            }).reverse()
+            _this.reservaEquipamentos = _this.reservaEquipamentos.concat(desordenados)
             _this.loading = false
           })
         }
@@ -653,28 +637,16 @@
         clearFilters()
         this[inputText] = ''
       },
-      showEquipamentoModal (equip) {
-        var _this = this
-        this.modalEquip = _this.equipamento[_this.equipamento.map(function (e) { return e.key }).indexOf(equip)].patrimonio
-        this.visibleEquipamentoModal = true
+      handleResetDate (inputText, clearFilters) {
+        clearFilters()
+        this[inputText] = null
       },
-      closeEquipamentoModal () {
-        this.visibleEquipamentoModal = false
-        this.modalEquip = ''
+      searchByDate (date, dateString, inputText, setSelectedKeys, confirm) {
+        setSelectedKeys(dateString ? [dateString] : [])
+        this.handleSearch(inputText, [date], confirm)
       },
-      showLocalModal () {
-        this.visibleLocalModal = true
-      },
-      showAtualizaModal (local) {
-        this.local = this.locais[this.locais.map(function (e) { return e.nome }).indexOf(local)]
-        this.edit = true
-        this.showLocalModal()
-      },
-      closeLocalModal () {
-        this.visibleLocalModal = false
-        this.edit = false
-        this.local = ''
-        this.form.resetFields()
+      filterOption (input, option) {
+        return option.componentOptions.children[0].text.toLowerCase().indexOf(input.toLowerCase()) >= 0
       },
       populaFiltroLocais () {
         var locais = []
@@ -688,8 +660,145 @@
         })
         return locais
       },
-      filterOption (input, option) {
-        return option.componentOptions.children[0].text.toLowerCase().indexOf(input.toLowerCase()) >= 0
+      showEquipamentoModal (equipamento) {
+        this.modalEquipamento = equipamento
+        this.visibleEquipamentoModal = true
+      },
+      showLocalModal (local) {
+        this.modalLocal = local
+        this.visibleLocalModal = true
+      },
+      closeModal () {
+        this.visibleLocalModal = false
+        this.visibleEquipamentoModal = false
+        this.modalEquipamento = ''
+        this.modalLocal = ''
+      },
+      confirmarReservaEquipamento (record) {
+        let _this = this
+
+        db.ref('Reservas/equipamentos').child(record.key).update({
+          'Status': 'Confirmada'
+        }).then(() => {
+          let user = record.solicitante
+          let to = [user.nome + ' <' + user.email + '>']
+          let textBody = 'Sua reserva foi Confirmada'
+          let htmlBody = '<h3>Reserva confirmada</h3><br><p>Sua reserva do equipamento: <strong>' + record.equipamento + '</strong> no período: <strong>' + record.dataInicio + ' até ' + record.dataFim + '</strong> foi <strong>confirmada</strong>.</p> <small>Este é um E-mail automático, por favor não responda</small>'
+
+          sendEmail(to, 'Reserva de equipamento confirmada', textBody, htmlBody)
+
+          _this.$notification.success({
+            message: 'Yey!..',
+            description: 'Reserva confirmada com sucesso.'
+          })
+        }).catch(() => {
+          _this.$notification.error({
+            message: 'Opps..',
+            description: 'Reserva não confirmada.'
+          })
+        })
+      },
+      confirmarReservaLocal (record) {
+        let _this = this
+
+        db.ref('Reservas/locais').child(record.key).update({
+          'Status': 'Confirmada'
+        }).then(() => {
+          let user = record.solicitante
+          let to = [user.nome + ' <' + user.email + '>']
+          let textBody = 'Sua reserva foi Confirmada'
+          let htmlBody = '<h3>Reserva confirmada</h3><br><p>Sua reserva do local: <strong>' + record.local + '</strong> no período: <strong>' + record.dataInicio + ' até ' + record.dataFim + '</strong> foi <strong>confirmada</strong>.</p> <small>Este é um E-mail automático, por favor não responda</small>'
+
+          sendEmail(to, 'Reserva de Local confirmada', textBody, htmlBody)
+
+          _this.$notification.success({
+            message: 'Yey!..',
+            description: 'Reserva confirmada com sucesso.'
+          })
+        }).catch(() => {
+          _this.$notification.error({
+            message: 'Opps..',
+            description: 'Reserva não confirmada.'
+          })
+        })
+      },
+      cancelarReservaEquipamento (record) {
+        let _this = this
+        _this.buttonLoading = true
+
+        db.ref('Reservas/equipamentos').child(record.key).update({
+          'Status': 'Cancelada'
+        }).then(() => {
+          let user = record.solicitante
+          let to = [user.nome + ' <' + user.email + '>']
+          let textBody = 'Sua reserva foi Cancelada'
+          let htmlBody = '<h3>Reserva cancelada</h3><br><p>Sua reserva do equipamento: <strong>' + record.equipamento + '</strong> no período: <strong>' + record.dataInicio + ' até ' + record.dataFim + '</strong> foi <strong>cancelada</strong>.</p>'
+          if (_this.resposta !== '') {
+            htmlBody += '<p>Sua reserva foi cancelada pelo motivo: ' + _this.resposta + '</p>'
+          }
+          htmlBody += '<small>Este é um E-mail automático, por favor não responda</small>'
+
+          sendEmail(to, 'Reserva de equipamento cancelada', textBody, htmlBody)
+          _this.buttonLoading = false
+          _this.resposta = ''
+          if (_this.role === 'Comum') {
+            _this.$router.push('/home')
+          } else {
+            _this.closeModal()
+
+            _this.$notification.success({
+              message: 'Yey!..',
+              description: 'Reserva cancelada com sucesso.'
+            })
+          }
+        }).catch(() => {
+          _this.buttonLoading = false
+          _this.closeModal()
+  
+          _this.$notification.error({
+            message: 'Opps..',
+            description: 'Reserva não cancelada.'
+          })
+        })
+      },
+      cancelarReservaLocal (record) {
+        let _this = this
+        _this.buttonLoading = true
+
+        db.ref('Reservas/locais').child(record.key).update({
+          'Status': 'Cancelada'
+        }).then(() => {
+          let user = record.solicitante
+          let to = [user.nome + ' <' + user.email + '>']
+          let textBody = 'Sua reserva foi Cancelada'
+          let htmlBody = '<h3>Reserva cancelada</h3><br><p>Sua reserva do local: <strong>' + record.local + '</strong> no período: <strong>' + record.dataInicio + ' até ' + record.dataFim + '</strong> foi <strong>cancelada</strong>.</p>'
+          if (_this.resposta !== '') {
+            htmlBody += '<p>Sua reserva foi cancelada pelo motivo: ' + _this.resposta + '</p>'
+          }
+          htmlBody += '<small>Este é um E-mail automático, por favor não responda</small>'
+
+          sendEmail(to, 'Reserva de local cancelada', textBody, htmlBody)
+          _this.resposta = ''
+          _this.buttonLoading = false
+          if (_this.role === 'Comum') {
+            _this.$router.push('/home')
+          } else {
+            _this.closeModal()
+
+            _this.$notification.success({
+              message: 'Yey!..',
+              description: 'Reserva cancelada com sucesso.'
+            })
+          }
+        }).catch(() => {
+          _this.buttonLoading = false
+          _this.closeModal()
+
+          _this.$notification.error({
+            message: 'Opps..',
+            description: 'Reserva não cancelada.'
+          })
+        })
       }
     }
   }
@@ -710,5 +819,9 @@
 
   .custom-filter-dropdown button {
     margin-right: 8px;
+  }
+
+  .ant-tabs-content.ant-tabs-content-animated {
+    min-height: 350px;
   }
 </style>

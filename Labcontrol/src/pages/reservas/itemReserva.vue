@@ -1,5 +1,5 @@
 <template>
-  <a-row>
+  <a-spin :spinning = "parent.loading">
     <a-row style = "text-align: center; margin-bottom: 30px;">
       <a-col :span = "16" :offset = "4">
         <h2> Escolha Item de Reserva </h2>
@@ -114,7 +114,7 @@
         </a-tab-pane>
       </a-tabs>
     </a-row>
-  </a-row>
+  </a-spin>
 </template>
 
 <script>
@@ -126,6 +126,7 @@
     name: 'itemReserva',
     data () {
       return {
+        parent: this.$parent.$parent.$parent,
         equipamentos: [],
         locais: [],
         supervisores: [],
@@ -267,26 +268,45 @@
     },
     beforeMount: function () {
       let _this = this
+      _this.parent.loading = true
 
-      db.ref('Equipamentos').orderByKey().on('value', function (snapshot) {
+      db.ref('Equipamentos').orderByChild('Status').on('value', function (snapshot) {
+        var desordenados = []
         _this.equipamentos = []
+        _this.parent.loading = true
 
         snapshot.forEach(function (item) {
-          _this.equipamentos.push({
-            'id': item.key,
-            'patrimonio': item.val().Patrimonio,
-            'nome': item.val().Nome,
-            'local': item.val().Local,
-            'status': item.val().Status,
-            'curso': item.val().Curso,
-            'marca': item.val().Marca,
-            'especificacao': item.val().Especificacao
-          })
+          if (item.val().Status === 'Normal') {
+            _this.equipamentos.push({
+              'id': item.key,
+              'patrimonio': item.val().Patrimonio,
+              'nome': item.val().Nome,
+              'local': item.val().Local,
+              'status': item.val().Status,
+              'curso': item.val().Curso,
+              'marca': item.val().Marca,
+              'especificacao': item.val().Especificacao
+            })
+          } else {
+            desordenados.push({
+              'id': item.key,
+              'patrimonio': item.val().Patrimonio,
+              'nome': item.val().Nome,
+              'local': item.val().Local,
+              'status': item.val().Status,
+              'curso': item.val().Curso,
+              'marca': item.val().Marca,
+              'especificacao': item.val().Especificacao
+            })
+          }
         })
+        _this.equipamentos = _this.equipamentos.concat(desordenados)
+        _this.parent.loading = false
       })
 
       db.ref('Locais').orderByKey().on('value', function (snapshot) {
         _this.locais = []
+        _this.parent.loading = true
 
         snapshot.forEach(function (item) {
           _this.locais.push({
@@ -296,14 +316,17 @@
             'supervisor': item.val().Supervisor
           })
         })
+        _this.parent.loading = false
       })
 
       db.ref('Usuarios').orderByChild('role').equalTo('Supervisor').on('value', (snapshot) => {
         _this.supervisores = []
+        _this.parent.loading = true
 
         snapshot.forEach(function (supervisor) {
           _this.supervisores.push(supervisor.val().Nome + ' ' + supervisor.val().Sobrenome)
         })
+        _this.parent.loading = false
       })
     },
     methods: {
@@ -369,5 +392,9 @@
 
   .linkProximo {
     text-decoration: none !important;
+  }
+
+  .ant-tabs-content.ant-tabs-content-animated {
+    min-height: 350px;
   }
 </style>

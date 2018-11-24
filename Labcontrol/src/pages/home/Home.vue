@@ -1,14 +1,11 @@
 <template>
-  
-  <div id="home">
-    <div class="container-fluid">
-      <div v-if="role !== 'Comum'" class="container">
+  <div>
+      <div v-if="!loader.loading && role !== 'Comum'" class="container">
         <resumo-supervisor :month="resumo.month" :day="resumo.day" :time="resumo.time" :reservasEquipConfirmadasLength="resumo.reservas_equip_confirmadas_length" :reservasEquipPendentesLength="resumo.reservas_equip_pendentes_length" :equipamentosQuebradosLength="resumo.equipamentos_quebrados_length" :equipamentosManutencaoLength="resumo.equipamentos_manutencao_length" :reservasLocalConfirmadasLength="resumo.reservas_local_confirmadas_length" :reservasLocalPendentesLength="resumo.reservas_local_pendentes_length" :reservas="resumo.reservados" :diaResumo="resumo.dia"></resumo-supervisor>
       </div>
-      <div v-if="role === 'Comum'" class="container">
-        <resumo-comum></resumo-comum>
+      <div v-if="!loader.loading && role === 'Comum'" class="container">
+        <resumo-comum :month="resumo.month" :reservasUser="resumo.reservasUser"></resumo-comum>
       </div>
-    </div>
   </div>
 </template>
 
@@ -73,39 +70,6 @@ export default {
   },
   mounted: function () {
     this.loader.loading = true
-    let now = new Date()
-    this.hours = now.getHours()
-    this.minutes = this.zeroPattern(now.getMinutes())
-    this.seconds = this.zeroPattern(now.getSeconds())
-    this.time = this.hours + ':' + this.minutes
-    this.day = this.zeroPattern(now.getDate())
-    var month = now.getMonth()
-    if (month === 0) {
-      this.month = 'Jan'
-    } else if (month === 1) {
-      this.month = 'Fev'
-    } else if (month === 2) {
-      this.month = 'Mar'
-    } else if (month === 3) {
-      this.month = 'Abr'
-    } else if (month === 4) {
-      this.month = 'Mai'
-    } else if (month === 5) {
-      this.month = 'Jun'
-    } else if (month === 6) {
-      this.month = 'Jul'
-    } else if (month === 7) {
-      this.month = 'Ago'
-    } else if (month === 8) {
-      this.month = 'Set'
-    } else if (month === 9) {
-      this.month = 'Out'
-    } else if (month === 10) {
-      this.month = 'Nov'
-    } else if (month === 11) {
-      this.month = 'Dez'
-    }
-    setInterval(this.updateTime, 1000)
 
     var _this = this
     if (this.role === 'Supervisor' || this.role === 'admin') {
@@ -121,7 +85,10 @@ export default {
         // console.log('Lista Pendentes tem:' + _this.reservas.equipPendentes.length)
         _this.loader.loading = false
       })
+
+      // Pega todas as reservas confirmadas
       db.ref('Reservas/equipamentos').orderByChild('Status').equalTo('Confirmada').on('value', function (snapshot) {
+        _this.resumo.reservados = []
         _this.loader.loading = true
         _this.reservas.equipConfirmadas = []
         // Percorre todos os equipamentos confirmados
@@ -150,6 +117,34 @@ export default {
               _this.resumo.reservas_equip_confirmadas_length = _this.reservas.equipConfirmadas.length
               // _this.resumo.reservados = _this.reservas.equipConfirmadas
               console.log('Lista Confirmados E:' + _this.reservas.equipConfirmadas.length)
+
+              // Pega Locais confirmados
+              db.ref('Reservas/locais').orderByChild('Status').equalTo('Confirmada').on('value', function (snapshot) {
+                _this.loader.loading = true
+                _this.reservas.localConfirmadas = []
+                // Percorre todos os locais confirmados
+                snapshot.forEach(function (childSnapshot) {
+                  // Pega o usuário que solicitou o equipamento
+                  db.ref('Usuarios/' + childSnapshot.val().Solicitante).on('value', function (userSolicitante) {
+                    console.log('conf: ' + childSnapshot.key)
+                    // Adiciona o local na lista de confirmados
+                    _this.reservas.localConfirmadas.push([childSnapshot.key, childSnapshot.val(), userSolicitante.val()])
+                    // Pega data de início do empréstimo
+                    var dataInicio = moment(childSnapshot.val().Inicio.slice(0, 10), 'DD/MM/YYYY')
+                    if ((dataInicio.year() === _this.resumo.dia.year()) && (dataInicio.month() === _this.resumo.dia.month()) && (dataInicio.date() === _this.resumo.dia.date())) {
+                      // console.log('Passou equipconf')
+                      // Equipamento é adiciondo na lista de resumo
+                      _this.resumo.reservados.push([childSnapshot.val().Local, childSnapshot.val(), userSolicitante.val()])
+                    }
+
+                    // Guarda quantidade de confirmados
+                    _this.resumo.reservas_local_confirmadas_length = _this.reservas.localConfirmadas.length
+                    _this.loader.loading = false
+                    console.log('Lista Confirmados L:' + _this.reservas.localConfirmadas.length)
+                  })
+                })
+              })
+
               _this.loader.loading = false
             })
           })
