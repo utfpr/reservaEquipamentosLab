@@ -184,6 +184,31 @@ export default {
         _this.resumo.reservas_local_pendentes_length = _this.reservas.localPendentes.length
         _this.loader.loading = false
       })
+      db.ref('Reservas/locais').orderByChild('Status').equalTo('Confirmada').on('value', function (snapshot) {
+        _this.loader.loading = true
+        _this.reservas.localConfirmadas = []
+        // Percorre todos os locais confirmados
+        snapshot.forEach(function (childSnapshot) {
+          // Pega o usuário que solicitou o equipamento
+          db.ref('Usuarios/' + childSnapshot.val().Solicitante).on('value', function (userSolicitante) {
+            console.log('conf: ' + childSnapshot.key)
+            // Adiciona o local na lista de confirmados
+            _this.reservas.localConfirmadas.push([childSnapshot.key, childSnapshot.val(), userSolicitante.val()])
+            // Pega data de início do empréstimo
+            var dataInicio = moment(childSnapshot.val().Inicio.slice(0, 10), 'DD/MM/YYYY')
+            if ((dataInicio.year() === _this.resumo.dia.year()) && (dataInicio.month() === _this.resumo.dia.month()) && (dataInicio.date() === _this.resumo.dia.date())) {
+              // console.log('Passou equipconf')
+              // Equipamento é adiciondo na lista de resumo
+              _this.resumo.reservados.push([childSnapshot.val().Local, childSnapshot.val(), userSolicitante.val()])
+            }
+
+            // Guarda quantidade de confirmados
+            _this.resumo.reservas_local_confirmadas_length = _this.reservas.localConfirmadas.length
+            _this.loader.loading = false
+            console.log('Lista Confirmados L:' + _this.reservas.localConfirmadas.length)
+          })
+        })
+      })
     } else if (this.role === 'Comum') {
       db.ref('Reservas/equipamentos').orderByChild('Solicitante').equalTo(auth.currentUser.uid).on('value', function (snapshot) {
         _this.loader.loading = true
