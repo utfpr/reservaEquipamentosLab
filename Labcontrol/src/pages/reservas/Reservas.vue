@@ -403,7 +403,7 @@
             filterDropdown: 'filterDropdownDataInicio',
             filterIcon: 'filterIconDate'
           },
-          onFilter: (value, record) => this.$moment(value, 'DD/MM/YYYY') >= this.$moment(record.dataInicio, 'DD/MM/YYYY'),
+          onFilter: (value, record) => this.$moment(value, 'DD/MM/YYYY') <= this.$moment(record.dataInicio, 'DD/MM/YYYY'),
           onFilterDropdownVisibleChange: (visible) => {
             if (visible) {
               setTimeout(() => {

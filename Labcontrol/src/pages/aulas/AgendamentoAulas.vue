@@ -104,7 +104,7 @@
           <a-col :span = "12">
             <a-form-item label = "Hora Início" fieldDecoratorId = "horaInicio" :fieldDecoratorOptions = "{ rules: [{ required: true, message: 'Selecione Hora Inicial' }, { validator: this.checkTimeInicial }] }">
               <a-time-picker size = "large" format = 'HH:mm' placeholder = "Inicio" :disabledHours = "disabledHours" :minuteStep = "10" hideDisabledOptions />
-            </a-form-item>  
+            </a-form-item>
           </a-col>
 
           <a-col :span = "12">

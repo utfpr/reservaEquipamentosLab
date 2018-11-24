@@ -39,11 +39,11 @@
               :disabledHours = "disabledHours"
               :minuteStep = "10" 
               hideDisabledOptions
-              :value = "searchHoraFinal"
+              :value = "searchHoraFim"
               placeholder = "Hora Inicial:"
-              @change = "(date, dateString) => searchByDate(date, dateString, 'searchHoraFinal', setSelectedKeys, confirm)"
+              @change = "(date, dateString) => searchByDate(date, dateString, 'searchHoraFim', setSelectedKeys, confirm)"
             />
-            <a-button @click = "() => handleResetDate('searchHoraFinal', clearFilters)"> Resetar </a-button>
+            <a-button @click = "() => handleResetDate('searchHoraFim', clearFilters)"> Resetar </a-button>
       </div>
 
       <a-icon slot = "filterIconHora" slot-scope = "filtered" type = "clock-circle-o" :style = "{ color: filtered ? '#108ee9' : '#aaa' }" />
@@ -130,6 +130,9 @@
         usuarios: [],
         modalAula: '',
         searchDataInicio: null,
+        searchDataFim: null,
+        searchHoraInicio: null,
+        searchHoraFim: null,
         visibleModal: false,
         columns: [{
           title: 'Local',
