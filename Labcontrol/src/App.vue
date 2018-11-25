@@ -12,43 +12,43 @@
         <a-menu-item key = "home">
           <a-icon type = "home" />
           <span> Home </span>
-          <router-link to = "/home" class = "nav-link" />
+          <router-link to = "/home" />
         </a-menu-item>
         
         <a-menu-item key = "reservas">
           <a-icon type = "database" />
           <span> Reservas </span>
-          <router-link to = "/reservas" class = "nav-link" />
+          <router-link to = "/reservas" />
         </a-menu-item>
 
         <a-menu-item key = "equipamentos">
           <a-icon class = "fa fa-flask" />
           <span> Equipamentos </span>
-          <router-link to = "/equipamentos" class = "nav-link" />
+          <router-link to = "/equipamentos" />
         </a-menu-item>
 
         <a-menu-item key = "locais">
           <a-icon class = "fa fa-map-marker-alt" />
           <span> Locais </span>
-          <router-link to = "/locais" class = "nav-link" />
+          <router-link to = "/locais" />
         </a-menu-item>
 
         <a-menu-item v-if = "role === 'admin' || role === 'Supervisor'" key = "aulas">
           <a-icon type = "schedule" />
           <span> Aulas </span>
-          <router-link to = "/aulas" class = "nav-link" />
+          <router-link to = "/aulas" />
         </a-menu-item>
 
         <a-menu-item v-if = "role === 'admin' || role === 'Supervisor'" key = "cursos">
           <a-icon type = "book" />
           <span> Cursos </span>
-          <router-link to = "/cursos" class = "nav-link" />
+          <router-link to = "/cursos" />
         </a-menu-item>
 
         <a-menu-item v-if = "role === 'admin'" key = "usuarios">
           <a-icon class = "fa fa-users" />
           <span> Usuários </span>
-          <router-link to = "/usuarios" class = "nav-link" />
+          <router-link to = "/usuarios" />
         </a-menu-item>
       </a-menu>
     </a-layout-sider>
@@ -64,9 +64,16 @@
             <a-dropdown>
               <a-menu slot = "overlay">
                 <a-menu-item key = "perfil">
-                  <router-link to = "/perfil" class = "nav-link">
+                  <router-link to = "/perfil">
                     <a-icon type = "idcard" />
                     <span> Perfil </span>
+                  </router-link>
+                </a-menu-item>
+
+                <a-menu-item v-if = "role === 'admin'" key = "configuracoes">
+                  <router-link to = "/configuracoes">
+                    <a-icon type = "setting" />
+                    <span> Configurações </span>
                   </router-link>
                 </a-menu-item>
 
@@ -87,7 +94,6 @@
       <a-layout-content :style = "{ margin: '24px 16px', padding: '24px', background: '#fff' }">
         <div id = "page-content-wrapper">
           <router-view></router-view>
-          <notifications group = "notify" />
         </div>
       </a-layout-content>
     </a-layout>
@@ -97,6 +103,7 @@
 <script>
   import firebaseApp from './firebase-controller.js'
   import firebase from 'firebase'
+
   const auth = firebaseApp.auth()
   const db = firebaseApp.database()
 
@@ -123,11 +130,14 @@
     },
     created () {
       let _this = this
+  
       this.$Progress.start()
+
       this.$router.beforeEach((to, from, next) => {
         this.$Progress.start()
         next()
       })
+
       this.$router.afterEach((to, from) => {
         this.isUser = auth.currentUser
         db.ref('Usuarios/' + auth.currentUser.uid + '/role').on('value', function (snapshot) {
@@ -163,6 +173,7 @@
       },
       reauthentication () {
         let _this = this
+
         const credentialLogin = firebase.auth.EmailAuthProvider.credential(this.reauthenticate.email, this.reauthenticate.password)
         auth.currentUser.reauthenticateWithCredential(credentialLogin).then(function () {
           if ((_this.$children[(_this.$children.length) - 1].action) === 'deleteAccount') {
@@ -171,17 +182,16 @@
             _this.$children[(_this.$children.length) - 1].editProfile()
           }
         }).catch(function (err) {
-          _this.$notify({
-            group: 'notify',
-            type: 'error',
-            title: 'Oops!',
-            text: 'Falha ao Reautenticar!'
+          _this.$notification.error({
+            message: 'Opps..',
+            description: 'Falha ao autenticar.'
           })
           console.log('Falha de reautenticação: ' + err)
         })
       },
       validate: function () {
         let _this = this
+
         var form = document.getElementById('reauthenticate')
         form.addEventListener('submit', function (event) {
           if (form.checkValidity() === false) {
@@ -197,9 +207,7 @@
   }
 </script>
 
-<style lang = "css">
-  @import '../node_modules/bootstrap/dist/css/bootstrap.css';
-
+<style>
   #components-layout-demo-custom-trigger .trigger {
     font-size: 18px;
     line-height: 64px;
@@ -214,7 +222,14 @@
 
   #components-layout-demo-custom-trigger .logo {
     height: 32px;
-    background: rgba(255,255,255,.2);
     margin: 16px;
+    background-image: url('/static/img/logo_utf.png');
+    background-position: center;
+    background-size: contain;
+    background-repeat: no-repeat;
+  }
+
+  #components-layout-demo-custom-trigger {
+    min-height: 100%;
   }
 </style>

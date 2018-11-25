@@ -7,7 +7,7 @@
           <a-tag color = "blue"> Em Manutenção: <b> {{ equipamentos.filter(function (e) { return e.status === 'Em Manutenção' }).length }} </b> </a-tag>
           <a-tag color = "red"> Quebrados: <b> {{ equipamentos.filter(function (e) { return e.status === 'Quebrado' }).length }} </b> </a-tag> <br />
           
-          <hr />
+          <hr style = "border: none; border-top: 1px solid #d2d2d2; margin-top: 18px;" />
 
           <a-tag color = ""> Reservas Confirmadas: <b> {{ allReservas.filter(function (e) { return e.status === 'Confirmada' && e.tipo === 'equipamento' }).length }} </b> </a-tag>
           <a-tag color = ""> Reservas Pendentes: <b> {{ allReservas.filter(function (e) { return e.status === 'Pendente' && e.tipo === 'equipamento' }).length }} </b> </a-tag>
@@ -35,12 +35,12 @@
               <a-col v-if = "tabDate" :span = "16">
                 <div style = "display: -webkit-inline-box;">
                   <h3 class = "dia"> <i @click = "changeTab"> {{ dia.format('DD/MM/YYYY') }} </i> </h3>
-                  <small> <a-icon @click = "changeTab" style = "margin-top: 21px;" class = "buttons-icons" type = "edit" /> </small>
+                  <small> <a-icon @click = "changeTab" style = "margin-top: 14px;" class = "buttons-icons" type = "edit" /> </small>
                 </div>
               </a-col>
 
               <a-col v-else :span = "16">
-                <a-date-picker size = "large" format = "DD/MM/YYYY" :value = "dia" placeholder = "Data Final:" @change = "(date, dateString) => changeDate(date)" />
+                <a-date-picker :showToday = "false" size = "large" format = "DD/MM/YYYY" :value = "dia" placeholder = "Data Final:" @change = "(date, dateString) => changeDate(date)" />
               </a-col>
 
               <a-col :span = "4">
@@ -74,7 +74,7 @@
                   Das {{ item.horaInicio }} até {{ item.horaFim }}
                 </span>
                 
-                <a-avatar :size = "20" slot = "avatar" :style = "{ backgroundColor:  item.tipo === 'equipamento' ? '#00a2ae' : item.tipo === 'local' ? '#7265e6' : '#ffbf00' }" />
+                <a-avatar :size = "20" slot = "avatar" :style = "{ backgroundColor: item.tipo === 'equipamento' ? '#00a2ae' : item.tipo === 'local' ? '#7265e6' : '#ffbf00' }" />
               </a-list-item-meta>
             </a-tooltip>
           </a-list-item>
@@ -177,7 +177,7 @@
       atualizaReserva () {
         let _this = this
         var dia = _this.$moment(_this.dia.format('DD/MM/YYYY'), 'DD/MM/YYYY')
-        setTimeout(_this.reservas = [], 1000)
+        _this.reservas = []
 
         db.ref('Reservas/equipamentos').orderByChild('Status').equalTo('Confirmada').on('value', function (snapshot) {
           snapshot.forEach(function (item) {

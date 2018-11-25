@@ -34,7 +34,7 @@
                 </div>
               </a-row>
               
-              <hr />
+              <hr style = "border: none; border-top: 1px solid #d2d2d2; margin-top: 18px;" />
               <a-row class = "row-perfil">
                 <a-col class = "titulo-perfil" :span = "4" :offset = "1">
                   <b> RA: </b>
@@ -84,7 +84,8 @@
                   </div>
                 </a-col>
               </a-row>
-              <hr />
+
+              <hr style = "border: none; border-top: 1px solid #d2d2d2; margin-top: 18px;" />
 
               <a-row v-if = "editable" style = "text-align: right;">
                 <a-button size = "large" style = "margin-right: 15px;" icon = "rollback" @click = "closeEdicao"> Cancelar </a-button>
@@ -271,6 +272,7 @@
       },
       atualizaPerfil () {
         let _this = this
+
         this.form.validateFields(async (err, values) => {
           if (!err) {
             db.ref('Usuarios').child(_this.usuario.id).update({
@@ -321,6 +323,7 @@
       },
       alteraSenha () {
         let _this = this
+
         this.formSenha.validateFields(async (err, values) => {
           if (!err) {
             auth.currentUser.updatePassword(values.senha).then(() => {
@@ -329,10 +332,10 @@
                 description: 'Senha Alterada.'
               })
               this.closeSenha()
-            }).catch((err) => {
+            }).catch(() => {
               _this.$notification.error({
                 message: 'Opps..',
-                description: 'Senha não alterada. Erro: ' + err
+                description: 'Senha não alterada. Tente fazer login novamente para realizar esta ação.'
               })
               this.closeSenha()
             })
@@ -341,6 +344,7 @@
       },
       resendEmail (newEmail) {
         let _this = this
+
         auth.currentUser.sendEmailVerification().then(() => {
           _this.$notification.info({
             message: 'Yey!.. De novo',

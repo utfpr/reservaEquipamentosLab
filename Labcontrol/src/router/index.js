@@ -5,6 +5,7 @@ import firebaseApp from '../firebase-controller.js'
 import Home from '@/pages/home/Home'
 import Login from '@/pages/Login'
 import Perfil from '@/pages/perfil/Perfil.vue'
+import Configuracoes from '@/pages/configuracoes/Configuracoes.vue'
 
 import Equipamentos from '@/pages/equipamentos/Equipamentos'
 import Locais from '@/pages/locais/Locais'
@@ -76,6 +77,14 @@ const router = new Router({
       path: '/perfil',
       name: 'Perfil',
       component: Perfil,
+      meta: {
+        menuKey: '',
+        requiresAuth: true
+      }
+    }, {
+      path: '/configuracoes',
+      name: 'Configuracoes',
+      component: Configuracoes,
       meta: {
         menuKey: '',
         requiresAuth: true
@@ -188,7 +197,7 @@ router.beforeEach((to, from, next) => {
         else if ((!requiresAuth && login) || (!requiresAuth && cadastro)) next('home')
         else if (!requiresAuth && !login) next()
         else if ((to.name === 'Aulas' || to.name === 'Cursos') && snapshot.val() === 'Comum') next('home')
-        else if (to.name === 'Usuarios' && snapshot.val() !== 'admin') next('home')
+        else if ((to.name === 'Usuarios' || to.name === 'Configuracaoes') && snapshot.val() !== 'admin') next('home')
         else next()
       })
     } else {

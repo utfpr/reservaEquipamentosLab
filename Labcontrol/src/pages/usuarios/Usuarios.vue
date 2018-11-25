@@ -328,7 +328,7 @@
             })
           }).catch(() => {
             this.$notification.error({
-              message: 'Yey!',
+              message: 'Opps..',
               description: 'Falha ao rebaixar Usuário ' + this.usuario.nome
             })
           })

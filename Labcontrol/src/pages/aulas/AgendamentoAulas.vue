@@ -32,19 +32,19 @@
       <a-row :gutter = "16" style = "text-align: center;">
         <a-col :span = "12">
           <a-form-item label = "Início" fieldDecoratorId = "dataInicial" :fieldDecoratorOptions = "{ rules: [{ required: true, message: 'Campo Obrigatório' }], initialValue: dateInitInicial }">
-            <a-date-picker format = "DD/MM/YYYY" :disabledDate = "disabledDateInicial" placeholder = "Selecione Data Inicial" style = "margin-left: 30px;" size = "large" @openChange = "handleStartOpenChange" />
+            <a-date-picker :showToday = "false" format = "DD/MM/YYYY" :disabledDate = "disabledDateInicial" placeholder = "Selecione Data Inicial" style = "margin-left: 30px;" size = "large" @openChange = "handleStartOpenChange" />
           </a-form-item>
         </a-col>
 
         <a-col :span = "12">
           <a-form-item label = "Fim" fieldDecoratorId = "dataFinal" :fieldDecoratorOptions = "{ rules: [{ required: true, message: 'Campo Obrigatório' }] }">
-            <a-date-picker format = "DD/MM/YYYY" :disabledDate = "disabledDateFinal" placeholder = "Selecione Data Final" style = "margin-left: 30px;" size = "large" :open = "endOpen" @openChange = "handleEndOpenChange" />
+            <a-date-picker :showToday = "false" format = "DD/MM/YYYY" :disabledDate = "disabledDateFinal" placeholder = "Selecione Data Final" style = "margin-left: 30px;" size = "large" :open = "endOpen" @openChange = "handleEndOpenChange" />
           </a-form-item>
         </a-col>
       </a-row>
     </a-form>
 
-    <hr/>
+    <hr style = "border: none; border-top: 1px solid #d2d2d2; margin-top: 18px;" />
 
     <a-row style = "margin-bottom: 30px;">
       <a-col>
