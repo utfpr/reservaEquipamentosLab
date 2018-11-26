@@ -48,7 +48,7 @@
         </a-form-item>
       </a-row>
 
-      <a-row :gutter = "16" style = "text-align: center;">
+      <a-row :gutter = "16" style = "text-align: center; margin-top: 20px;">
         <a-col :span = "12">
           <a-form-item label = "Data Início" fieldDecoratorId = "dataInicial" :fieldDecoratorOptions = "{ rules: [{ required: true, message: 'Campo Obrigatório' }], initialValue: dateInitInicial }">
             <a-date-picker :showToday = "false" format = "DD/MM/YYYY" :disabledDate = "disabledDateInicial" placeholder = "Selecione Data Inicial" style = "margin-left: 30px;" size = "large" />
@@ -57,14 +57,12 @@
 
         <a-col :span = "12">
           <a-form-item label = "Hora Início" fieldDecoratorId = "horaInicial" :fieldDecoratorOptions = "{ rules: [{ required: true, message: 'Campo Obrigatório' }], initialValue: dateInitInicial }">
-            <a-time-picker format = "HH:mm" :disabledHours = "disabledHours" :minuteStep = "10" placeholder = "Hora Inicial" style = "margin-left: 30px;" size = "large" hideDisabledOptions>
-              <a-button slot = "addon" size = "small" type = "primary"> Ok </a-button>
-            </a-time-picker>
+            <a-time-picker format = "HH:mm" :disabledHours = "disabledHours" :minuteStep = "10" placeholder = "Hora Inicial" style = "margin-left: 30px;" size = "large" hideDisabledOptions />
           </a-form-item>
         </a-col>
       </a-row>
 
-      <a-row :gutter = "16" style = "text-align: center;">
+      <a-row :gutter = "16" style = "text-align: center; margin-top: 20px;">
         <a-col :span = "12">
           <a-form-item label = "Data Fim" fieldDecoratorId = "dataFinal" :fieldDecoratorOptions = "{ rules: [{ required: true, message: 'Campo Obrigatório' }], initialValue: dateInitFinal }">
             <a-date-picker :showToday = "false" format = "DD/MM/YYYY" :disabledDate = "disabledDateFinal" placeholder = "Selecione Data Final" style = "margin-left: 30px;" size = "large" />
@@ -73,21 +71,19 @@
 
         <a-col :span = "12">
           <a-form-item label = "Hora Fim" fieldDecoratorId = "horaFinal" :fieldDecoratorOptions = "{ rules: [{ required: true, message: 'Campo Obrigatório' }], initialValue: dateInitFinal }">
-            <a-time-picker format = "HH:mm" :disabledHours = "disabledHours" :minuteStep = "10" placeholder = "Hora Final" style = "margin-left: 30px;" size = "large" hideDisabledOptions>
-              <a-button slot = "addon" size = "small" type = "primary"> Ok </a-button>
-            </a-time-picker>
+            <a-time-picker format = "HH:mm" :disabledHours = "disabledHours" :minuteStep = "10" placeholder = "Hora Final" style = "margin-left: 30px;" size = "large" hideDisabledOptions />
           </a-form-item>
         </a-col>
       </a-row>
     </a-form>
 
     <a-row v-if = "parent.current === 2">
-      <h5 v-if = "item === 'equipamento'"> <b> Item Reservado: </b> {{ item }} - {{ equipamentos[equipamentos.map(function (e) { return e.id }).indexOf(valorItem)].patrimonio }} </h5>
-      <h5 v-if = "item === 'local'"> <b> Item Reservado: </b> {{ item }} - {{ valorItem }} </h5>
-      <h5 v-if = "item === 'reservaEquipamento'"> <b> Item Reservado (Edição): </b> equipamento - {{ equipamentos[equipamentos.map(function (e) { return e.id }).indexOf(reserva.Equipamento)].patrimonio }} </h5>
-      <h5 v-if = "item === 'ReservaLocal'"> <b> Item Reservado (Edição): </b> local - {{ reserva.Local }} </h5>
+      <h2 v-if = "item === 'equipamento'"> <b> Item Reservado: </b> {{ item }} - {{ equipamentos[equipamentos.map(function (e) { return e.id }).indexOf(valorItem)].patrimonio }} </h2>
+      <h2 v-if = "item === 'local'"> <b> Item Reservado: </b> {{ item }} - {{ valorItem }} </h2>
+      <h2 v-if = "item === 'reservaEquipamento'"> <b> Item Reservado (Edição): </b> equipamento - {{ equipamentos[equipamentos.map(function (e) { return e.id }).indexOf(reserva.Equipamento)].patrimonio }} </h2>
+      <h2 v-if = "item === 'ReservaLocal'"> <b> Item Reservado (Edição): </b> local - {{ reserva.Local }} </h2>
       <br />
-      <h5> <b> Perído Reservado: </b> {{ $moment(dataInicial).format('DD/MM/YYYY HH:mm') }} - {{ $moment(dataFinal).format('DD/MM/YYYY HH:mm') }} </h5>
+      <h2> <b> Perído Reservado: </b> {{ $moment(dataInicial).format('DD/MM/YYYY HH:mm') }} - {{ $moment(dataFinal).format('DD/MM/YYYY HH:mm') }} </h2>
       <br />
     </a-row>
 

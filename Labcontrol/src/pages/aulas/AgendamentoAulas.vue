@@ -29,7 +29,7 @@
         </a-form-item>
       </a-row>
 
-      <a-row :gutter = "16" style = "text-align: center;">
+      <a-row :gutter = "16" style = "text-align: center; margin-top: 20px;">
         <a-col :span = "12">
           <a-form-item label = "Início" fieldDecoratorId = "dataInicial" :fieldDecoratorOptions = "{ rules: [{ required: true, message: 'Campo Obrigatório' }], initialValue: dateInitInicial }">
             <a-date-picker :showToday = "false" format = "DD/MM/YYYY" :disabledDate = "disabledDateInicial" placeholder = "Selecione Data Inicial" style = "margin-left: 30px;" size = "large" @openChange = "handleStartOpenChange" />
@@ -141,8 +141,8 @@
       </small>
       <p> Leia atentamente a legenda acima para poder confirmar seu agendamento! </p>
 
-      <a-list size = "small" itemLayout = "horizontal" :dataSource = "agendamentos">
-        <a-list-item slot = "renderItem" slot-scope = "item, index">
+      <a-list class = "listaAgendamentos" size = "small" itemLayout = "horizontal" :dataSource = "agendamentos">
+        <a-list-item slot = "renderItem" slot-scope = "item">
           <a-list-item-meta>
             <span slot = "description"> [{{ item.local }}] {{ $moment().day(item.diaSemana).format('dddd') }}. Das {{ item.horaInicio.format('HH:mm') }} até {{ item.horaFim.format('HH:mm') }} </span>
             <a-avatar slot = "avatar" :size = "20" v-if = "item.conflitosAula.length > 0" style = "backgroundColor: #ff4d4f;" />
@@ -566,5 +566,10 @@
 
   .ant-avatar > * {
     line-height: 24px !important;
+  }
+
+  .listaAgendamentos .ant-spin-nested-loading {
+    overflow-y: scroll;
+    height: 18vh;
   }
 </style>

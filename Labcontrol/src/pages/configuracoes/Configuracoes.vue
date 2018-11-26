@@ -15,7 +15,7 @@
           <a-row :gutter = "16">
             <a-col :span = "10">
               <a-form-item label = "Tempo Mínimo" fieldDecoratorId = "tempoMin" :fieldDecoratorOptions = "{ rules: [{ required: true, message: 'Campo Obrigatório' }], initialValue: tempoMin }">
-                <a-input-number :min = "0" :max = "24" :value = "tempoMin" size = "large" />
+                <a-input-number :min = "0" :max = "24" :value = "tempoMin" size = "large" /> horas
               </a-form-item>
             </a-col>
           </a-row>

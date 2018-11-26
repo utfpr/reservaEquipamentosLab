@@ -32,7 +32,7 @@
           <a-icon style = "color: #1890ff" type = "file-pdf" />
         </a-button>
 
-        <a-tooltip v-if = "record.status !== 'Quebrado'" placement = "top">
+        <a-tooltip v-if = "record.status === 'Normal'" placement = "top">
           <template slot = "title">
             <span> Reservar Equipamento </span>
           </template>
@@ -69,7 +69,7 @@
         </a-tooltip>
       </span>
 
-      <a-icon slot = "filterIcon" slot-scope = "filtered" type='search' :style = "{ color: filtered ? '#108ee9' : '#aaa' }" />
+      <a-icon slot = "filterIcon" slot-scope = "filtered" type = "search" :style = "{ color: filtered ? '#108ee9' : '#aaa' }" />
 
       <div slot = "filterDropdownNome" slot-scope = "{ setSelectedKeys, selectedKeys, confirm, clearFilters }" class = 'custom-filter-dropdown'>
         <a-input

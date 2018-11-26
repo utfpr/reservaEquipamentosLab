@@ -106,6 +106,7 @@
 
 <script>
   import firebaseApp from '../../firebase-controller.js'
+  import { sendEmail } from '../../emailAPI.js'
 
   const db = firebaseApp.database()
   const auth = firebaseApp.auth()
@@ -259,6 +260,13 @@
         let _this = this
 
         _this.visibleConfirmModal = false
+
+        let to = [_this.usuario.nome + ' <' + _this.usuario.email + '>']
+        let textBody = 'Você foi apagado do sistema.'
+        let htmlBody = '<p>Olá, você foi apagado do sistema por supervisores. Em caso de engano, contate algum supervisor.</p>'
+
+        sendEmail(to, 'Remoção do Sistema', textBody, htmlBody)
+
         db.ref('Usuarios').child(_this.usuario.id).remove().then(function () {
           _this.$notification.success({
             message: 'Yey!',
@@ -275,6 +283,7 @@
       },
       promoveUsuario (id) {
         this.usuario = this.usuarios[this.usuarios.map(function (u) { return u.id }).indexOf(id)]
+
         if (this.usuario.type === 'Comum') {
           db.ref('Usuarios').child(this.usuario.id).update({role: 'Supervisor'}).then(() => {
             this.$notification.success({
@@ -308,6 +317,7 @@
       },
       rebaixaUsuario (id) {
         this.usuario = this.usuarios[this.usuarios.map(function (u) { return u.id }).indexOf(id)]
+
         if (this.usuario.type === 'admin') {
           db.ref('Usuarios').child(this.usuario.id).update({role: 'Supervisor'}).then(() => {
             this.$notification.success({

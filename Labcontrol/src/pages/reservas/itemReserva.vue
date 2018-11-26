@@ -244,7 +244,7 @@
           },
           getCheckboxProps: record => ({
             props: {
-              disabled: record.status === 'Quebrado',
+              disabled: record.status !== 'Normal',
               name: record.patrimonio
             }
           })
