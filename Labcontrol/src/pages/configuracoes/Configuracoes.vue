@@ -118,7 +118,8 @@
             if (dia.isAfter(fim) || item.val().Status === 'Cancelada') {
               _this.dados.push({
                 'tipo': 'equipamento',
-                'key': item.key
+                'key': item.key,
+                'dados': item.val()
               })
             }
           })
@@ -131,7 +132,8 @@
             if (dia.isAfter(fim) || item.val().Status === 'Cancelada') {
               _this.dados.push({
                 'tipo': 'local',
-                'key': item.key
+                'key': item.key,
+                'dados': item.val()
               })
             }
           })
@@ -144,7 +146,8 @@
             if (dia.isAfter(fim) || item.val().Status === 'Cancelada') {
               _this.dados.push({
                 'tipo': 'aula',
-                'key': item.key
+                'key': item.key,
+                'dados': item.val()
               })
             }
           })
@@ -152,42 +155,62 @@
       },
       confirmarDeletarDados () {
         let _this = this
-        var status = true
+        // var status = true
 
+        var ajuda = {
+          'equipamentos': [],
+          'locais': [],
+          'aulas': []
+        }
         _this.dados.forEach(function (item) {
           if (item.tipo === 'equipamento') {
-            db.ref('Reservas/equipamentos').child(item.key).remove().then(() => {
-            }).catch(() => {
-              status = false
-            })
-          } else if (item.tipo === 'local') {
-            db.ref('Reservas/locais').child(item.key).remove().then(() => {
-            }).catch(() => {
-              status = false
-            })
-          } else if (item.tipo === 'aula') {
-            db.ref('Reservas/aulas').child(item.key).remove().then(() => {
-            }).catch(() => {
-              status = false
+            ajuda.equipamentos.push({
+              [item.key]: item.dados
             })
           }
         })
+        console.log(JSON.stringify(ajuda))
+        // console.log(ajuda)
 
-        if (status === true) {
-          db.ref('Controle/Configuracao').update({
-            'DataLimpeza': _this.$moment().format('DD/MM/YYYY HH:mm')
-          }).then(() => {
-            _this.$notification.success({
-              message: 'Yey!..',
-              description: 'Dados deletados com sucesso.'
-            })
-          })
-        } else {
-          _this.$notification.error({
-            message: 'Opps..',
-            description: 'Falha ao deletar dados.'
-          })
-        }
+        const formData = new FormData()
+        formData.append('timestamp', (Date.now() / 1000) | 0)
+        formData.append('file', JSON.stringify(_this.dados))
+
+        // console.log(formData.getAll('file'))
+        // _this.dados.forEach(function (item) {
+        //   if (item.tipo === 'equipamento') {
+        //     db.ref('Reservas/equipamentos').child(item.key).remove().then(() => {
+        //     }).catch(() => {
+        //       status = false
+        //     })
+        //   } else if (item.tipo === 'local') {
+        //     db.ref('Reservas/locais').child(item.key).remove().then(() => {
+        //     }).catch(() => {
+        //       status = false
+        //     })
+        //   } else if (item.tipo === 'aula') {
+        //     db.ref('Reservas/aulas').child(item.key).remove().then(() => {
+        //     }).catch(() => {
+        //       status = false
+        //     })
+        //   }
+        // })
+
+        // if (status === true) {
+        //   db.ref('Controle/Configuracao').update({
+        //     'DataLimpeza': _this.$moment().format('DD/MM/YYYY HH:mm')
+        //   }).then(() => {
+        //     _this.$notification.success({
+        //       message: 'Yey!..',
+        //       description: 'Dados deletados com sucesso.'
+        //     })
+        //   })
+        // } else {
+        //   _this.$notification.error({
+        //     message: 'Opps..',
+        //     description: 'Falha ao deletar dados.'
+        //   })
+        // }
       }
     }
   }
