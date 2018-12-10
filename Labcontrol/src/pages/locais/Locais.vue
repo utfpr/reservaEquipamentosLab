@@ -186,6 +186,7 @@
         supervisores: [],
         equipamentos: [],
         local: '',
+        reservasLocal: [],
         searchNome: '',
         searchSupervisor: '',
         columns: [{
@@ -288,6 +289,19 @@
 
         snapshot.forEach(function (supervisor) {
           _this.supervisores.push(supervisor.val().Nome + ' ' + supervisor.val().Sobrenome)
+        })
+        _this.loading = false
+      })
+
+      db.ref('Reservas/locais').orderByKey().on('value', function (snapshot) {
+        _this.loading = true
+        _this.reservasLocal = []
+
+        snapshot.forEach(function (item) {
+          _this.reservasLocal.push({
+            'id': item.key,
+            'local': item.val().Local
+          })
         })
         _this.loading = false
       })
@@ -422,21 +436,28 @@
       },
       deletaLocal () {
         let _this = this
+        let conflito = _this.reservasLocal[_this.reservasLocal.map(function (e) { return e.local }).indexOf(_this.local)]
         _this.visibleConfirmModal = false
 
-        db.ref('Locais').child(_this.local).remove().then(function () {
-          _this.$notification.success({
-            message: 'Yey!..',
-            description: 'Local deletado com sucesso.'
+        if (conflito === undefined) {
+          db.ref('Locais').child(_this.local).remove().then(function () {
+            _this.$notification.success({
+              message: 'Yey!..',
+              description: 'Local deletado com sucesso.'
+            })
+          }).catch((err) => {
+            _this.$notification.error({
+              message: 'Opps..',
+              description: 'Local não deletado. Erro: ' + err
+            })
           })
-        }).catch((err) => {
+          _this.equipamento = ''
+        } else {
           _this.$notification.error({
             message: 'Opps..',
-            description: 'Local não deletado. Erro: ' + err
+            description: 'Local não deletado. Erro: Local possui reservas, para conseguir deletar este Local cancele suas reservas e faça a limpeza do banco de dados'
           })
-        })
-
-        _this.equipamento = ''
+        }
       }
     }
   }

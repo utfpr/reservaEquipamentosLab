@@ -223,6 +223,7 @@
         role: null,
         loading: true,
         buttonLoading: false,
+        reservasEquip: [],
         equipamentos: [],
         locais: [],
         cursos: [],
@@ -352,6 +353,20 @@
 
         snapshot.forEach(function (item) {
           _this.cursos.push(item.key)
+        })
+        _this.loading = false
+      })
+
+      db.ref('Reservas/equipamentos').orderByKey().on('value', function (snapshot) {
+        _this.loading = true
+        _this.reservasEquip = []
+
+        snapshot.forEach(function (item) {
+          _this.reservasEquip.push({
+            'id': item.key,
+            'equipamento': item.val().Equipamento,
+            'status': item.val().Status
+          })
         })
         _this.loading = false
       })
@@ -520,25 +535,31 @@
       },
       deletaEquipamento () {
         let _this = this
+        let conflito = _this.reservasEquip[_this.reservasEquip.map(function (e) { return e.equipamento }).indexOf(_this.equipamento.id)]
         _this.visibleConfirmModal = false
-
-        db.ref('Equipamentos').child(_this.equipamento.id).remove().then(function () {
-          _this.$notification.success({
-            message: 'Yey!..',
-            description: 'Equipamento deletado com sucesso.'
+        if (conflito === undefined) {
+          db.ref('Equipamentos').child(_this.equipamento.id).remove().then(function () {
+            _this.$notification.success({
+              message: 'Yey!..',
+              description: 'Equipamento deletado com sucesso.'
+            })
+          }).catch((err) => {
+            _this.$notification.error({
+              message: 'Opps..',
+              description: 'Equipamento não deletado. Erro: ' + err
+            })
           })
-        }).catch((err) => {
+
+          if (_this.equipamento.pop) {
+            storage.ref(_this.equipamento.id + '.pdf').delete()
+          }
+          _this.equipamento = ''
+        } else {
           _this.$notification.error({
             message: 'Opps..',
-            description: 'Equipamento não deletado. Erro: ' + err
+            description: 'Equipamento não deletado. Erro: Equipamento possui reservas, para conseguir deletar este equipamento cancele suas reservas e faça a limpeza do banco de dados'
           })
-        })
-
-        if (_this.equipamento.pop) {
-          storage.ref(_this.equipamento.id + '.pdf').delete()
         }
-
-        _this.equipamento = ''
       },
       downloadFile (equipamento) {
         var _this = this
