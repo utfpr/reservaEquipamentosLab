@@ -57,8 +57,6 @@
         buttonLoading: false,
         tempoMin: '',
         dataLimpeza: '',
-        abacate: '',
-        tomate: '',
         dados: []
       }
     },
@@ -158,81 +156,82 @@
           })
         })
       },
-      confirmarDeletarDados () {
+      confirmarDeletarDados () { // Chamada quando usuário confirma a ação para deletar dados
         let _this = this
-        // var status = true
+        var status = true
 
-        var ajuda = {
-          'equipamentos': [],
-          'locais': [],
-          'aulas': []
+        // Estrutura de dados para gerar arquivo de restauração
+        var dadosArquivo = {
+          'equipamentos': {},
+          'locais': {},
+          'aulas': {}
         }
+
+        // Insere dados de reservas em dadosArquivo
         _this.dados.forEach(function (item) {
           if (item.tipo === 'equipamento') {
-            ajuda.equipamentos.push({
-              [item.key]: item.dados
-            })
+            _this.$set(dadosArquivo.equipamentos, item.key, item.dados) // Insere novo elemento no objeto dadosArquivo.equipamentos
           }
           if (item.tipo === 'local') {
-            ajuda.locais.push({
-              [item.key]: item.dados
-            })
+            _this.$set(dadosArquivo.locais, item.key, item.dados) // Insere novo elemento no objeto dadosArquivo.locais
           }
           if (item.tipo === 'aula') {
-            ajuda.aulas.push({
-              [item.key]: item.dados
-            })
+            _this.$set(dadosArquivo.aulas, item.key, item.dados) // Insere novo elemento no objeto dadosArquivo.aulas
           }
         })
 
-        // Create file metadata including the content type
-        var metadata = {
+        // Cria os meta dados do arquivo de restauração
+        var metadataRestauracao = {
           contentType: 'text/json'
         }
-        var aFileParts = [JSON.stringify(ajuda)]
-        var oMyBlob = new Blob(aFileParts, {type: 'text/json'})
-        // Upload the file and metadata
-        storage.child('backups/Reservas-' + _this.$moment().format('DDMMYYYY-HHmm') + '.json').put(oMyBlob, metadata).then((data) => {
-          _this.$notification.info({
+        // Cria um array com string a ser carregada no arquivo (o json é transformado em arquivo)
+        var stringRestauracao = [JSON.stringify(dadosArquivo)]
+        // Cria o arquivo Blob com os dados da restauração
+        var blobRestauracao = new Blob(stringRestauracao, {type: 'text/json'})
+        // Faz o upload do arquivo
+        storage.child('backups/Reservas-' + _this.$moment().format('DDMMYYYY-HHmm') + '.json').put(blobRestauracao, metadataRestauracao).then((data) => {
+          _this.$notification.info({ // Se deu certo, exibe a mensagem
             message: 'Dados de reservas limpos.',
             description: 'Para restaurar os dados apagados, consulte um técnico.'
           })
         })
 
-        // _this.dados.forEach(function (item) {
-        //   if (item.tipo === 'equipamento') {
-        //     db.ref('Reservas/equipamentos').child(item.key).remove().then(() => {
-        //     }).catch(() => {
-        //       status = false
-        //     })
-        //   } else if (item.tipo === 'local') {
-        //     db.ref('Reservas/locais').child(item.key).remove().then(() => {
-        //     }).catch(() => {
-        //       status = false
-        //     })
-        //   } else if (item.tipo === 'aula') {
-        //     db.ref('Reservas/aulas').child(item.key).remove().then(() => {
-        //     }).catch(() => {
-        //       status = false
-        //     })
-        //   }
-        // })
+        // Deleta dados do banco
+        _this.dados.forEach(function (item) {
+          if (item.tipo === 'equipamento') {
+            db.ref('Reservas/equipamentos').child(item.key).remove().then(() => {
+            }).catch(() => {
+              status = false
+            })
+          } else if (item.tipo === 'local') {
+            db.ref('Reservas/locais').child(item.key).remove().then(() => {
+            }).catch(() => {
+              status = false
+            })
+          } else if (item.tipo === 'aula') {
+            db.ref('Reservas/aulas').child(item.key).remove().then(() => {
+            }).catch(() => {
+              status = false
+            })
+          }
+        })
 
-        // if (status === true) {
-        //   db.ref('Controle/Configuracao').update({
-        //     'DataLimpeza': _this.$moment().format('DD/MM/YYYY HH:mm')
-        //   }).then(() => {
-        //     _this.$notification.success({
-        //       message: 'Yey!..',
-        //       description: 'Dados deletados com sucesso.'
-        //     })
-        //   })
-        // } else {
-        //   _this.$notification.error({
-        //     message: 'Opps..',
-        //     description: 'Falha ao deletar dados.'
-        //   })
-        // }
+        // Grava data da última limpeza
+        if (status === true) {
+          db.ref('Controle/Configuracao').update({
+            'DataLimpeza': _this.$moment().format('DD/MM/YYYY HH:mm')
+          }).then(() => {
+            _this.$notification.success({
+              message: 'Yey!..',
+              description: 'Dados deletados com sucesso.'
+            })
+          })
+        } else {
+          _this.$notification.error({
+            message: 'Opps..',
+            description: 'Falha ao deletar dados.'
+          })
+        }
       }
     }
   }
