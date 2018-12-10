@@ -2,6 +2,7 @@
   <a-spin :spinning = "loading">
     <a-row style = "text-align: center;">
       <h1> Configurações </h1>
+      <!-- Para fazer o download do arquivo: <a :href="'data:'+ this.abacate" download="data.json">download JSON</a> -->
       <p style = "width: 80%; margin-left: auto; margin-right: auto;"> Está página se refere exclusivamente em alterações importantes do sistema, como o <i>tempo mínimo</i> para se realizar uma reserva (para usuários comuns). Assim como apagar dados que não são mais relevantes para o sistema, como: reservas canceladas e reservas que o período de uso já passou. Esteja ciente das alterações que serão feitas aqui, algumas podem não serem revertidas. Qualquer dúvida, consulte um <b>administrador</b>. </p>
     </a-row>
 
@@ -44,8 +45,10 @@
 
 <script>
   import firebaseApp from '../../firebase-controller.js'
+  import firebase from 'firebase'
 
   const db = firebaseApp.database()
+  const storage = firebase.storage().ref()
 
   export default {
     data () {
@@ -54,6 +57,8 @@
         buttonLoading: false,
         tempoMin: '',
         dataLimpeza: '',
+        abacate: '',
+        tomate: '',
         dados: []
       }
     },
@@ -168,15 +173,32 @@
               [item.key]: item.dados
             })
           }
+          if (item.tipo === 'local') {
+            ajuda.locais.push({
+              [item.key]: item.dados
+            })
+          }
+          if (item.tipo === 'aula') {
+            ajuda.aulas.push({
+              [item.key]: item.dados
+            })
+          }
         })
-        console.log(JSON.stringify(ajuda))
-        // console.log(ajuda)
 
-        const formData = new FormData()
-        formData.append('timestamp', (Date.now() / 1000) | 0)
-        formData.append('file', JSON.stringify(_this.dados))
+        // Create file metadata including the content type
+        var metadata = {
+          contentType: 'text/json'
+        }
+        var aFileParts = [JSON.stringify(ajuda)]
+        var oMyBlob = new Blob(aFileParts, {type: 'text/json'})
+        // Upload the file and metadata
+        storage.child('backups/Reservas-' + _this.$moment().format('DDMMYYYY-HHmm') + '.json').put(oMyBlob, metadata).then((data) => {
+          _this.$notification.info({
+            message: 'Dados de reservas limpos.',
+            description: 'Para restaurar os dados apagados, consulte um técnico.'
+          })
+        })
 
-        // console.log(formData.getAll('file'))
         // _this.dados.forEach(function (item) {
         //   if (item.tipo === 'equipamento') {
         //     db.ref('Reservas/equipamentos').child(item.key).remove().then(() => {
