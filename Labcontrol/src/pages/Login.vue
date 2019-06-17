@@ -5,7 +5,7 @@
       <span> Reserve equipamentos e espaços para as suas atividades com muito mais praticidade! </span>
     </div>
     
-    <a-form layout = "vertical" :autoFormCreate = "(form) => { this.form = form }">
+    <a-form layout = "vertical" :autoFormCreate = "(form) => { this.form = form }" @submit = "login">
       <a-row>
         <a-col :span = "24">
           <a-form-item fieldDecoratorId = "email" :fieldDecoratorOptions = "{ rules: [{ required: true, message: 'Campo Obrigatório' }, { type: 'email', message: 'E-mail Inválido' }] }">
@@ -30,7 +30,7 @@
       </a-row>
 
       <a-row style = "margin-bottom: 5px;">
-        <a-button style = "width: 100%;" type = "primary" :loading = "loading" @click = "login"> Login </a-button>
+        <a-button style = "width: 100%;" type = "primary" :loading = "loading" html-type = "submit"> Login </a-button>
       </a-row>
 
       <a-row class = "links">

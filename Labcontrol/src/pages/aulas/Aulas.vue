@@ -75,7 +75,7 @@
             <span> Cancelar Aula </span>
           </template>
 
-          <a-tag @click = "showModal(text)" color = "red" :key = "text">
+          <a-tag @click = "showEquipamentoModal(text)" color = "red" :key = "text">
             <a-icon type = "close" />
           </a-tag>
         </a-tooltip>

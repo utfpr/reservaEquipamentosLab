@@ -683,7 +683,7 @@
           let user = record.solicitante
           let to = [user.nome + ' <' + user.email + '>']
           let textBody = 'Sua reserva foi Confirmada'
-          let htmlBody = '<h3>Reserva confirmada</h3><br><p>Sua reserva do equipamento: <strong>' + record.equipamento + '</strong> no período: <strong>' + record.dataInicio + ' até ' + record.dataFim + '</strong> foi <strong>confirmada</strong>.</p> <small>Este é um E-mail automático, por favor não responda</small>'
+          let htmlBody = '<h3>Reserva confirmada</h3><br><p>Sua reserva do equipamento: <strong>' + record.equipamento.nome + '</strong> no período: <strong>' + record.dataInicio + ' até ' + record.dataFim + '</strong> foi <strong>confirmada</strong>.</p> <small>Este é um E-mail automático, por favor não responda</small>'
 
           sendEmail(to, 'Reserva de equipamento confirmada', textBody, htmlBody)
 
@@ -732,7 +732,7 @@
           let user = record.solicitante
           let to = [user.nome + ' <' + user.email + '>']
           let textBody = 'Sua reserva foi Cancelada'
-          let htmlBody = '<h3>Reserva cancelada</h3><br><p>Sua reserva do equipamento: <strong>' + record.equipamento + '</strong> no período: <strong>' + record.dataInicio + ' até ' + record.dataFim + '</strong> foi <strong>cancelada</strong>.</p>'
+          let htmlBody = '<h3>Reserva cancelada</h3><br><p>Sua reserva do equipamento: <strong>' + record.equipamento.nome + '</strong> no período: <strong>' + record.dataInicio + ' até ' + record.dataFim + '</strong> foi <strong>cancelada</strong>.</p>'
           if (_this.resposta !== '') {
             htmlBody += '<p>Sua reserva foi cancelada pelo motivo: ' + _this.resposta + '</p>'
           }
