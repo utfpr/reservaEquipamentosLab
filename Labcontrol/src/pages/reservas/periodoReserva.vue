@@ -57,7 +57,7 @@
 
         <a-col :span = "12">
           <a-form-item label = "Hora Início" fieldDecoratorId = "horaInicial" :fieldDecoratorOptions = "{ rules: [{ required: true, message: 'Campo Obrigatório' }], initialValue: dateInitInicial }">
-            <a-time-picker format = "HH:mm" :disabledHours = "disabledHours" :minuteStep = "10" placeholder = "Hora Inicial" style = "margin-left: 30px;" size = "large" hideDisabledOptions />
+            <a-time-picker :allowEmpty = "false" format = "HH:mm" :disabledHours = "disabledHours" :minuteStep = "10" placeholder = "Hora Inicial" style = "margin-left: 30px;" size = "large" hideDisabledOptions />
           </a-form-item>
         </a-col>
       </a-row>
@@ -71,7 +71,7 @@
 
         <a-col :span = "12">
           <a-form-item label = "Hora Fim" fieldDecoratorId = "horaFinal" :fieldDecoratorOptions = "{ rules: [{ required: true, message: 'Campo Obrigatório' }], initialValue: dateInitFinal }">
-            <a-time-picker format = "HH:mm" :disabledHours = "disabledHours" :minuteStep = "10" placeholder = "Hora Final" style = "margin-left: 30px;" size = "large" hideDisabledOptions />
+            <a-time-picker :allowEmpty = "false" format = "HH:mm" :disabledHours = "disabledHours" :minuteStep = "10" placeholder = "Hora Final" style = "margin-left: 30px;" size = "large" hideDisabledOptions />
           </a-form-item>
         </a-col>
       </a-row>
@@ -269,7 +269,7 @@
 
         if (this.form.getFieldValue('dataInicial')) {
           return (current && current < this.$moment().add(-1, 'days').endOf('day')) ||
-            (current && current < this.$moment(this.form.getFieldValue('dataInicial'))) ||
+            (current && this.$moment(this.form.getFieldValue('dataInicial')).isSameOrAfter(current, 'day')) ||
             (week === 7) ||
             (current && current > maxDate)
         } else {

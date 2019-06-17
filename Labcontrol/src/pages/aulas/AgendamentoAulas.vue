@@ -103,13 +103,13 @@
         <a-row :gutter = "16">
           <a-col :span = "12">
             <a-form-item label = "Hora Início" fieldDecoratorId = "horaInicio" :fieldDecoratorOptions = "{ rules: [{ required: true, message: 'Selecione Hora Inicial' }, { validator: this.checkTimeInicial }] }">
-              <a-time-picker size = "large" format = 'HH:mm' placeholder = "Inicio" :disabledHours = "disabledHours" :minuteStep = "10" hideDisabledOptions />
+              <a-time-picker :allowEmpty = "false" size = "large" format = 'HH:mm' placeholder = "Inicio" :disabledHours = "disabledHours" :minuteStep = "10" hideDisabledOptions />
             </a-form-item>
           </a-col>
 
           <a-col :span = "12">
             <a-form-item label = "Hora Fim" fieldDecoratorId = "horaFim" :fieldDecoratorOptions = "{ rules: [{ required: true, message: 'Selecione Hora Final' }, { validator: this.checkTimeFinal }] }">
-              <a-time-picker size = "large" format = 'HH:mm' placeholder = "Fim" :disabledHours = "disabledHours" :minuteStep = "10" hideDisabledOptions />
+              <a-time-picker :allowEmpty = "false" size = "large" format = 'HH:mm' placeholder = "Fim" :disabledHours = "disabledHours" :minuteStep = "10" hideDisabledOptions />
             </a-form-item>
           </a-col>
         </a-row>
@@ -570,6 +570,6 @@
 
   .listaAgendamentos .ant-spin-nested-loading {
     overflow-y: scroll;
-    height: 18vh;
+    max-height: 200px;
   }
 </style>
