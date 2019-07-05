@@ -11,6 +11,7 @@ import Equipamentos from '@/pages/equipamentos/Equipamentos'
 import Locais from '@/pages/locais/Locais'
 
 import Cursos from '@/pages/cursos/Cursos'
+import Disciplinas from '@/pages/disciplinas/Disciplinas'
 import Aulas from '@/pages/aulas/Aulas'
 import Agendamento from '@/pages/aulas/AgendamentoAulas'
 import Usuarios from '@/pages/usuarios/Usuarios'
@@ -71,6 +72,14 @@ const router = new Router({
       component: Cursos,
       meta: {
         menuKey: 'cursos',
+        requiresAuth: true
+      }
+    }, {
+      path: '/disciplinas',
+      name: 'Disciplinas',
+      component: Disciplinas,
+      meta: {
+        menuKey: 'disciplinas',
         requiresAuth: true
       }
     }, {
