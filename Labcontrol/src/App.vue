@@ -45,6 +45,12 @@
           <router-link to = "/cursos" />
         </a-menu-item>
 
+        <a-menu-item v-if = "role === 'admin' || role === 'Supervisor'" key = "disciplinas">
+          <a-icon type = "schedule" />
+          <span> Disciplinas </span>
+          <router-link to = "/disciplinas" />
+        </a-menu-item>
+
         <a-menu-item v-if = "role === 'admin'" key = "usuarios">
           <a-icon class = "fa fa-users" />
           <span> Usuários </span>

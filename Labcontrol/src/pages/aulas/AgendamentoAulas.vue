@@ -29,6 +29,12 @@
         </a-form-item>
       </a-row>
 
+      <a-row style = "margin: 0px 50px; margin-top: 20px">
+        <a-form-item label = "Professor da Disciplina" fieldDecoratorId = "professor" :fieldDecoratorOptions = "{ rules: [{ required: true, message: 'Campo Obrigatório' }] }">
+            <a-input size = "large" placeholder = "Digite o Professor da Disciplina" />
+        </a-form-item>
+      </a-row>
+
       <a-row :gutter = "16" style = "text-align: center; margin-top: 20px;">
         <a-col :span = "12">
           <a-form-item label = "Início" fieldDecoratorId = "dataInicial" :fieldDecoratorOptions = "{ rules: [{ required: true, message: 'Campo Obrigatório' }], initialValue: dateInitInicial }">
@@ -85,6 +91,17 @@
       </div>
 
       <a-form layout = "vertical" :autoFormCreate = "(form) => { this.formAgendamento = form }">
+
+        <a-row :gutter = "16">
+          <a-col :span = "24">
+            <a-form-item label = "Disciplinas" fieldDecoratorId = "disciplina" :fieldDecoratorOptions = "{ rules: [{ required: true, message: 'Selecione Disciplina' }], initialValue: disciplina }">
+              <a-select size = "large" placeholder = "Selecione a disciplina" @focus = "checkSelect('disciplina')" showSearch notFoundContent = "Disciplina não Encontrada" :filterOption = "filterOption">
+                <a-select-option v-for = "disciplina in disciplinas" v-bind:key = "disciplina" :value = "disciplina"> {{disciplina}} </a-select-option>
+              </a-select>
+            </a-form-item>
+          </a-col>
+        </a-row>
+
         <a-row :gutter = "16">
           <a-col :span = "24">
             <a-form-item label = "Dia da Semana" fieldDecoratorId = "diaSemana" :fieldDecoratorOptions = "{ rules: [{ required: true, message: 'Selecione o Dia da Semana' }], initialValue: $moment(dataInicio).get('day') }">
@@ -181,7 +198,10 @@
         dateInitInicial: this.$moment(),
         dataInicio: null,
         dataFim: null,
+        professor: '',
+        disciplina: '',
         agendamentos: [],
+        disciplinas: [],
         usuarios: [],
         locais: [],
         visibleAulaModal: false,
@@ -190,6 +210,10 @@
           dataIndex: 'dia',
           key: 'dia',
           scopedSlots: { customRender: 'diaSemana' }
+        }, {
+          title: 'Disciplina',
+          dataIndex: 'disciplina',
+          key: 'disciplina'
         }, {
           title: 'Local',
           dataIndex: 'local',
@@ -243,6 +267,16 @@
           _this.locais.push({
             'nome': item.key
           })
+        })
+        _this.loading = false
+      })
+
+      db.ref('Disciplinas').orderByKey().on('value', function (snapshot) {
+        _this.loading = true
+        _this.disciplinas = []
+
+        snapshot.forEach(function (item) {
+          _this.disciplinas.push(item.key)
         })
         _this.loading = false
       })
@@ -362,6 +396,7 @@
         this.formAgendamento.validateFields(async (err, values) => {
           if (!err) {
             _this.agendamentos.push({
+              'disciplina': values.disciplina,
               'local': values.local,
               'diaSemana': values.diaSemana,
               'horaInicio': this.$moment(values.horaInicio, 'HH:mm'),
@@ -501,6 +536,8 @@
               'horaInicio': _this.$moment(agendamento.horaInicio).format('HH:mm'),
               'horaFim': _this.$moment(agendamento.horaFim).format('HH:mm'),
               'Solicitante': _this.solicitante,
+              'Professor': _this.form.getFieldValue('professor'),
+              'Disciplina': agendamento.disciplina,
               'Status': 'Confirmada'
             }).then(() => {
               _this.$notification.warning({
@@ -523,6 +560,8 @@
               'horaInicio': _this.$moment(agendamento.horaInicio).format('HH:mm'),
               'horaFim': _this.$moment(agendamento.horaFim).format('HH:mm'),
               'Solicitante': _this.solicitante,
+              'Professor': _this.form.getFieldValue('professor'),
+              'Disciplina': agendamento.disciplina,
               'Status': 'Confirmada'
             }).then(() => {
               _this.$notification.success({
