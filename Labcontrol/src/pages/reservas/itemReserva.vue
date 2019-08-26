@@ -20,7 +20,7 @@
             <a-icon class = "fa fa-flask" /> Equipamentos
           </span>
 
-          <a-table :rowSelection = "rowSelectionEquipamento" :dataSource = "equipamentos" :columns = "columnsEquipamento" :locale = "{ filterConfirm: 'Ok', filterReset: 'Resetar', emptyText: 'Nenhum Equipamento Cadastrado' }">
+          <a-table :rowSelection = "rowSelectionEquipamento" :dataSource = "equipamentos" :columns = "columnsEquipamento" @change = "onChangeTableEquip" :locale = "{ filterConfirm: 'Ok', filterReset: 'Resetar', emptyText: 'Nenhum Equipamento Cadastrado' }">
             <span slot = "expandedRowRender" slot-scope = "record" style = "margin: 0">
               <p> <b> Marca: </b> {{ record.marca }} </p>
               <p> <b> Curso: </b> {{ record.curso }} </p>
@@ -66,7 +66,7 @@
             <a-icon class = "fa fa-map-marker-alt" /> Locais
           </span>
 
-          <a-table :rowSelection = "rowSelectionLocal" :dataSource = "locais" :columns = "columnsLocais" :locale = "{ filterConfirm: 'Ok', filterReset: 'Resetar', emptyText: 'Nenhum Local Cadastrado' }">
+          <a-table :rowSelection = "rowSelectionLocal" :dataSource = "locais" :columns = "columnsLocais" @change = "onChangeTableLocal" :locale = "{ filterConfirm: 'Ok', filterReset: 'Resetar', emptyText: 'Nenhum Local Cadastrado' }">
             <span slot = "expandedRowRender" slot-scope = "record" style = "margin: 0">
               <p> <b> Descrição: </b> {{ record.descricao }} </p>
               <p>
@@ -137,6 +137,8 @@
         searchNomeEquipamento: '',
         searchNomeLocal: '',
         searchSupervisorLocal: '',
+        pageNumberEquip: 0,
+        pageNumberLocal: 0,
         columnsEquipamento: [{
           title: 'Patrimônio',
           dataIndex: 'patrimonio',
@@ -239,8 +241,9 @@
           type: 'radio',
           selectedRowKeys: this.selectedRowKey,
           onChange: (selectedRowKeys, selectedRows) => {
+            let _this = this  
             this.selectedRowKey = selectedRowKeys
-            this.valorItem = selectedRows[0].id
+            this.valorItem = selectedRows[_this.pageNumberEquip].id
           },
           getCheckboxProps: record => ({
             props: {
@@ -255,8 +258,9 @@
           type: 'radio',
           selectedRowKeys: this.selectedRowKey,
           onChange: (selectedRowKeys, selectedRows) => {
+            let _this = this
             this.selectedRowKey = selectedRowKeys
-            this.valorItem = selectedRows[0].nome
+            this.valorItem = selectedRows[_this.pageNumberLocal].nome
           },
           getCheckboxProps: record => ({
             props: {
@@ -368,6 +372,12 @@
         this.selectedRowKey = []
         this.item = key
         this.valorItem = ''
+      },
+      onChangeTableEquip (pagination) {
+        this.pageNumberEquip = pagination
+      },
+      onChangeTableLocal (pagination) {
+        this.pageNumberLocal = pagination
       }
     }
   }
