@@ -241,7 +241,7 @@
           type: 'radio',
           selectedRowKeys: this.selectedRowKey,
           onChange: (selectedRowKeys, selectedRows) => {
-            let _this = this  
+            let _this = this
             this.selectedRowKey = selectedRowKeys
             this.valorItem = selectedRows[_this.pageNumberEquip].id
           },
