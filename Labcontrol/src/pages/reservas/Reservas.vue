@@ -4,12 +4,6 @@
       <a-col :span = "16" :offset = "4" style = "text-align: center">
         <h1> Reservas </h1>
       </a-col>
-
-      <a-col :span = "4">
-        <router-link to = "/reservar">
-          <a-button type = "primary" size = "large" icon = "plus" style = "width: 100%; margin-top: 8px;"> Nova Reserva </a-button>
-        </router-link>
-      </a-col>
     </a-row>
 
     <a-tabs defaultActiveKey = "1">
