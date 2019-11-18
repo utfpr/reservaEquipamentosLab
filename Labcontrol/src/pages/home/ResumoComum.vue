@@ -25,7 +25,73 @@
     
       <a-col :span = "16">
         <a-tabs type = "card">
-          <a-tab-pane tab = "Reservas de Equipamentos" key = "1">
+
+        <a-tab-pane tab = "Formulários" key = "1">
+            <a-list :locale = "{ emptyText: 'Não há documentos disponíveis' }" size = "small" bordered :dataSource = "reservasLocais">
+              <a-list-item>
+                <a-tooltip placement = "left">
+                  <template slot = "title">
+                    <span> arquivo </span>
+                  </template> 
+                  <a-list-item-meta>
+                  <span slot = "description">
+                      <b> Homologação do Regulamento </b>
+                      <a href="http://bit.ly/Hom-Reg-Lab" title='Baixar Arquivo'>
+                        <a-tag color = "blue" :key = "text">
+                          <a-icon type = "file-pdf" />
+                        </a-tag>
+                      </a>
+                  </span>
+                  <a-avatar :size = "20" slot = "avatar" :style = "{ backgroundColor: '#d1d1d1' }" />
+                  </a-list-item-meta>
+                </a-tooltip>
+              </a-list-item>
+
+
+              <a-list-item>
+                <a-tooltip placement = "left">
+                  <template slot = "title">
+                    <span> arquivo </span>
+                  </template> 
+                <a-list-item-meta>
+                  <span slot = "description">
+                      <b> Formulário de Atividades </b>
+                      <a href="http://bit.ly/Atv-Form-Lab" title='Baixar Arquivo'>
+                        <a-tag color = "blue" :key = "text">
+                          <a-icon type = "file-pdf" />
+                        </a-tag>
+                      </a>
+                  </span>
+                  <a-avatar :size = "20" slot = "avatar" :style = "{ backgroundColor: '#d1d1d1' }" />
+                  </a-list-item-meta>
+                </a-tooltip>
+              </a-list-item>
+
+              
+              <a-list-item>
+                <a-tooltip placement = "left">
+                  <template slot = "title">
+                    <span> arquivo </span>
+                  </template> 
+                <a-list-item-meta>
+                  <span slot = "description">
+                      <b> Termo de Responsabilidade </b>
+                      <a href="http://bit.ly/Resp-Term-Lab" title='Baixar Arquivo'>
+                        <a-tag color = "blue" :key = "text">
+                          <a-icon type = "file-pdf" />
+                        </a-tag>
+                      </a>
+                  </span>
+                    <a-avatar :size = "20" slot = "avatar" :style = "{ backgroundColor: '#d1d1d1' }" />
+                  </a-list-item-meta>
+
+                </a-tooltip>
+              </a-list-item>
+            </a-list>
+
+          </a-tab-pane>
+          
+          <a-tab-pane tab = "Reservas de Equipamentos" key = "2">
             <a-list :locale = "{ emptyText: 'Sem Reservas neste dia' }" size = "small" bordered :dataSource = "reservasEquipamentos">
               <a-list-item slot = "renderItem" slot-scope = "item">
                 <a-tooltip placement = "left">
@@ -47,7 +113,7 @@
             </a-list>
           </a-tab-pane>
 
-          <a-tab-pane tab = "Reservas de Locais" key = "2">
+          <a-tab-pane tab = "Reservas de Locais" key = "3">
             <a-list :locale = "{ emptyText: 'Sem Reservas neste dia' }" size = "small" bordered :dataSource = "reservasLocais">
               <a-list-item slot = "renderItem" slot-scope = "item">
                 <a-tooltip placement = "left">
@@ -69,7 +135,7 @@
             </a-list>
           </a-tab-pane>
 
-          <a-tab-pane tab = "Reservas de Aulas" key = "3">
+          <a-tab-pane tab = "Reservas de Aulas" key = "4">
             <a-list :locale = "{ emptyText: 'Sem Reservas neste dia' }" size = "small" bordered :dataSource = "reservasAulas">
               <a-list-item slot = "renderItem" slot-scope = "item">
                 <a-tooltip placement = "left">
@@ -92,7 +158,7 @@
           </a-tab-pane>
 
  
-          <a-tab-pane key = "4">
+          <a-tab-pane key = "5">
             <a-badge slot = "tab" :dot = "reservasMinhas.length > 0"> Minhas Reservas </a-badge>
 
             <a-list :locale = "{ emptyText: 'Sem Reservas neste dia' }" size = "small" bordered :dataSource = "reservasMinhas">
