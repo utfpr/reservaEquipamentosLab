@@ -393,7 +393,7 @@
                     }
                   })
 
-                  if (((_this.role === 'Comum') && (_this.conflitos.length === 0)) || ((_this.role === 'Supervisor' || _this.role === 'admin') && (_this.conflitosAulas.length === 0))) {
+                  if (((_this.role === 'Comum') && (_this.conflitos.length === 0) && (_this.conflitosAulas.length === 0)) || ((_this.role === 'Supervisor' || _this.role === 'admin') && (_this.conflitosAulas.length === 0))) {
                     _this.avancar()
                   } else {
                     _this.alert.message = 'Neste período já existem agendamentos ou aulas marcadas, consulte um supervisor para realizar sua reserva ou escolha outro horário.'
@@ -511,7 +511,7 @@
                       }
                     })
 
-                    if (((_this.role === 'Comum') && (_this.conflitos.length === 0)) || ((_this.role === 'Supervisor' || _this.role === 'admin') && (_this.conflitosAulas.length === 0))) {
+                    if (((_this.role === 'Comum') && (_this.conflitos.length === 0) && (_this.conflitosAulas.length === 0)) || ((_this.role === 'Supervisor' || _this.role === 'admin') && (_this.conflitosAulas.length === 0))) {
                       _this.avancar()
                     } else {
                       _this.alert.message = 'Neste período já existem agendamentos ou aulas marcadas, consulte um supervisor para realizar sua reserva ou escolha outro horário.'
