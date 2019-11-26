@@ -268,13 +268,13 @@
         }
 
         if (this.form.getFieldValue('dataInicial')) {
-          const realDateInitial = this.$moment(this.form.getFieldValue('dataInicial')).set({
-            'hour': this.$moment(this.form.getFieldValue('horaInicial')).get('hour'),
-            'minute': this.$moment(this.form.getFieldValue('horaInicial')).get('minute'),
-            'second': '0'
-          })
+          // const realDateInitial = this.$moment(this.form.getFieldValue('dataInicial')).set({
+          //   'hour': this.$moment(this.form.getFieldValue('horaInicial')).get('hour'),
+          //   'minute': this.$moment(this.form.getFieldValue('horaInicial')).get('minute'),
+          //   'second': '0'
+          // })
           return (current && current < this.$moment().add(-1, 'days').endOf('day')) ||
-            (current && realDateInitial.isSameOrAfter(current)) ||
+            // (current && realDateInitial.isSameOrAfter(current)) ||
             (week === 7) ||
             (current && current > maxDate)
         } else {
