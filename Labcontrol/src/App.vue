@@ -166,7 +166,6 @@
         }
         auth.signOut()
         this.$router.replace('/login')
-        location.reload()
       },
       toggle: function () {
         let wrapper = document.getElementById('wrapper')
