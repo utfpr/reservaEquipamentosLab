@@ -6,7 +6,7 @@ const HTTP = axios.create({
 
 export function sendEmail (to, subject, textBody, htmlBody) {
   let email = {
-    'api_key': 'api-D9A1DF38838611E8BBEBF23C91C88F4E',
+    'api_key': 'API_KEY',
     'to': to,
     'sender': 'LabControl <labcontrol@utfpr.edu.br>',
     'subject': subject,
