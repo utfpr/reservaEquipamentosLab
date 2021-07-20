@@ -241,11 +241,11 @@
       },
       disabledDateInicial (current) {
         let week = this.$moment(current).isoWeekday()
-        let maxDate = this.$moment().set({ 'date': '15', 'month': '06' })
+        let maxDate = this.$moment().set({ 'date': '31', 'month': '12' })
 
-        if (this.$moment().get('month') >= 7) {
-          maxDate = this.$moment().set({ 'date': '20', 'month': '11' })
-        }
+        // if (this.$moment().get('month') >= 7) {
+        //  maxDate = this.$moment().set({ 'date': '20', 'month': '11' })
+        // }
 
         if (this.role === 'admin' || this.role === 'Supervisor') {
           maxDate = this.$moment(maxDate).add(2, 'year')
@@ -257,11 +257,11 @@
       },
       disabledDateFinal (current) {
         let week = this.$moment(current).isoWeekday()
-        let maxDate = this.$moment().set({ 'date': '15', 'month': '06' })
+        let maxDate = this.$moment().set({ 'date': '31', 'month': '12' })
 
-        if (this.$moment().get('month') >= 7) {
-          maxDate = this.$moment().set({ 'date': '20', 'month': '11' })
-        }
+        // if (this.$moment().get('month') >= 7) {
+        //   maxDate = this.$moment().set({ 'date': '20', 'month': '11' })
+        // }
 
         if (this.role === 'admin' || this.role === 'Supervisor') {
           maxDate = this.$moment(maxDate).add('2', 'years')
