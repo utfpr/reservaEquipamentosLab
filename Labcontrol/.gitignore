@@ -6,7 +6,9 @@ yarn-debug.log*
 yarn-error.log*
 .Labcontrol/package-lock.json
 .Labcontrol/package.json
-/src/firebase-controller.js 
+
+src/firebase-controller.js 
+src/emailAPI.js
 
 cert/
 
