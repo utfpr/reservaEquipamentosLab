@@ -1,3 +1,6 @@
 .Labcontrol/package-lock.json
 .Labcontrol/package.json
 Labcontrol/yarn.lock
+Labcontrol/src/emailAPI.js
+Labcontrol/src/firebase-controller.js
+
