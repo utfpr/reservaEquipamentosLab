@@ -36,7 +36,7 @@
                   <a-list-item-meta>
                   <span slot = "description">
                       <b> Homologação do Regulamento </b>
-                      <a href="http://bit.ly/Hom-Reg-Lab" title='Baixar Arquivo'>
+                      <a href="https://bit.ly/Reg-Interno-UTFPR-CM" title='Baixar Arquivo'>
                         <a-tag color = "blue" :key = "text">
                           <a-icon type = "file-pdf" />
                         </a-tag>
@@ -56,7 +56,7 @@
                 <a-list-item-meta>
                   <span slot = "description">
                       <b> Formulário de Atividades </b>
-                      <a href="http://bit.ly/Atv-Form-Lab" title='Baixar Arquivo'>
+                      <a href="https://bit.ly/Form-At-Lab-UTFPR-CM" title='Baixar Arquivo'>
                         <a-tag color = "blue" :key = "text">
                           <a-icon type = "file-pdf" />
                         </a-tag>
@@ -76,7 +76,7 @@
                 <a-list-item-meta>
                   <span slot = "description">
                       <b> Termo de Responsabilidade </b>
-                      <a href="http://bit.ly/Resp-Term-Lab" title='Baixar Arquivo'>
+                      <a href="https://bit.ly/Termo-Resp-UTFPR-CM" title='Baixar Arquivo'>
                         <a-tag color = "blue" :key = "text">
                           <a-icon type = "file-pdf" />
                         </a-tag>
